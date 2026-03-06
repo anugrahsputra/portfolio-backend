@@ -1,0 +1,41 @@
+package domain
+
+import (
+	"context"
+	"time"
+)
+
+type Experience struct {
+	ID          string
+	ProfileID   string
+	Company     string
+	Position    string
+	Description string
+	StartDate   time.Time
+	EndDate     time.Time
+}
+
+type ExperienceInput struct {
+	ProfileID   string
+	Company     string
+	Position    string
+	Description string
+	StartDate   time.Time
+	EndDate     time.Time
+}
+
+type ExperienceUpdateInput struct {
+	ProfileID   *string
+	Company     *string
+	Position    *string
+	Description *string
+	StartDate   *time.Time
+	EndDate     *time.Time
+}
+
+type ExperienceRepository interface {
+	CreateExperience(ctx context.Context, ex ExperienceInput) (Experience, error)
+	GetExperiences(ctx context.Context, profileID string) ([]Experience, error)
+	UpdateExperience(ctx context.Context, id string, ex ExperienceUpdateInput) (Experience, error)
+	DeleteExperience(ctx context.Context, id string) error
+}
