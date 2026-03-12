@@ -1,0 +1,39 @@
+package dto
+
+import "github.com/anugrahsputra/portfolio-backend/internal/domain"
+
+type ProfileResp struct {
+	ID      string           `json:"id"`
+	Name    string           `json:"name"`
+	About   string           `json:"about"`
+	Address string           `json:"address"`
+	Email   string           `json:"email"`
+	Phone   string           `json:"phone"`
+	Url     []ProfileUrlResp `json:"url"`
+}
+
+type ProfileReq struct {
+	Name    string `json:"name"`
+	About   string `json:"about"`
+	Address string `json:"address"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+}
+
+func ToProfileDTO(p *domain.Profile) ProfileResp {
+	urls := make([]ProfileUrlResp, 0, len(p.Url))
+	for _, url := range p.Url {
+		item := ToProfileUrlDTO(&url)
+		urls = append(urls, item)
+	}
+
+	return ProfileResp{
+		ID:      p.ID,
+		Name:    p.Name,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
+		Phone:   p.Phone,
+		Url:     urls,
+	}
+}
