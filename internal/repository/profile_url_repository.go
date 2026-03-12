@@ -14,7 +14,7 @@ type profileUrlRepository struct {
 	db *db.Queries
 }
 
-func NewProfileUrlRepository(database *config.Database) domain.ProfileUrRepository {
+func NewProfileUrlRepository(database *config.Database) domain.ProfileUrlRepository {
 	return &profileUrlRepository{db: db.New(database.Pool)}
 }
 

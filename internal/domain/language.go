@@ -3,6 +3,7 @@ package domain
 import "context"
 
 type Language struct {
+	ID          string
 	ProfileID   string
 	Language    string
 	Proficiency string
@@ -20,8 +21,8 @@ type LanguageUpdateInput struct {
 }
 
 type LanguageRepository interface {
-	CreateLanguage(ctx context.Context, l LanguageInput) error
-	GetLanguages(ctx context.Context) ([]LanguageInput, error)
+	CreateLanguage(ctx context.Context, l LanguageInput) (Language, error)
+	GetLanguages(ctx context.Context, profileID string) ([]Language, error)
 	UpdateLanguage(ctx context.Context, id string, l LanguageUpdateInput) error
 	DeleteLanguage(ctx context.Context, id string) error
 }

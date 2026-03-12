@@ -7,6 +7,7 @@ import (
 
 func ToEducationDomain(e db.Education) domain.Education {
 	return domain.Education{
+		ID:             e.ID.String(),
 		ProfileID:      e.ProfileID.String(),
 		School:         e.School,
 		Degree:         e.Degree,

@@ -67,7 +67,7 @@ func (r *profileRepository) UpdateProfile(ctx context.Context, id string, p doma
 		About:   *p.About,
 		Address: *p.Address,
 		Email:   *p.Email,
-		Phone:   *p.Email,
+		Phone:   *p.Phone,
 	}
 
 	if err := r.db.UpdateProfile(ctx, param); err != nil {

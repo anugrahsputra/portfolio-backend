@@ -37,7 +37,7 @@ func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.E
 		return domain.Experience{}, err
 	}
 
-	result := mapper.ToExperienceMapper(experience)
+	result := mapper.ToExperienceDomain(experience)
 	return result, nil
 }
 
@@ -54,7 +54,7 @@ func (r *experienceRepository) GetExperiences(ctx context.Context, profileID str
 
 	var result []domain.Experience
 	for _, experience := range experiences {
-		exToDomain := mapper.ToExperienceMapper(experience)
+		exToDomain := mapper.ToExperienceDomain(experience)
 		result = append(result, exToDomain)
 	}
 
@@ -81,7 +81,7 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 		return domain.Experience{}, err
 	}
 
-	result := mapper.ToExperienceMapper(experience)
+	result := mapper.ToExperienceDomain(experience)
 	return result, nil
 }
 

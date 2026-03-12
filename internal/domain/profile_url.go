@@ -21,7 +21,7 @@ type ProfileUrlUpdateInput struct {
 	Url       *string
 }
 
-type ProfileUrRepository interface {
+type ProfileUrlRepository interface {
 	CreateProfileUrl(ctx context.Context, pu ProfileUrlInput) (*ProfileUrl, error)
 	GetProfileUrl(ctx context.Context, id string) (ProfileUrl, error)
 	UpdateProfileUrl(ctx context.Context, id string, pu ProfileUrlUpdateInput) error

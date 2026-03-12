@@ -5,7 +5,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 )
 
-func ToExperienceMapper(ex db.Experience) domain.Experience {
+func ToExperienceDomain(ex db.Experience) domain.Experience {
 	return domain.Experience{
 		ID:          ex.ID.String(),
 		ProfileID:   ex.ProfileID.String(),

@@ -24,6 +24,11 @@ func ToProfileDomain(p db.GetProfileRow) (domain.Profile, error) {
 			if err := json.Unmarshal(urlsData, &urls); err != nil {
 				return domain.Profile{}, err
 			}
+
+			// Manually populate ProfileID for each URL as it's not included in the JSON from DB
+			for i := range urls {
+				urls[i].ProfileID = p.ID.String()
+			}
 		}
 	}
 

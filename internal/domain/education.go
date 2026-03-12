@@ -6,6 +6,7 @@ import (
 )
 
 type Education struct {
+	ID             string
 	ProfileID      string
 	School         string
 	Degree         string

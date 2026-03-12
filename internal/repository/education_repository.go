@@ -51,7 +51,7 @@ func (r *educationRepository) GetEducations(ctx context.Context, profileID strin
 		return nil, err
 	}
 
-	var result []domain.Education
+	result := make([]domain.Education, 0, len(educations))
 	for _, education := range educations {
 		ed := mapper.ToEducationDomain(education)
 		result = append(result, ed)

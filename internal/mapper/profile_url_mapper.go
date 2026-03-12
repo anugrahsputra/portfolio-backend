@@ -7,7 +7,8 @@ import (
 
 func ToProfileURLDomain(pu db.ProfileUrl) domain.ProfileUrl {
 	return domain.ProfileUrl{
-		ProfileID: pu.ID.String(),
+		ID:        pu.ID.String(),
+		ProfileID: pu.ProfileID.String(),
 		Label:     pu.Label,
 		Url:       pu.Url,
 	}
