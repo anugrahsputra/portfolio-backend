@@ -4,11 +4,12 @@ title: Project Foundation & Configuration
 status: Done
 assignee: []
 created_date: '2026-03-05 18:36'
-updated_date: '2026-03-05 18:36'
+updated_date: '2026-03-07 20:05'
 labels: []
 milestone: m-0
 dependencies: []
 priority: high
+ordinal: 4000
 ---
 
 ## Description

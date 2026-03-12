@@ -4,11 +4,12 @@ title: 'Core Domain Implementation (Profile, Experience, Education)'
 status: Done
 assignee: []
 created_date: '2026-03-05 18:37'
-updated_date: '2026-03-05 18:37'
+updated_date: '2026-03-07 20:05'
 labels: []
 milestone: m-1
 dependencies: []
 priority: high
+ordinal: 2000
 ---
 
 ## Description

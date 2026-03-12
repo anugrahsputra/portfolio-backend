@@ -1,13 +1,15 @@
 ---
 id: PRTFL-5
 title: Fix missing GetDSN() in Configuration
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-05 18:37'
+updated_date: '2026-03-07 20:11'
 labels: []
 milestone: m-0
 dependencies: []
 priority: high
+ordinal: 2500
 ---
 
 ## Description

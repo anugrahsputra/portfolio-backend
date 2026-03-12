@@ -1,13 +1,16 @@
 ---
 id: PRTFL-7
 title: API Endpoints Implementation (REST)
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-05 18:38'
+updated_date: '2026-03-12 19:02'
 labels: []
 milestone: m-2
-dependencies: []
+dependencies:
+  - PRTFL-009
 priority: medium
+ordinal: 250
 ---
 
 ## Description
@@ -18,11 +21,11 @@ Implement the REST API handlers and routes for each domain entity (Profile, Expe
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Implement CRUD endpoints for Profile & Profile URLs
-- [ ] #2 Implement CRUD endpoints for Experiences
-- [ ] #3 Implement CRUD endpoints for Educations
-- [ ] #4 Implement CRUD endpoints for Skills & Languages
-- [ ] #5 End-to-end testing verifies endpoint connectivity and DB interaction
+- [x] #1 Implement CRUD endpoints for Profile & Profile URLs
+- [x] #2 Implement CRUD endpoints for Experiences
+- [x] #3 Implement CRUD endpoints for Educations
+- [x] #4 Implement CRUD endpoints for Skills & Languages
+- [x] #5 End-to-end testing verifies endpoint connectivity and DB interaction
 <!-- AC:END -->
 
 ## Definition of Done

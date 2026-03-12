@@ -4,11 +4,12 @@ title: Database Schema & SQLC Configuration
 status: Done
 assignee: []
 created_date: '2026-03-05 18:37'
-updated_date: '2026-03-05 18:37'
+updated_date: '2026-03-07 20:05'
 labels: []
 milestone: m-0
 dependencies: []
 priority: high
+ordinal: 3000
 ---
 
 ## Description
