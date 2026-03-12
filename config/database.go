@@ -16,8 +16,7 @@ type Database struct {
 }
 
 func NewDatabase(cfg *Config) (*Database, error) {
-	dsn := cfg.GetDSN()
-	config, err := pgxpool.ParseConfig(dsn)
+	config, err := pgxpool.ParseConfig(cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse database config: %w", err)
 	}

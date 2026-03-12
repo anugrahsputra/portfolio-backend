@@ -5,10 +5,6 @@ insert into skills (
     $1, $2, $3, $4, $5
 ) returning *;
 
--- name: GetSkill :one
-select * from skills
-where id = $1 limit 1;
-
 -- name: GetSkillsByProfile :one
 select * from skills
 where profile_id = $1 limit 1;
