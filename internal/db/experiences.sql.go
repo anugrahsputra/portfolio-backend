@@ -17,7 +17,11 @@ insert into experiences (
     profile_id, company, position, description, start_date, end_date
 ) values (
     $1, $2, $3, $4, $5, $6
-) returning id, profile_id, company, position, description, start_date, end_date
+) 
+on conflict (profile_id, company, position, start_date) do update set
+    description = excluded.description,
+    end_date = excluded.end_date
+returning id, profile_id, company, position, description, start_date, end_date
 `
 
 type CreateExperienceParams struct {

@@ -3,7 +3,10 @@ insert into profile_urls (
     profile_id, label, url
 ) values (
     $1, $2, $3
-) returning *;
+) 
+on conflict (profile_id, label) do update set
+    url = excluded.url
+returning *;
 
 -- name: GetProfileURL :one
 select * from profile_urls

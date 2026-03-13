@@ -16,7 +16,10 @@ insert into languages (
     profile_id, language, proficiency
 ) values (
     $1, $2, $3
-) returning id, profile_id, language, proficiency
+) 
+on conflict (profile_id, language) do update set
+    proficiency = excluded.proficiency
+returning id, profile_id, language, proficiency
 `
 
 type CreateLanguageParams struct {

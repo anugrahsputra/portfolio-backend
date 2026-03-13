@@ -3,7 +3,12 @@ insert into educations (
     profile_id, school, degree, field_of_study, gpa, start_date, graduation_date
 ) values (
     $1, $2, $3, $4, $5, $6, $7
-) returning *;
+) 
+on conflict (profile_id, school, degree, start_date) do update set
+    field_of_study = excluded.field_of_study,
+    gpa = excluded.gpa,
+    graduation_date = excluded.graduation_date
+returning *;
 
 
 -- name: GetEducations :many

@@ -16,7 +16,10 @@ insert into profile_urls (
     profile_id, label, url
 ) values (
     $1, $2, $3
-) returning id, profile_id, label, url
+) 
+on conflict (profile_id, label) do update set
+    url = excluded.url
+returning id, profile_id, label, url
 `
 
 type CreateProfileURLParams struct {

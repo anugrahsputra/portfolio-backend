@@ -19,7 +19,8 @@ create table if not exists profile_urls (
     id uuid primary key default gen_random_uuid(),
     profile_id uuid not null references profiles(id) on delete cascade,
     label text not null,
-    url text not null
+    url text not null,
+    unique (profile_id, label)
 );
 
 create index if not exists idx_profile_urls_profile_id on profile_urls(profile_id);
@@ -33,7 +34,8 @@ create table if not exists educations (
     gpa numeric(3,2) not null check (gpa >= 0.0 and gpa <= 4.0),
     start_date date not null,
     graduation_date date,
-    check (graduation_date is null or graduation_date >= start_date)
+    check (graduation_date is null or graduation_date >= start_date),
+    unique (profile_id, school, degree, start_date)
 );
 
 create index if not exists idx_educations_profile_id on educations(profile_id);
@@ -46,7 +48,8 @@ create table if not exists experiences (
     description text,
     start_date date not null,
     end_date date,
-    check (end_date is null or end_date >= start_date)
+    check (end_date is null or end_date >= start_date),
+    unique (profile_id, company, position, start_date)
 );
 
 create index if not exists idx_experiences_profile_id on experiences(profile_id);
@@ -55,14 +58,15 @@ create table if not exists languages (
     id uuid primary key default gen_random_uuid(),
     profile_id uuid not null references profiles(id) on delete cascade,
     language text not null,
-    proficiency proficiency_level not null default 'basic'
+    proficiency proficiency_level not null default 'basic',
+    unique (profile_id, language)
 );
 
 create index if not exists idx_languages_profile_id on languages(profile_id);
 
 create table if not exists skills (
     id uuid primary key default gen_random_uuid(),
-    profile_id uuid not null references profiles(id) on delete cascade,
+    profile_id uuid not null unique references profiles(id) on delete cascade,
     tools text[],
     technologies text[],
     hard_skills text[],

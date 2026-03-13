@@ -3,7 +3,10 @@ insert into languages (
     profile_id, language, proficiency
 ) values (
     $1, $2, $3
-) returning *;
+) 
+on conflict (profile_id, language) do update set
+    proficiency = excluded.proficiency
+returning *;
 
 -- name: GetLanguage :one
 select * from languages
