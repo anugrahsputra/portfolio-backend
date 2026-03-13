@@ -12,8 +12,8 @@ func TestToProfileDomain(t *testing.T) {
 	id := uuid.New()
 	
 	t.Run("with URLs", func(t *testing.T) {
-		// Realistic JSON from DB: lowercase keys and no ProfileID
-		urlsJSON := `[{"id":"url-id","label":"GitHub","url":"https://github.com/user"}]`
+		// Updated JSON keys to match PascalCase SQL query
+		urlsJSON := `[{"ID":"url-id","Label":"GitHub","Url":"https://github.com/user"}]`
 		dbProfile := db.GetProfileRow{
 			ID:      id,
 			Name:    "John Doe",

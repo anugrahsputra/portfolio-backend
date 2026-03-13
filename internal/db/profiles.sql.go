@@ -65,20 +65,16 @@ SELECT
     p.address,
     p.email,
     p.phone,
-    COALESCE(
-        json_agg(
-            json_build_object(
-                'id', pu.id,
-                'label', pu.label,
-                'url', pu.url
-            )
-        ) FILTER (WHERE pu.id IS NOT NULL),
-        '[]'
+    (
+        SELECT COALESCE(json_agg(urls), '[]'::json)
+        FROM (
+            SELECT id AS "ID", profile_id AS "ProfileID", label AS "Label", url AS "Url"
+            FROM profile_urls
+            WHERE profile_id = p.id
+        ) urls
     ) AS urls
 FROM profiles p
-LEFT JOIN profile_urls pu ON pu.profile_id = p.id
 WHERE p.id = $1
-GROUP BY p.id
 `
 
 type GetProfileRow struct {

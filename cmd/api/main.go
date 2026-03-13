@@ -23,12 +23,11 @@ func initDatabase(cfg *config.Config) *config.Database {
 	}
 
 	// Optional: Initialize schema if needed (can be toggled via env or flag)
-	// if os.Getenv("INIT_SCHEMA") == "true" {
-	// 	if err := db.InitSchema("sql/schema/schema.sql"); err != nil {
-	// 		log.Errorf("Failed to initialize schema: %v", err)
-	// 	}
-	// }
-
+	if os.Getenv("INIT_SCHEMA") == "true" {
+		if err := db.InitSchema("sql/schema/schema.sql"); err != nil {
+			log.Errorf("Failed to initialize schema: %v", err)
+		}
+	}
 	return db
 }
 

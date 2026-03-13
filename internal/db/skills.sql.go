@@ -57,25 +57,6 @@ func (q *Queries) DeleteSkill(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getSkill = `-- name: GetSkill :one
-select id, profile_id, tools, technologies, hard_skills, soft_skills from skills
-where id = $1 limit 1
-`
-
-func (q *Queries) GetSkill(ctx context.Context, id uuid.UUID) (Skill, error) {
-	row := q.db.QueryRow(ctx, getSkill, id)
-	var i Skill
-	err := row.Scan(
-		&i.ID,
-		&i.ProfileID,
-		&i.Tools,
-		&i.Technologies,
-		&i.HardSkills,
-		&i.SoftSkills,
-	)
-	return i, err
-}
-
 const getSkillsByProfile = `-- name: GetSkillsByProfile :one
 select id, profile_id, tools, technologies, hard_skills, soft_skills from skills
 where profile_id = $1 limit 1

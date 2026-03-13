@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
@@ -37,15 +38,16 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 		Phone:   req.Phone,
 	}
 
-	res, err := h.usecase.CreateProfile(ctx, input)
+	profile, err := h.usecase.CreateProfile(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "failed to create profile",
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: fmt.Sprintf("Bad request: %v", err),
 		})
 		return
 	}
 
+	res := dto.ToProfileDTO(profile)
 	c.JSON(http.StatusCreated, dto.Response{
 		Status:  http.StatusCreated,
 		Message: "Success create profile",

@@ -9,7 +9,7 @@ type Profile struct {
 	Address string
 	Email   string
 	Phone   string
-	Url     []ProfileUrl
+	Url     []ProfileUrl `json:"urls"`
 }
 
 type ProfileInput struct {
