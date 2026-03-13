@@ -12,8 +12,14 @@ func TestToProfileDomain(t *testing.T) {
 	id := uuid.New()
 	
 	t.Run("with URLs", func(t *testing.T) {
-		// Updated JSON keys to match PascalCase SQL query
-		urlsJSON := `[{"ID":"url-id","Label":"GitHub","Url":"https://github.com/user"}]`
+		// Mock data as it might come from pgx (already parsed) or as a slice of maps
+		urlsData := []map[string]interface{}{
+			{
+				"ID":    "url-id",
+				"Label": "GitHub",
+				"Url":   "https://github.com/user",
+			},
+		}
 		dbProfile := db.GetProfileRow{
 			ID:      id,
 			Name:    "John Doe",
@@ -21,7 +27,7 @@ func TestToProfileDomain(t *testing.T) {
 			Address: "123 Street",
 			Email:   "john@example.com",
 			Phone:   "123456789",
-			Urls:    []byte(urlsJSON),
+			Urls:    urlsData,
 		}
 
 		domainProfile, err := ToProfileDomain(dbProfile)

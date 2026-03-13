@@ -12,16 +12,7 @@ func ToProfileDomain(p db.GetProfileRow) (domain.Profile, error) {
 	var urls []domain.ProfileUrl
 
 	if p.Urls != nil {
-		var data []byte
-		switch v := p.Urls.(type) {
-		case []byte:
-			data = v
-		case string:
-			data = []byte(v)
-		default:
-			data, _ = json.Marshal(v)
-		}
-
+		data, _ := json.Marshal(p.Urls)
 		if len(data) > 0 {
 			if err := json.Unmarshal(data, &urls); err != nil {
 				return domain.Profile{}, err
