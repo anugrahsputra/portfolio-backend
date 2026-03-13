@@ -73,7 +73,7 @@ type Experience struct {
 	ProfileID   uuid.UUID
 	Company     string
 	Position    string
-	Description string
+	Description []string
 	StartDate   time.Time
 	EndDate     time.Time
 }

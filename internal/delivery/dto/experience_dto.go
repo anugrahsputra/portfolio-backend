@@ -11,27 +11,27 @@ type ExperienceResp struct {
 	ProfileID   string    `json:"profile_id"`
 	Company     string    `json:"company"`
 	Position    string    `json:"position"`
-	Description string    `json:"description"`
+	Description []string  `json:"description"`
 	StartDate   time.Time `json:"start_date"`
 	EndDate     time.Time `json:"end_date"`
 }
 
 type ExperienceReq struct {
-	ProfileID   string `json:"profile_id"`
-	Company     string `json:"company"`
-	Position    string `json:"position"`
-	Description string `json:"description"`
-	StartDate   string `json:"start_date"`
-	EndDate     string `json:"end_date"`
+	ProfileID   string   `json:"profile_id"`
+	Company     string   `json:"company"`
+	Position    string   `json:"position"`
+	Description []string `json:"description"`
+	StartDate   string   `json:"start_date"`
+	EndDate     string   `json:"end_date"`
 }
 
 type ExperienceUpdateReq struct {
-	ProfileID   *string `json:"profile_id"`
-	Company     *string `json:"company"`
-	Position    *string `json:"position"`
-	Description *string `json:"description"`
-	StartDate   *string `json:"start_date"`
-	EndDate     *string `json:"end_date"`
+	ProfileID   *string   `json:"profile_id"`
+	Company     *string   `json:"company"`
+	Position    *string   `json:"position"`
+	Description *[]string `json:"description"`
+	StartDate   *string   `json:"start_date"`
+	EndDate     *string   `json:"end_date"`
 }
 
 func ToExperienceDTO(ex *domain.Experience) ExperienceResp {

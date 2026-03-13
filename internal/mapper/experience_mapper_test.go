@@ -20,7 +20,7 @@ func TestToExperienceDomain(t *testing.T) {
 		ProfileID:   profileID,
 		Company:     "Tech Corp",
 		Position:    "Software Engineer",
-		Description: "Developing cool stuff",
+		Description: []string{"Developing cool stuff", "Managing team"},
 		StartDate:   startDate,
 		EndDate:     endDate,
 	}
@@ -31,7 +31,7 @@ func TestToExperienceDomain(t *testing.T) {
 	assert.Equal(t, profileID.String(), domainExperience.ProfileID)
 	assert.Equal(t, "Tech Corp", domainExperience.Company)
 	assert.Equal(t, "Software Engineer", domainExperience.Position)
-	assert.Equal(t, "Developing cool stuff", domainExperience.Description)
+	assert.Equal(t, []string{"Developing cool stuff", "Managing team"}, domainExperience.Description)
 	assert.Equal(t, startDate, domainExperience.StartDate)
 	assert.Equal(t, endDate, domainExperience.EndDate)
 }

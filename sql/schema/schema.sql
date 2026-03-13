@@ -45,7 +45,7 @@ create table if not exists experiences (
     profile_id uuid not null references profiles(id) on delete cascade,
     company text not null,
     position text not null,
-    description text,
+    description text[],
     start_date date not null,
     end_date date,
     check (end_date is null or end_date >= start_date),

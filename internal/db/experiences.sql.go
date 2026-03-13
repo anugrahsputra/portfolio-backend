@@ -28,7 +28,7 @@ type CreateExperienceParams struct {
 	ProfileID   uuid.UUID
 	Company     string
 	Position    string
-	Description string
+	Description []string
 	StartDate   time.Time
 	EndDate     time.Time
 }
@@ -115,7 +115,7 @@ type UpdateExperienceParams struct {
 	ID          uuid.UUID
 	Company     string
 	Position    string
-	Description string
+	Description []string
 	StartDate   time.Time
 	EndDate     time.Time
 }

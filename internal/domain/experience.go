@@ -10,7 +10,7 @@ type Experience struct {
 	ProfileID   string
 	Company     string
 	Position    string
-	Description string
+	Description []string
 	StartDate   time.Time
 	EndDate     time.Time
 }
@@ -19,7 +19,7 @@ type ExperienceInput struct {
 	ProfileID   string
 	Company     string
 	Position    string
-	Description string
+	Description []string
 	StartDate   time.Time
 	EndDate     time.Time
 }
@@ -28,7 +28,7 @@ type ExperienceUpdateInput struct {
 	ProfileID   *string
 	Company     *string
 	Position    *string
-	Description *string
+	Description *[]string
 	StartDate   *time.Time
 	EndDate     *time.Time
 }
