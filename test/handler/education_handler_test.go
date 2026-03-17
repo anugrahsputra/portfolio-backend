@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -48,9 +49,9 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
-		handler := NewEducationHandler(mockUsecase)
+		handlerObj := handler.NewEducationHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/educations", handler.CreateEducation)
+		r.POST("/educations", handlerObj.CreateEducation)
 
 		input := dto.EducationReq{
 			ProfileID:    "1",
@@ -72,9 +73,9 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
-		handler := NewEducationHandler(mockUsecase)
+		handlerObj := handler.NewEducationHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/educations", handler.CreateEducation)
+		r.POST("/educations", handlerObj.CreateEducation)
 
 		req, _ := http.NewRequest(http.MethodPost, "/educations", bytes.NewBufferString("invalid json"))
 		w := httptest.NewRecorder()
@@ -86,9 +87,9 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
-		handler := NewEducationHandler(mockUsecase)
+		handlerObj := handler.NewEducationHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/educations", handler.CreateEducation)
+		r.POST("/educations", handlerObj.CreateEducation)
 
 		input := dto.EducationReq{
 			ProfileID: "1",
@@ -110,9 +111,9 @@ func TestEducationHandler_GetEducation(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
-		handler := NewEducationHandler(mockUsecase)
+		handlerObj := handler.NewEducationHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profiles/:profile_id/educations", handler.GetEducation)
+		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/educations", nil)
 		w := httptest.NewRecorder()
@@ -130,9 +131,9 @@ func TestEducationHandler_GetEducation(t *testing.T) {
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
-		handler := NewEducationHandler(mockUsecase)
+		handlerObj := handler.NewEducationHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profiles/:profile_id/educations", handler.GetEducation)
+		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/educations", nil)
 		w := httptest.NewRecorder()

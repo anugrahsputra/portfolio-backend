@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -43,7 +44,7 @@ func (m *MockProfileRepository) DeleteProfile(ctx context.Context, id string) er
 
 func TestCreateProfile(t *testing.T) {
 	mockRepo := new(MockProfileRepository)
-	uc := NewProfileUsecase(mockRepo)
+	uc := usecase.NewProfileUsecase(mockRepo)
 
 	ctx := context.Background()
 	input := domain.ProfileInput{
@@ -77,7 +78,7 @@ func TestCreateProfile(t *testing.T) {
 
 func TestGetProfile(t *testing.T) {
 	mockRepo := new(MockProfileRepository)
-	uc := NewProfileUsecase(mockRepo)
+	uc := usecase.NewProfileUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -109,7 +110,7 @@ func TestGetProfile(t *testing.T) {
 
 func TestUpdateProfile(t *testing.T) {
 	mockRepo := new(MockProfileRepository)
-	uc := NewProfileUsecase(mockRepo)
+	uc := usecase.NewProfileUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -139,7 +140,7 @@ func TestUpdateProfile(t *testing.T) {
 
 func TestDeleteProfile(t *testing.T) {
 	mockRepo := new(MockProfileRepository)
-	uc := NewProfileUsecase(mockRepo)
+	uc := usecase.NewProfileUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"

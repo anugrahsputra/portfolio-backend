@@ -1,9 +1,10 @@
-package mapper
+package mapper_test
 
 import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
+	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,7 +22,7 @@ func TestToSkillDomain(t *testing.T) {
 		SoftSkills:   []string{"Communication"},
 	}
 
-	domainSkill := ToSkillDomain(dbSkill)
+	domainSkill := mapper.ToSkillDomain(dbSkill)
 
 	assert.Equal(t, id.String(), domainSkill.ID)
 	assert.Equal(t, profileID.String(), domainSkill.ProfileID)

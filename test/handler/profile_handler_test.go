@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -52,9 +53,9 @@ func TestProfileHandler_CreateProfile(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
-		handler := NewProfileHandler(mockUsecase)
+		handlerObj := handler.NewProfileHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/profiles", handler.CreateProfile)
+		r.POST("/profiles", handlerObj.CreateProfile)
 
 		input := dto.ProfileReq{
 			Name: "John Doe",
@@ -74,9 +75,9 @@ func TestProfileHandler_CreateProfile(t *testing.T) {
 
 	t.Run("bad request", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
-		handler := NewProfileHandler(mockUsecase)
+		handlerObj := handler.NewProfileHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/profiles", handler.CreateProfile)
+		r.POST("/profiles", handlerObj.CreateProfile)
 
 		req, _ := http.NewRequest(http.MethodPost, "/profiles", bytes.NewBufferString("invalid json"))
 		w := httptest.NewRecorder()
@@ -92,9 +93,9 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
-		handler := NewProfileHandler(mockUsecase)
+		handlerObj := handler.NewProfileHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profiles/:id", handler.GetProfile)
+		r.GET("/profiles/:id", handlerObj.GetProfile)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1", nil)
 		w := httptest.NewRecorder()
@@ -110,9 +111,9 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
-		handler := NewProfileHandler(mockUsecase)
+		handlerObj := handler.NewProfileHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profiles/:id", handler.GetProfile)
+		r.GET("/profiles/:id", handlerObj.GetProfile)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1", nil)
 		w := httptest.NewRecorder()
@@ -124,3 +125,4 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 }
+

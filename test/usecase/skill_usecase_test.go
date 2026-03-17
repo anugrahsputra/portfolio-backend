@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -37,7 +38,7 @@ func (m *MockSkillRepository) DeleteSkill(ctx context.Context, id string) error 
 
 func TestCreateSkill(t *testing.T) {
 	mockRepo := new(MockSkillRepository)
-	uc := NewSkillUsecase(mockRepo)
+	uc := usecase.NewSkillUsecase(mockRepo)
 
 	ctx := context.Background()
 	input := domain.SkillInput{
@@ -73,7 +74,7 @@ func TestCreateSkill(t *testing.T) {
 
 func TestGetSkills(t *testing.T) {
 	mockRepo := new(MockSkillRepository)
-	uc := NewSkillUsecase(mockRepo)
+	uc := usecase.NewSkillUsecase(mockRepo)
 
 	ctx := context.Background()
 	profileID := "profile-1"
@@ -106,7 +107,7 @@ func TestGetSkills(t *testing.T) {
 
 func TestUpdateSkill(t *testing.T) {
 	mockRepo := new(MockSkillRepository)
-	uc := NewSkillUsecase(mockRepo)
+	uc := usecase.NewSkillUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -135,7 +136,7 @@ func TestUpdateSkill(t *testing.T) {
 
 func TestDeleteSkill(t *testing.T) {
 	mockRepo := new(MockSkillRepository)
-	uc := NewSkillUsecase(mockRepo)
+	uc := usecase.NewSkillUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"

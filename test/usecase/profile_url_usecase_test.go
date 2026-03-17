@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -40,7 +41,7 @@ func (m *MockProfileUrlRepository) DeleteProfileUrl(ctx context.Context, id stri
 
 func TestCreateProfileUrl(t *testing.T) {
 	mockRepo := new(MockProfileUrlRepository)
-	uc := NewProfileUrlUsecase(mockRepo)
+	uc := usecase.NewProfileUrlUsecase(mockRepo)
 
 	ctx := context.Background()
 	input := domain.ProfileUrlInput{
@@ -78,7 +79,7 @@ func TestCreateProfileUrl(t *testing.T) {
 
 func TestGetProfileUrl(t *testing.T) {
 	mockRepo := new(MockProfileUrlRepository)
-	uc := NewProfileUrlUsecase(mockRepo)
+	uc := usecase.NewProfileUrlUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -112,7 +113,7 @@ func TestGetProfileUrl(t *testing.T) {
 
 func TestUpdateProfileUrl(t *testing.T) {
 	mockRepo := new(MockProfileUrlRepository)
-	uc := NewProfileUrlUsecase(mockRepo)
+	uc := usecase.NewProfileUrlUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -142,7 +143,7 @@ func TestUpdateProfileUrl(t *testing.T) {
 
 func TestDeleteProfileUrl(t *testing.T) {
 	mockRepo := new(MockProfileUrlRepository)
-	uc := NewProfileUrlUsecase(mockRepo)
+	uc := usecase.NewProfileUrlUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"

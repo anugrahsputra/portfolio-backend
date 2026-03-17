@@ -1,16 +1,17 @@
-package mapper
+package mapper_test
 
 import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
+	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToProfileDomain(t *testing.T) {
 	id := uuid.New()
-	
+
 	t.Run("with URLs", func(t *testing.T) {
 		// Mock data as it might come from pgx (already parsed) or as a slice of maps
 		urlsData := []map[string]interface{}{
@@ -30,7 +31,7 @@ func TestToProfileDomain(t *testing.T) {
 			Urls:    urlsData,
 		}
 
-		domainProfile, err := ToProfileDomain(dbProfile)
+		domainProfile, err := mapper.ToProfileDomain(dbProfile)
 		assert.NoError(t, err)
 		assert.Equal(t, id.String(), domainProfile.ID)
 		assert.Equal(t, "John Doe", domainProfile.Name)
@@ -51,7 +52,7 @@ func TestToProfileDomain(t *testing.T) {
 			Urls:    nil,
 		}
 
-		domainProfile, err := ToProfileDomain(dbProfile)
+		domainProfile, err := mapper.ToProfileDomain(dbProfile)
 		assert.NoError(t, err)
 		assert.Equal(t, id.String(), domainProfile.ID)
 		assert.Empty(t, domainProfile.Url)
@@ -69,7 +70,7 @@ func TestToProfileDomainFromDB(t *testing.T) {
 		Phone:   "123456789",
 	}
 
-	domainProfile := ToProfileDomainFromDB(dbProfile)
+	domainProfile := mapper.ToProfileDomainFromDB(dbProfile)
 
 	assert.Equal(t, id.String(), domainProfile.ID)
 	assert.Equal(t, "John Doe", domainProfile.Name)

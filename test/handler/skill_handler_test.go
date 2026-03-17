@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -45,9 +46,9 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
-		handler := NewSkillHandler(mockUsecase)
+		handlerObj := handler.NewSkillHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/skills", handler.CreateSkill)
+		r.POST("/skills", handlerObj.CreateSkill)
 
 		input := dto.SkillReq{
 			ProfileID:    "1",
@@ -68,9 +69,9 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
-		handler := NewSkillHandler(mockUsecase)
+		handlerObj := handler.NewSkillHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/skills", handler.CreateSkill)
+		r.POST("/skills", handlerObj.CreateSkill)
 
 		req, _ := http.NewRequest(http.MethodPost, "/skills", bytes.NewBufferString("invalid json"))
 		w := httptest.NewRecorder()
@@ -82,9 +83,9 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
-		handler := NewSkillHandler(mockUsecase)
+		handlerObj := handler.NewSkillHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/skills", handler.CreateSkill)
+		r.POST("/skills", handlerObj.CreateSkill)
 
 		input := dto.SkillReq{
 			ProfileID: "1",
@@ -106,9 +107,9 @@ func TestSkillHandler_GetSkills(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
-		handler := NewSkillHandler(mockUsecase)
+		handlerObj := handler.NewSkillHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profiles/:profile_id/skills", handler.GetSkills)
+		r.GET("/profiles/:profile_id/skills", handlerObj.GetSkills)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/skills", nil)
 		w := httptest.NewRecorder()
@@ -124,9 +125,9 @@ func TestSkillHandler_GetSkills(t *testing.T) {
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
-		handler := NewSkillHandler(mockUsecase)
+		handlerObj := handler.NewSkillHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profiles/:profile_id/skills", handler.GetSkills)
+		r.GET("/profiles/:profile_id/skills", handlerObj.GetSkills)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/skills", nil)
 		w := httptest.NewRecorder()
@@ -138,3 +139,4 @@ func TestSkillHandler_GetSkills(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
+

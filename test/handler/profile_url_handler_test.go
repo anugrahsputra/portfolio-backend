@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -48,9 +49,9 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
-		handler := NewProfileUrlHandler(mockUsecase)
+		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/profile-urls", handler.CreateProfileUrl)
+		r.POST("/profile-urls", handlerObj.CreateProfileUrl)
 
 		input := dto.ProfileUrlReq{
 			ProfileID: "1",
@@ -72,9 +73,9 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
-		handler := NewProfileUrlHandler(mockUsecase)
+		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/profile-urls", handler.CreateProfileUrl)
+		r.POST("/profile-urls", handlerObj.CreateProfileUrl)
 
 		req, _ := http.NewRequest(http.MethodPost, "/profile-urls", bytes.NewBufferString("invalid json"))
 		w := httptest.NewRecorder()
@@ -86,9 +87,9 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
-		handler := NewProfileUrlHandler(mockUsecase)
+		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.POST("/profile-urls", handler.CreateProfileUrl)
+		r.POST("/profile-urls", handlerObj.CreateProfileUrl)
 
 		input := dto.ProfileUrlReq{
 			ProfileID: "1",
@@ -110,9 +111,9 @@ func TestProfileUrlHandler_GetProfileUrl(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
-		handler := NewProfileUrlHandler(mockUsecase)
+		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profile-urls/:profile_url_id", handler.GetProfileUrl)
+		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrl)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profile-urls/1", nil)
 		w := httptest.NewRecorder()
@@ -128,9 +129,9 @@ func TestProfileUrlHandler_GetProfileUrl(t *testing.T) {
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
-		handler := NewProfileUrlHandler(mockUsecase)
+		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profile-urls/:profile_url_id", handler.GetProfileUrl)
+		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrl)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profile-urls/1", nil)
 		w := httptest.NewRecorder()
@@ -142,3 +143,4 @@ func TestProfileUrlHandler_GetProfileUrl(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
+

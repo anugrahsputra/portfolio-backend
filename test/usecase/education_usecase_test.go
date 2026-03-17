@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -40,7 +41,7 @@ func (m *MockEducationRepository) DeleteEducation(ctx context.Context, id string
 
 func TestCreateEducation(t *testing.T) {
 	mockRepo := new(MockEducationRepository)
-	uc := NewEducationUsecase(mockRepo)
+	uc := usecase.NewEducationUsecase(mockRepo)
 
 	ctx := context.Background()
 	input := domain.EducationInput{
@@ -69,7 +70,7 @@ func TestCreateEducation(t *testing.T) {
 
 func TestGetEducations(t *testing.T) {
 	mockRepo := new(MockEducationRepository)
-	uc := NewEducationUsecase(mockRepo)
+	uc := usecase.NewEducationUsecase(mockRepo)
 
 	ctx := context.Background()
 	profileID := "profile-1"
@@ -104,7 +105,7 @@ func TestGetEducations(t *testing.T) {
 
 func TestUpdateEducation(t *testing.T) {
 	mockRepo := new(MockEducationRepository)
-	uc := NewEducationUsecase(mockRepo)
+	uc := usecase.NewEducationUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -134,7 +135,7 @@ func TestUpdateEducation(t *testing.T) {
 
 func TestDeleteEducation(t *testing.T) {
 	mockRepo := new(MockEducationRepository)
-	uc := NewEducationUsecase(mockRepo)
+	uc := usecase.NewEducationUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -157,3 +158,4 @@ func TestDeleteEducation(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+

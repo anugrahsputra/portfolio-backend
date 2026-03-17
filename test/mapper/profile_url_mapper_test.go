@@ -1,9 +1,10 @@
-package mapper
+package mapper_test
 
 import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
+	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,7 +20,7 @@ func TestToProfileURLDomain(t *testing.T) {
 		Url:       "https://linkedin.com/in/user",
 	}
 
-	domainProfileUrl := ToProfileURLDomain(dbProfileUrl)
+	domainProfileUrl := mapper.ToProfileURLDomain(dbProfileUrl)
 
 	assert.Equal(t, id.String(), domainProfileUrl.ID)
 	assert.Equal(t, profileID.String(), domainProfileUrl.ProfileID)

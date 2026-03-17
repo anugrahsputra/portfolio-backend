@@ -1,10 +1,11 @@
-package mapper
+package mapper_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
+	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,7 +26,7 @@ func TestToExperienceDomain(t *testing.T) {
 		EndDate:     endDate,
 	}
 
-	domainExperience := ToExperienceDomain(dbExperience)
+	domainExperience := mapper.ToExperienceDomain(dbExperience)
 
 	assert.Equal(t, id.String(), domainExperience.ID)
 	assert.Equal(t, profileID.String(), domainExperience.ProfileID)

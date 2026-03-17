@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -40,7 +41,7 @@ func (m *MockExperienceRepository) DeleteExperience(ctx context.Context, id stri
 
 func TestCreateExperience(t *testing.T) {
 	mockRepo := new(MockExperienceRepository)
-	uc := NewExperienceUsecase(mockRepo)
+	uc := usecase.NewExperienceUsecase(mockRepo)
 
 	ctx := context.Background()
 	input := domain.ExperienceInput{
@@ -76,7 +77,7 @@ func TestCreateExperience(t *testing.T) {
 
 func TestGetExperiences(t *testing.T) {
 	mockRepo := new(MockExperienceRepository)
-	uc := NewExperienceUsecase(mockRepo)
+	uc := usecase.NewExperienceUsecase(mockRepo)
 
 	ctx := context.Background()
 	profileID := "profile-1"
@@ -111,7 +112,7 @@ func TestGetExperiences(t *testing.T) {
 
 func TestUpdateExperience(t *testing.T) {
 	mockRepo := new(MockExperienceRepository)
-	uc := NewExperienceUsecase(mockRepo)
+	uc := usecase.NewExperienceUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -147,7 +148,7 @@ func TestUpdateExperience(t *testing.T) {
 
 func TestDeleteExperience(t *testing.T) {
 	mockRepo := new(MockExperienceRepository)
-	uc := NewExperienceUsecase(mockRepo)
+	uc := usecase.NewExperienceUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -170,3 +171,4 @@ func TestDeleteExperience(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+

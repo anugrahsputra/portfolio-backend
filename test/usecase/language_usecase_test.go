@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -40,7 +41,7 @@ func (m *MockLanguageRepository) DeleteLanguage(ctx context.Context, id string) 
 
 func TestCreateLanguage(t *testing.T) {
 	mockRepo := new(MockLanguageRepository)
-	uc := NewLanguageUsecase(mockRepo)
+	uc := usecase.NewLanguageUsecase(mockRepo)
 
 	ctx := context.Background()
 	input := domain.LanguageInput{
@@ -78,7 +79,7 @@ func TestCreateLanguage(t *testing.T) {
 
 func TestGetLanguages(t *testing.T) {
 	mockRepo := new(MockLanguageRepository)
-	uc := NewLanguageUsecase(mockRepo)
+	uc := usecase.NewLanguageUsecase(mockRepo)
 
 	ctx := context.Background()
 	profileID := "profile-1"
@@ -114,7 +115,7 @@ func TestGetLanguages(t *testing.T) {
 
 func TestUpdateLanguage(t *testing.T) {
 	mockRepo := new(MockLanguageRepository)
-	uc := NewLanguageUsecase(mockRepo)
+	uc := usecase.NewLanguageUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -144,7 +145,7 @@ func TestUpdateLanguage(t *testing.T) {
 
 func TestDeleteLanguage(t *testing.T) {
 	mockRepo := new(MockLanguageRepository)
-	uc := NewLanguageUsecase(mockRepo)
+	uc := usecase.NewLanguageUsecase(mockRepo)
 
 	ctx := context.Background()
 	id := "1"
@@ -167,3 +168,4 @@ func TestDeleteLanguage(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 }
+
