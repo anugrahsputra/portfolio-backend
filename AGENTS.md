@@ -203,129 +203,103 @@ rtk git add . && rtk git commit -m "msg" && rtk git push
 
 ## RTK Commands by Workflow
 
-### Build & Compile (80-90% savings)
+### Build & Compile
 
 ```bash
-rtk cargo build         # Cargo build output
-rtk cargo check         # Cargo check output
-rtk cargo clippy        # Clippy warnings grouped by file (80%)
-rtk tsc                 # TypeScript errors grouped by file/code (83%)
-rtk lint                # ESLint/Biome violations grouped (84%)
-rtk prettier --check    # Files needing format only (70%)
-rtk next build          # Next.js build with route metrics (87%)
+rtk cargo build
+rtk cargo check
+rtk cargo clippy
+rtk tsc
+rtk lint
+rtk prettier --check
+rtk next build
 ```
 
-### Test (90-99% savings)
+### Test
 
 ```bash
-rtk cargo test          # Cargo test failures only (90%)
-rtk vitest run          # Vitest failures only (99.5%)
-rtk playwright test     # Playwright failures only (94%)
-rtk test <cmd>          # Generic test wrapper - failures only
+rtk cargo test
+rtk vitest run
+rtk playwright test
+rtk test <cmd>
 ```
 
-### Git (59-80% savings)
+### Git
 
 ```bash
-rtk git status          # Compact status
-rtk git log             # Compact log (works with all git flags)
-rtk git diff            # Compact diff (80%)
-rtk git show            # Compact show (80%)
-rtk git add             # Ultra-compact confirmations (59%)
-rtk git commit          # Ultra-compact confirmations (59%)
-rtk git push            # Ultra-compact confirmations
-rtk git pull            # Ultra-compact confirmations
-rtk git branch          # Compact branch list
-rtk git fetch           # Compact fetch
-rtk git stash           # Compact stash
-rtk git worktree        # Compact worktree
+rtk git status
+rtk git log
+rtk git diff
+rtk git show
+rtk git add
+rtk git commit
+rtk git push
+rtk git pull
+rtk git branch
+rtk git fetch
+rtk git stash
+rtk git worktree
 ```
 
 Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
 
-### GitHub (26-87% savings)
+### GitHub
 
 ```bash
-rtk gh pr view <num>    # Compact PR view (87%)
-rtk gh pr checks        # Compact PR checks (79%)
-rtk gh run list         # Compact workflow runs (82%)
-rtk gh issue list       # Compact issue list (80%)
-rtk gh api              # Compact API responses (26%)
+rtk gh pr view <num>
+rtk gh pr checks
+rtk gh run list
+rtk gh issue list
+rtk gh api
 ```
 
-### JavaScript/TypeScript Tooling (70-90% savings)
+### Files & Search
 
 ```bash
-rtk pnpm list           # Compact dependency tree (70%)
-rtk pnpm outdated       # Compact outdated packages (80%)
-rtk pnpm install        # Compact install output (90%)
-rtk npm run <script>    # Compact npm script output
-rtk npx <cmd>           # Compact npx command output
-rtk prisma              # Prisma without ASCII art (88%)
+rtk ls <path>
+rtk read <file>
+rtk grep <pattern>
+rtk find <pattern>
 ```
 
-### Files & Search (60-75% savings)
+### Analysis & Debug
 
 ```bash
-rtk ls <path>           # Tree format, compact (65%)
-rtk read <file>         # Code reading with filtering (60%)
-rtk grep <pattern>      # Search grouped by file (75%)
-rtk find <pattern>      # Find grouped by directory (70%)
+rtk err <cmd>
+rtk log <file>
+rtk json <file>
+rtk deps
+rtk env
+rtk summary <cmd>
+rtk diff
 ```
 
-### Analysis & Debug (70-90% savings)
+### Infrastructure
 
 ```bash
-rtk err <cmd>           # Filter errors only from any command
-rtk log <file>          # Deduplicated logs with counts
-rtk json <file>         # JSON structure without values
-rtk deps                # Dependency overview
-rtk env                 # Environment variables compact
-rtk summary <cmd>       # Smart summary of command output
-rtk diff                # Ultra-compact diffs
+rtk docker ps
+rtk docker images
+rtk docker logs <c>
+rtk kubectl get
+rtk kubectl logs
 ```
 
-### Infrastructure (85% savings)
+### Network
 
 ```bash
-rtk docker ps           # Compact container list
-rtk docker images       # Compact image list
-rtk docker logs <c>     # Deduplicated logs
-rtk kubectl get         # Compact resource list
-rtk kubectl logs        # Deduplicated pod logs
-```
-
-### Network (65-70% savings)
-
-```bash
-rtk curl <url>          # Compact HTTP responses (70%)
-rtk wget <url>          # Compact download output (65%)
+rtk curl <url>
+rtk wget <url>
 ```
 
 ### Meta Commands
 
 ```bash
-rtk gain                # View token savings statistics
-rtk gain --history      # View command history with savings
-rtk discover            # Analyze Claude Code sessions for missed RTK usage
-rtk proxy <cmd>         # Run command without filtering (for debugging)
-rtk init                # Add RTK instructions to CLAUDE.md
-rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
+rtk gain
+rtk gain --history
+rtk discover
+rtk proxy <cmd>
+rtk init
+rtk init --global
 ```
-
-## Token Savings Overview
-
-| Category         | Commands                       | Typical Savings |
-| ---------------- | ------------------------------ | --------------- |
-| Tests            | vitest, playwright, cargo test | 90-99%          |
-| Build            | next, tsc, lint, prettier      | 70-87%          |
-| Git              | status, log, diff, add, commit | 59-80%          |
-| GitHub           | gh pr, gh run, gh issue        | 26-87%          |
-| Package Managers | pnpm, npm, npx                 | 70-90%          |
-| Files            | ls, read, grep, find           | 60-75%          |
-| Infrastructure   | docker, kubectl                | 85%             |
-| Network          | curl, wget                     | 65-70%          |
-
-Overall average: **60-90% token reduction** on common development operations.
 
 <!-- /rtk-instructions -->
