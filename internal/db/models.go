@@ -101,6 +101,23 @@ type ProfileUrl struct {
 	Url       string
 }
 
+type Project struct {
+	ID            uuid.UUID
+	ProfileID     uuid.UUID
+	Title         string
+	Description   string
+	TechStacks    []string
+	LiveDemoUrl   string
+	GithubRepoUrl string
+	IsLive        bool
+	IsNda         bool
+	IsFeatured    bool
+	ImageUrl      string
+	Company       string
+	Period        string
+	Location      string
+}
+
 type Skill struct {
 	ID           uuid.UUID
 	ProfileID    uuid.UUID

@@ -74,3 +74,23 @@ create table if not exists skills (
 );
 
 create index if not exists idx_skills_profile_id on skills(profile_id);
+
+create table if not exists projects(
+    id uuid primary key default gen_random_uuid(),
+    profile_id uuid not null references profiles(id) on delete cascade,
+    title text not null,
+    description text not null,
+    tech_stacks text[],
+    live_demo_url text,
+    github_repo_url text,
+    is_live boolean default false,
+    is_nda boolean default false,
+    is_featured boolean default false,
+    image_url text,
+    company text,
+    period text not null,
+    location text not null,
+    unique (profile_id, title)
+);
+
+create index if not exists idx_projects_profile_id on projects(profile_id);

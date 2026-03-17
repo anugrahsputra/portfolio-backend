@@ -1,13 +1,12 @@
 ---
 id: PRTFL-012
 title: Add Projects Domain Implementation
-status: To Do
+status: In Progress
 assignee: []
-created_date: '2026-03-13 15:34'
+created_date: '2026-03-17 18:51'
 labels: []
-milestone: m-2
+milestone: m-2 - api-&-quality-assurance.md
 dependencies: []
-priority: medium
 ---
 
 ## Description

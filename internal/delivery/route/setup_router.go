@@ -50,6 +50,13 @@ func wireLanguageRoute(db *config.Database) *handler.LanguageHandler {
 	return languageHandler
 }
 
+func wireProjectRoute(db *config.Database) *handler.ProjectHandler {
+	projectRepo := repository.NewProjectRepository(db)
+	projectUsecase := usecase.NewProjectUsecase(projectRepo)
+	projectHandler := handler.NewProjectHandler(projectUsecase)
+	return projectHandler
+}
+
 func SetupRouter(db *config.Database) *gin.Engine {
 	route := gin.Default()
 
@@ -59,6 +66,7 @@ func SetupRouter(db *config.Database) *gin.Engine {
 	education := wireEducationRoute(db)
 	skill := wireSkillRoute(db)
 	language := wireLanguageRoute(db)
+	project := wireProjectRoute(db)
 
 	// API Group
 	api := route.Group("/api/v1")
@@ -69,6 +77,7 @@ func SetupRouter(db *config.Database) *gin.Engine {
 		EducationRoute(api, education)
 		SkillRoute(api, skill)
 		LanguageRoute(api, language)
+		ProjectRoute(api, project)
 	}
 
 	return route
