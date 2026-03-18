@@ -53,6 +53,7 @@ type ProjectUpdateInput struct {
 type ProjectRepository interface {
 	CreateProject(ctx context.Context, pr ProjectInput) (Project, error)
 	GetProjects(ctx context.Context, profileID string) ([]Project, error)
+	GetProjectByID(ctx context.Context, id string) (Project, error)
 	UpdateProject(ctx context.Context, id string, pr ProjectUpdateInput) (Project, error)
 	DeleteProject(ctx context.Context, id string) error
 }

@@ -48,6 +48,10 @@ select * from projects
 where profile_id = $1
 order by period desc;
 
+-- name: GetProjectByID :one
+select *  from projects
+where id = $1;
+
 -- name: UpdateProject :one
 update projects
 set 

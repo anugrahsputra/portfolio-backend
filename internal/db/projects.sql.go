@@ -119,6 +119,33 @@ func (q *Queries) DeleteProject(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getProjectByID = `-- name: GetProjectByID :one
+select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, period, location  from projects
+where id = $1
+`
+
+func (q *Queries) GetProjectByID(ctx context.Context, id uuid.UUID) (Project, error) {
+	row := q.db.QueryRow(ctx, getProjectByID, id)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.ProfileID,
+		&i.Title,
+		&i.Description,
+		&i.TechStacks,
+		&i.LiveDemoUrl,
+		&i.GithubRepoUrl,
+		&i.IsLive,
+		&i.IsNda,
+		&i.IsFeatured,
+		&i.ImageUrl,
+		&i.Company,
+		&i.Period,
+		&i.Location,
+	)
+	return i, err
+}
+
 const getProjects = `-- name: GetProjects :many
 select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, period, location from projects
 where profile_id = $1

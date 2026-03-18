@@ -7,6 +7,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
+	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
 )
 
@@ -69,26 +70,42 @@ func (r *projectRepository) GetProjects(ctx context.Context, profileID string) (
 	return result, nil
 }
 
-func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr domain.ProjectUpdateInput) (domain.Project, error) {
+func (r *projectRepository) GetProjectByID(ctx context.Context, id string) (domain.Project, error) {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
 		return domain.Project{}, err
 	}
 
+	project, err := r.db.GetProjectByID(ctx, idStr)
+	if err != nil {
+		return domain.Project{}, err
+	}
+
+	result := mapper.ToProjectDomain(project)
+	return result, nil
+}
+
+func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr domain.ProjectUpdateInput) (domain.Project, error) {
+
+	current, err := r.GetProjectByID(ctx, id)
+	if err != nil {
+		return domain.Project{}, err
+	}
+
 	param := db.UpdateProjectParams{
-		ID:            idStr,
-		Title:         *pr.Title,
-		Description:   *pr.Description,
-		TechStacks:    *pr.TechStacks,
-		LiveDemoUrl:   *pr.LiveDemoUrl,
-		GithubRepoUrl: *pr.GithubRepoUrl,
-		IsLive:        *pr.IsLive,
-		IsNda:         *pr.IsNda,
-		IsFeatured:    *pr.IsFeatured,
-		ImageUrl:      *pr.ImageUrl,
-		Company:       *pr.Company,
-		Period:        *pr.Period,
-		Location:      *pr.Location,
+		ID:            uuid.MustParse(current.ID),
+		Title:         ptr.Or(pr.Title, current.Title),
+		Description:   ptr.Or(pr.Description, current.Description),
+		TechStacks:    ptr.Or(pr.TechStacks, current.TechStacks),
+		LiveDemoUrl:   ptr.Or(pr.LiveDemoUrl, current.LiveDemoUrl),
+		GithubRepoUrl: ptr.Or(pr.GithubRepoUrl, current.GithubRepoUrl),
+		IsLive:        ptr.Or(pr.IsLive, current.IsLive),
+		IsNda:         ptr.Or(pr.IsNda, current.IsNda),
+		IsFeatured:    ptr.Or(pr.IsFeatured, current.IsFeatured),
+		ImageUrl:      ptr.Or(pr.ImageUrl, current.ImageUrl),
+		Company:       ptr.Or(pr.Company, current.Company),
+		Period:        ptr.Or(pr.Period, current.Period),
+		Location:      ptr.Or(pr.Location, current.Location),
 	}
 
 	project, err := r.db.UpdateProject(ctx, param)
@@ -112,3 +129,4 @@ func (r *projectRepository) DeleteProject(ctx context.Context, id string) error 
 
 	return nil
 }
+
