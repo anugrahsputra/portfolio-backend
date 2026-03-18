@@ -7,9 +7,9 @@ package db
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEducation = `-- name: CreateEducation :one
@@ -31,8 +31,8 @@ type CreateEducationParams struct {
 	Degree         string
 	FieldOfStudy   string
 	Gpa            float64
-	StartDate      time.Time
-	GraduationDate time.Time
+	StartDate      pgtype.Date
+	GraduationDate pgtype.Date
 }
 
 func (q *Queries) CreateEducation(ctx context.Context, arg CreateEducationParams) (Education, error) {
@@ -123,8 +123,8 @@ type UpdateEducationParams struct {
 	Degree         string
 	FieldOfStudy   string
 	Gpa            float64
-	StartDate      time.Time
-	GraduationDate time.Time
+	StartDate      pgtype.Date
+	GraduationDate pgtype.Date
 }
 
 func (q *Queries) UpdateEducation(ctx context.Context, arg UpdateEducationParams) (Education, error) {

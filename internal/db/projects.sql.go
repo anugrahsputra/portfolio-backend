@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createProject = `-- name: CreateProject :one
@@ -24,7 +25,9 @@ insert into projects (
     is_featured,
     image_url,
     company,
-    period,
+    start_date,
+    end_date,
+    is_present,
     location
 ) values (
     $1,
@@ -39,7 +42,9 @@ insert into projects (
     $10,
     $11,
     $12,
-    $13
+    $13,
+    $14,
+    $15
 )
 on conflict (profile_id, title)
 do update set
@@ -52,9 +57,11 @@ do update set
     is_featured = excluded.is_featured,
     image_url = excluded.image_url,
     company = excluded.company,
-    period = excluded.period,
+    start_date = excluded.start_date,
+    end_date = excluded.end_date,
+    is_present = excluded.is_present,
     location = excluded.location
-returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, period, location
+returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location
 `
 
 type CreateProjectParams struct {
@@ -69,7 +76,9 @@ type CreateProjectParams struct {
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
-	Period        string
+	StartDate     pgtype.Date
+	EndDate       pgtype.Date
+	IsPresent     bool
 	Location      string
 }
 
@@ -86,7 +95,9 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		arg.IsFeatured,
 		arg.ImageUrl,
 		arg.Company,
-		arg.Period,
+		arg.StartDate,
+		arg.EndDate,
+		arg.IsPresent,
 		arg.Location,
 	)
 	var i Project
@@ -103,7 +114,9 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.IsFeatured,
 		&i.ImageUrl,
 		&i.Company,
-		&i.Period,
+		&i.StartDate,
+		&i.EndDate,
+		&i.IsPresent,
 		&i.Location,
 	)
 	return i, err
@@ -120,7 +133,7 @@ func (q *Queries) DeleteProject(ctx context.Context, id uuid.UUID) error {
 }
 
 const getProjectByID = `-- name: GetProjectByID :one
-select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, period, location  from projects
+select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location  from projects
 where id = $1
 `
 
@@ -140,16 +153,18 @@ func (q *Queries) GetProjectByID(ctx context.Context, id uuid.UUID) (Project, er
 		&i.IsFeatured,
 		&i.ImageUrl,
 		&i.Company,
-		&i.Period,
+		&i.StartDate,
+		&i.EndDate,
+		&i.IsPresent,
 		&i.Location,
 	)
 	return i, err
 }
 
 const getProjects = `-- name: GetProjects :many
-select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, period, location from projects
+select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location from projects
 where profile_id = $1
-order by period desc
+order by start_date desc
 `
 
 func (q *Queries) GetProjects(ctx context.Context, profileID uuid.UUID) ([]Project, error) {
@@ -174,7 +189,9 @@ func (q *Queries) GetProjects(ctx context.Context, profileID uuid.UUID) ([]Proje
 			&i.IsFeatured,
 			&i.ImageUrl,
 			&i.Company,
-			&i.Period,
+			&i.StartDate,
+			&i.EndDate,
+			&i.IsPresent,
 			&i.Location,
 		); err != nil {
 			return nil, err
@@ -200,10 +217,12 @@ set
     is_featured = COALESCE($9, is_featured),
     image_url = COALESCE($10, image_url),
     company = COALESCE($11, company),
-    period = COALESCE($12, period),
-    location = COALESCE($13, location)
+    start_date = COALESCE($12, start_date),
+    end_date = COALESCE($13, end_date),
+    is_present = COALESCE($14, is_present),
+    location = COALESCE($15, location)
 where id = $1
-returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, period, location
+returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location
 `
 
 type UpdateProjectParams struct {
@@ -218,7 +237,9 @@ type UpdateProjectParams struct {
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
-	Period        string
+	StartDate     pgtype.Date
+	EndDate       pgtype.Date
+	IsPresent     bool
 	Location      string
 }
 
@@ -235,7 +256,9 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		arg.IsFeatured,
 		arg.ImageUrl,
 		arg.Company,
-		arg.Period,
+		arg.StartDate,
+		arg.EndDate,
+		arg.IsPresent,
 		arg.Location,
 	)
 	var i Project
@@ -252,7 +275,9 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.IsFeatured,
 		&i.ImageUrl,
 		&i.Company,
-		&i.Period,
+		&i.StartDate,
+		&i.EndDate,
+		&i.IsPresent,
 		&i.Location,
 	)
 	return i, err

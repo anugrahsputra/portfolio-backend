@@ -7,9 +7,9 @@ package db
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createExperience = `-- name: CreateExperience :one
@@ -29,8 +29,8 @@ type CreateExperienceParams struct {
 	Company     string
 	Position    string
 	Description []string
-	StartDate   time.Time
-	EndDate     time.Time
+	StartDate   pgtype.Date
+	EndDate     pgtype.Date
 }
 
 func (q *Queries) CreateExperience(ctx context.Context, arg CreateExperienceParams) (Experience, error) {
@@ -116,8 +116,8 @@ type UpdateExperienceParams struct {
 	Company     string
 	Position    string
 	Description []string
-	StartDate   time.Time
-	EndDate     time.Time
+	StartDate   pgtype.Date
+	EndDate     pgtype.Date
 }
 
 func (q *Queries) UpdateExperience(ctx context.Context, arg UpdateExperienceParams) (Experience, error) {

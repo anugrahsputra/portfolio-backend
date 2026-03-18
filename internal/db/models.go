@@ -7,9 +7,9 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type ProficiencyLevel string
@@ -64,8 +64,8 @@ type Education struct {
 	Degree         string
 	FieldOfStudy   string
 	Gpa            float64
-	StartDate      time.Time
-	GraduationDate time.Time
+	StartDate      pgtype.Date
+	GraduationDate pgtype.Date
 }
 
 type Experience struct {
@@ -74,8 +74,8 @@ type Experience struct {
 	Company     string
 	Position    string
 	Description []string
-	StartDate   time.Time
-	EndDate     time.Time
+	StartDate   pgtype.Date
+	EndDate     pgtype.Date
 }
 
 type Language struct {
@@ -114,7 +114,9 @@ type Project struct {
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
-	Period        string
+	StartDate     pgtype.Date
+	EndDate       pgtype.Date
+	IsPresent     bool
 	Location      string
 }
 
