@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type Project struct {
 	ID            string
@@ -15,7 +18,9 @@ type Project struct {
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
-	Period        string
+	StartDate     time.Time
+	EndDate       *time.Time
+	IsPresent     bool
 	Location      string
 }
 
@@ -31,7 +36,9 @@ type ProjectInput struct {
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
-	Period        string
+	StartDate     time.Time
+	EndDate       *time.Time
+	IsPresent     bool
 	Location      string
 }
 
@@ -46,7 +53,9 @@ type ProjectUpdateInput struct {
 	IsFeatured    *bool
 	ImageUrl      *string
 	Company       *string
-	Period        *string
+	StartDate     *time.Time
+	EndDate       *time.Time
+	IsPresent     *bool
 	Location      *string
 }
 
