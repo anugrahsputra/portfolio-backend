@@ -11,7 +11,9 @@ insert into projects (
     is_featured,
     image_url,
     company,
-    period,
+    start_date,
+    end_date,
+    is_present,
     location
 ) values (
     $1,
@@ -26,7 +28,9 @@ insert into projects (
     $10,
     $11,
     $12,
-    $13
+    $13,
+    $14,
+    $15
 )
 on conflict (profile_id, title)
 do update set
@@ -39,14 +43,16 @@ do update set
     is_featured = excluded.is_featured,
     image_url = excluded.image_url,
     company = excluded.company,
-    period = excluded.period,
+    start_date = excluded.start_date,
+    end_date = excluded.end_date,
+    is_present = excluded.is_present,
     location = excluded.location
 returning *;
 
 -- name: GetProjects :many
 select * from projects
 where profile_id = $1
-order by period desc;
+order by start_date desc;
 
 -- name: GetProjectByID :one
 select *  from projects
@@ -65,8 +71,10 @@ set
     is_featured = COALESCE($9, is_featured),
     image_url = COALESCE($10, image_url),
     company = COALESCE($11, company),
-    period = COALESCE($12, period),
-    location = COALESCE($13, location)
+    start_date = COALESCE($12, start_date),
+    end_date = COALESCE($13, end_date),
+    is_present = COALESCE($14, is_present),
+    location = COALESCE($15, location)
 where id = $1
 returning *;
 

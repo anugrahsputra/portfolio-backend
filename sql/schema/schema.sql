@@ -88,8 +88,11 @@ create table if not exists projects(
     is_featured boolean default false,
     image_url text,
     company text,
-    period text not null,
+    start_date date not null,
+    end_date date default null,
+    is_present boolean default false,
     location text not null,
+    check (end_date is null or end_date >= start_date),
     unique (profile_id, title)
 );
 
