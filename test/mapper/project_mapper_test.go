@@ -17,7 +17,7 @@ func TestToProjectDomain(t *testing.T) {
 		ID:            id,
 		ProfileID:     profileID,
 		Title:         "Test Project",
-		Description:   "Test Description",
+		Description:   []string{"Test Description"},
 		TechStacks:    []string{"Go", "PostgreSQL"},
 		LiveDemoUrl:   "https://live.com",
 		GithubRepoUrl: "https://github.com/test",

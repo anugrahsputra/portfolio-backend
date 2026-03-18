@@ -49,8 +49,8 @@ func TestProjectUsecase(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("CreateProject - Success", func(t *testing.T) {
-		input := domain.ProjectInput{Title: "New Project"}
-		expected := domain.Project{ID: "1", Title: "New Project"}
+		input := domain.ProjectInput{Title: "New Project", Description: []string{"Desc"}}
+		expected := domain.Project{ID: "1", Title: "New Project", Description: []string{"Desc"}}
 
 		mockRepo.On("CreateProject", ctx, input).Return(expected, nil).Once()
 

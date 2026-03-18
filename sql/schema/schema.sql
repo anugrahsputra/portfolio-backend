@@ -79,7 +79,7 @@ create table if not exists projects(
     id uuid primary key default gen_random_uuid(),
     profile_id uuid not null references profiles(id) on delete cascade,
     title text not null,
-    description text not null,
+    description text[] not null,
     tech_stacks text[],
     live_demo_url text,
     github_repo_url text,

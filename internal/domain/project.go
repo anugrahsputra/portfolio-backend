@@ -6,7 +6,7 @@ type Project struct {
 	ID            string
 	ProfileID     string
 	Title         string
-	Description   string
+	Description   []string
 	TechStacks    []string
 	LiveDemoUrl   string
 	GithubRepoUrl string
@@ -22,7 +22,7 @@ type Project struct {
 type ProjectInput struct {
 	ProfileID     string
 	Title         string
-	Description   string
+	Description   []string
 	TechStacks    []string
 	LiveDemoUrl   string
 	GithubRepoUrl string
@@ -37,7 +37,7 @@ type ProjectInput struct {
 
 type ProjectUpdateInput struct {
 	Title         *string
-	Description   *string
+	Description   *[]string
 	TechStacks    *[]string
 	LiveDemoUrl   *string
 	GithubRepoUrl *string

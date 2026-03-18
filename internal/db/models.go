@@ -105,7 +105,7 @@ type Project struct {
 	ID            uuid.UUID
 	ProfileID     uuid.UUID
 	Title         string
-	Description   string
+	Description   []string
 	TechStacks    []string
 	LiveDemoUrl   string
 	GithubRepoUrl string

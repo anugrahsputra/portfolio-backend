@@ -52,12 +52,12 @@ func TestProjectHandler(t *testing.T) {
 		r := gin.Default()
 		r.POST("/api/v1/projects", h.CreateProject)
 
-		input := dto.ProjectReq{Title: "New Project", ProfileID: "1"}
+		input := dto.ProjectReq{Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/api/v1/projects", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		expected := domain.Project{ID: "1", Title: "New Project", ProfileID: "1"}
+		expected := domain.Project{ID: "1", Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		mockUsecase.On("CreateProject", mock.Anything, mock.Anything).Return(expected, nil).Once()
 
 		r.ServeHTTP(w, req)

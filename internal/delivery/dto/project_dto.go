@@ -6,7 +6,7 @@ type ProjectResp struct {
 	ID            string   `json:"id"`
 	ProfileID     string   `json:"profile_id"`
 	Title         string   `json:"title"`
-	Description   string   `json:"description"`
+	Description   []string `json:"description"`
 	TechStacks    []string `json:"tech_stacks"`
 	LiveDemoUrl   string   `json:"live_demo_url"`
 	GithubRepoUrl string   `json:"github_repo_url"`
@@ -22,7 +22,7 @@ type ProjectResp struct {
 type ProjectReq struct {
 	ProfileID     string   `json:"profile_id"`
 	Title         string   `json:"title"`
-	Description   string   `json:"description"`
+	Description   []string `json:"description"`
 	TechStacks    []string `json:"tech_stacks"`
 	LiveDemoUrl   string   `json:"live_demo_url"`
 	GithubRepoUrl string   `json:"github_repo_url"`
@@ -37,7 +37,7 @@ type ProjectReq struct {
 
 type ProjectUpdateReq struct {
 	Title         *string   `json:"title"`
-	Description   *string   `json:"description"`
+	Description   *[]string `json:"description"`
 	TechStacks    *[]string `json:"tech_stacks"`
 	LiveDemoUrl   *string   `json:"live_demo_url"`
 	GithubRepoUrl *string   `json:"github_repo_url"`

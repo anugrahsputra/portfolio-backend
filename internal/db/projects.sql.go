@@ -60,7 +60,7 @@ returning id, profile_id, title, description, tech_stacks, live_demo_url, github
 type CreateProjectParams struct {
 	ProfileID     uuid.UUID
 	Title         string
-	Description   string
+	Description   []string
 	TechStacks    []string
 	LiveDemoUrl   string
 	GithubRepoUrl string
@@ -209,7 +209,7 @@ returning id, profile_id, title, description, tech_stacks, live_demo_url, github
 type UpdateProjectParams struct {
 	ID            uuid.UUID
 	Title         string
-	Description   string
+	Description   []string
 	TechStacks    []string
 	LiveDemoUrl   string
 	GithubRepoUrl string
