@@ -2,9 +2,11 @@ package mapper_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
+	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,6 +14,8 @@ import (
 func TestToProjectDomain(t *testing.T) {
 	id := uuid.New()
 	profileID := uuid.New()
+	startDate := time.Now()
+	endDate := time.Now().AddDate(1, 0, 0)
 
 	dbProject := db.Project{
 		ID:            id,
@@ -26,7 +30,8 @@ func TestToProjectDomain(t *testing.T) {
 		IsFeatured:    true,
 		ImageUrl:      "https://image.com",
 		Company:       "Test Company",
-		Period:        "2023-2024",
+		StartDate:     startDate,
+		EndDate:       endDate,
 		Location:      "Remote",
 	}
 
@@ -37,4 +42,6 @@ func TestToProjectDomain(t *testing.T) {
 	assert.Equal(t, dbProject.Title, domainProject.Title)
 	assert.Equal(t, dbProject.TechStacks, domainProject.TechStacks)
 	assert.Equal(t, dbProject.IsLive, domainProject.IsLive)
+	assert.Equal(t, startDate, domainProject.StartDate)
+	assert.Equal(t, ptr.To(endDate), domainProject.EndDate)
 }
