@@ -5,6 +5,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/repository"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,6 +60,13 @@ func wireProjectRoute(db *config.Database) *handler.ProjectHandler {
 
 func SetupRouter(db *config.Database) *gin.Engine {
 	route := gin.Default()
+	route.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	profile := wireProfileRoute(db)
 	profileUrl := wireProfileUrlRoute(db)
