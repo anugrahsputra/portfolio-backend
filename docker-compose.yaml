@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Database Service
+  db:
+    image: postgres:16-alpine
+    container_name: portfolio-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-portfolio_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-portfolio_password}
+      POSTGRES_DB: ${DB_NAME:-portfolio_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-portfolio_user} -d ${DB_NAME:-portfolio_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Application Service
+  app:
+    build: .
+    container_name: portfolio-api
+    restart: always
+    env_file:
+      - .env.production
+    environment:
+      GO_ENV: production
+      # We override DATABASE_URL here to point to the 'db' service in docker-compose.
+      # If you want to use the external prod-host from your .env.production,
+      # you can comment out the line below and remove the 'db' service.
+      DATABASE_URL: postgres://${DB_USER:-portfolio_user}:${DB_PASSWORD:-portfolio_password}@db:5432/${DB_NAME:-portfolio_db}?sslmode=disable
+      INIT_SCHEMA: "true"
+    ports:
+      - "${PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

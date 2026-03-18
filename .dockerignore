@@ -1,0 +1,36 @@
+# Go
+vendor/
+bin/
+
+# Docker
+Dockerfile
+docker-compose.yaml
+
+# Git
+.git
+.gitignore
+
+# Config
+.env
+.env.*
+
+# Logs
+*.log
+
+# Backlog
+backlog/
+Backlog.md
+
+# Tests
+test/
+*_test.go
+
+# Others
+tmp/
+.air.toml
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+sqlc.yaml
+*.sh
+get_id.go
