@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -9,6 +10,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type projectRepository struct {
@@ -25,6 +27,11 @@ func (r *projectRepository) CreateProject(ctx context.Context, pr domain.Project
 		return domain.Project{}, err
 	}
 
+	var ed pgtype.Date
+	if pr.EndDate != nil {
+		ed = pgtype.Date{Time: *pr.EndDate, Valid: !pr.EndDate.IsZero()}
+	}
+
 	param := db.CreateProjectParams{
 		ProfileID:     projectIDStr,
 		Title:         pr.Title,
@@ -37,7 +44,9 @@ func (r *projectRepository) CreateProject(ctx context.Context, pr domain.Project
 		IsFeatured:    pr.IsFeatured,
 		ImageUrl:      pr.ImageUrl,
 		Company:       pr.Company,
-		Period:        pr.Period,
+		StartDate:     pgtype.Date{Time: pr.StartDate, Valid: true},
+		EndDate:       ed,
+		IsPresent:     pr.IsPresent,
 		Location:      pr.Location,
 	}
 
@@ -92,6 +101,13 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 		return domain.Project{}, err
 	}
 
+	var ed pgtype.Date
+	if pr.EndDate != nil {
+		ed = pgtype.Date{Time: *pr.EndDate, Valid: !pr.EndDate.IsZero()}
+	} else if current.EndDate != nil {
+		ed = pgtype.Date{Time: *current.EndDate, Valid: !current.EndDate.IsZero()}
+	}
+
 	param := db.UpdateProjectParams{
 		ID:            uuid.MustParse(current.ID),
 		Title:         ptr.Or(pr.Title, current.Title),
@@ -104,7 +120,9 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 		IsFeatured:    ptr.Or(pr.IsFeatured, current.IsFeatured),
 		ImageUrl:      ptr.Or(pr.ImageUrl, current.ImageUrl),
 		Company:       ptr.Or(pr.Company, current.Company),
-		Period:        ptr.Or(pr.Period, current.Period),
+		StartDate:     pgtype.Date{Time: ptr.Or(pr.StartDate, time.Time{}), Valid: pr.StartDate != nil},
+		EndDate:       ed,
+		IsPresent:     ptr.Or(pr.IsPresent, current.IsPresent),
 		Location:      ptr.Or(pr.Location, current.Location),
 	}
 
@@ -129,4 +147,3 @@ func (r *projectRepository) DeleteProject(ctx context.Context, id string) error 
 
 	return nil
 }
-

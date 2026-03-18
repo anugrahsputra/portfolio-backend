@@ -2,12 +2,15 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
+	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type educationRepository struct {
@@ -23,14 +26,15 @@ func (r *educationRepository) CreateEducation(ctx context.Context, e domain.Educ
 	if err != nil {
 		return err
 	}
+
 	param := db.CreateEducationParams{
 		ProfileID:      profileID,
 		School:         e.School,
 		Degree:         e.Degree,
 		FieldOfStudy:   e.FieldOfStudy,
 		Gpa:            e.Gpa,
-		StartDate:      e.StartDate,
-		GraduationDate: e.GraduationDate,
+		StartDate:      pgtype.Date{Time: e.StartDate, Valid: true},
+		GraduationDate: pgtype.Date{Time: e.GraduationDate, Valid: !e.GraduationDate.IsZero()},
 	}
 
 	if _, err := r.db.CreateEducation(ctx, param); err != nil {
@@ -66,14 +70,19 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 		return err
 	}
 
+	var gd pgtype.Date
+	if e.GraduationDate != nil {
+		gd = pgtype.Date{Time: *e.GraduationDate, Valid: !e.GraduationDate.IsZero()}
+	}
+
 	param := db.UpdateEducationParams{
 		ID:             idStr,
-		School:         *e.School,
-		Degree:         *e.Degree,
-		FieldOfStudy:   *e.FieldOfStudy,
-		Gpa:            *e.Gpa,
-		StartDate:      *e.StartDate,
-		GraduationDate: *e.GraduationDate,
+		School:         ptr.Or(e.School, ""),
+		Degree:         ptr.Or(e.Degree, ""),
+		FieldOfStudy:   ptr.Or(e.FieldOfStudy, ""),
+		Gpa:            ptr.Or(e.Gpa, 0),
+		StartDate:      pgtype.Date{Time: ptr.Or(e.StartDate, time.Time{}), Valid: e.StartDate != nil},
+		GraduationDate: gd,
 	}
 
 	if _, err := r.db.UpdateEducation(ctx, param); err != nil {

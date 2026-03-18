@@ -1,11 +1,18 @@
 package mapper
 
 import (
+	"time"
+
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 )
 
 func ToProjectDomain(pr db.Project) domain.Project {
+	var ed *time.Time
+	if pr.EndDate.Valid {
+		ed = &pr.EndDate.Time
+	}
+
 	return domain.Project{
 		ID:            pr.ID.String(),
 		ProfileID:     pr.ProfileID.String(),
@@ -19,7 +26,9 @@ func ToProjectDomain(pr db.Project) domain.Project {
 		IsFeatured:    pr.IsFeatured,
 		ImageUrl:      pr.ImageUrl,
 		Company:       pr.Company,
-		Period:        pr.Period,
+		StartDate:     pr.StartDate.Time,
+		EndDate:       ed,
+		IsPresent:     pr.IsPresent,
 		Location:      pr.Location,
 	}
 }

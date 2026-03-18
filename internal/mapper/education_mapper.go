@@ -1,11 +1,18 @@
 package mapper
 
 import (
+	"time"
+
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 )
 
 func ToEducationDomain(e db.Education) domain.Education {
+	gd := time.Time{}
+	if e.GraduationDate.Valid {
+		gd = e.GraduationDate.Time
+	}
+
 	return domain.Education{
 		ID:             e.ID.String(),
 		ProfileID:      e.ProfileID.String(),
@@ -13,7 +20,7 @@ func ToEducationDomain(e db.Education) domain.Education {
 		Degree:         e.Degree,
 		FieldOfStudy:   e.FieldOfStudy,
 		Gpa:            e.Gpa,
-		StartDate:      e.StartDate,
-		GraduationDate: e.GraduationDate,
+		StartDate:      e.StartDate.Time,
+		GraduationDate: gd,
 	}
 }

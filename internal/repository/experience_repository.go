@@ -2,12 +2,15 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
+	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type experienceRepository struct {
@@ -23,13 +26,14 @@ func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.E
 	if err != nil {
 		return domain.Experience{}, err
 	}
+
 	param := db.CreateExperienceParams{
 		ProfileID:   profileIDStr,
 		Company:     ex.Company,
 		Position:    ex.Position,
 		Description: ex.Description,
-		StartDate:   ex.StartDate,
-		EndDate:     ex.EndDate,
+		StartDate:   pgtype.Date{Time: ex.StartDate, Valid: true},
+		EndDate:     pgtype.Date{Time: ex.EndDate, Valid: !ex.EndDate.IsZero()},
 	}
 
 	experience, err := r.db.CreateExperience(ctx, param)
@@ -67,13 +71,18 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 		return domain.Experience{}, err
 	}
 
+	var ed pgtype.Date
+	if ex.EndDate != nil {
+		ed = pgtype.Date{Time: *ex.EndDate, Valid: !ex.EndDate.IsZero()}
+	}
+
 	param := db.UpdateExperienceParams{
 		ID:          idStr,
-		Company:     *ex.Company,
-		Position:    *ex.Position,
-		Description: *ex.Description,
-		StartDate:   *ex.StartDate,
-		EndDate:     *ex.EndDate,
+		Company:     ptr.Or(ex.Company, ""),
+		Position:    ptr.Or(ex.Position, ""),
+		Description: ptr.Or(ex.Description, []string{}),
+		StartDate:   pgtype.Date{Time: ptr.Or(ex.StartDate, time.Time{}), Valid: ex.StartDate != nil},
+		EndDate:     ed,
 	}
 
 	experience, err := r.db.UpdateExperience(ctx, param)

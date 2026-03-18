@@ -24,7 +24,7 @@ func NewProjectUsecase(r domain.ProjectRepository) ProjectUsecase {
 func (r *projectUsecase) CreateProject(ctx context.Context, pr domain.ProjectInput) (domain.Project, error) {
 	result, err := r.repo.CreateProject(ctx, pr)
 	if err != nil {
-		return domain.Project{}, nil
+		return domain.Project{}, err
 	}
 
 	return result, nil
