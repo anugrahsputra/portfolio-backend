@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -16,10 +15,11 @@ type Config struct {
 func Load() *Config {
 	env := getEnv("GO_ENV", "development")
 
-	// Attempt to load .env file based on environment
-	envFile := ".env." + env
-	if err := godotenv.Load(envFile); err != nil {
-		log.Printf("Warning: No %s file found, using system environment variables", envFile)
+	switch env {
+	case "development":
+		_ = godotenv.Load(".env.development", ".env")
+	default:
+		_ = godotenv.Load(".env")
 	}
 
 	return &Config{
