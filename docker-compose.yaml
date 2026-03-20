@@ -34,8 +34,9 @@ services:
       # you can comment out the line below and remove the 'db' service.
       DATABASE_URL: postgres://${DB_USER:-portfolio_user}:${DB_PASSWORD:-portfolio_password}@db:5432/${DB_NAME:-portfolio_db}?sslmode=disable
       INIT_SCHEMA: "true"
+      PORT: "8082"
     ports:
-      - "${PORT:-8080}:8080"
+      - "${PORT:-8082}:8082"
     depends_on:
       db:
         condition: service_healthy
