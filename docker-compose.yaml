@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${PORT:-8082}:${PORT:-8082}"
+      - "127.0.0.1:${PORT:-8080}:${PORT:-8080}"
 
   postgres:
     image: postgres:16-alpine
