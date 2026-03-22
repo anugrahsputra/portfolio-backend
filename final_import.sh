@@ -1,7 +1,6 @@
 #!/bin/bash
 
 BASE_URL="http://localhost:8082/api/v1"
-TODAY="2099-12-31"
 API_KEY="your_secret_api_key_here" # Change this to match your .env
 
 echo "Creating profile..."
@@ -50,7 +49,8 @@ curl -s -X POST "$BASE_URL/experience" \
         \"Monitored app performance using Firebase Analytics, Crashlytics, and Performance Monitoring.\"
     ],
     \"start_date\": \"2025-08-01\",
-    \"end_date\": \"$TODAY\"
+    \"end_date\": \"\",
+    \"is_present\": true
 }" > /dev/null
 
 curl -s -X POST "$BASE_URL/experience" \
@@ -70,7 +70,8 @@ curl -s -X POST "$BASE_URL/experience" \
         \"Contributed to technical documentation.\"
     ],
     \"start_date\": \"2024-06-01\",
-    \"end_date\": \"2025-07-31\"
+    \"end_date\": \"2025-07-31\",
+    \"is_present\": false
 }" > /dev/null
 
 curl -s -X POST "$BASE_URL/experience" \
@@ -86,7 +87,8 @@ curl -s -X POST "$BASE_URL/experience" \
         \"Completed the project independently within a three-month apprenticeship.\"
     ],
     \"start_date\": \"2023-03-01\",
-    \"end_date\": \"2023-05-31\"
+    \"end_date\": \"2023-05-31\",
+    \"is_present\": false
 }" > /dev/null
 
 # 4. Education
@@ -101,7 +103,8 @@ curl -s -X POST "$BASE_URL/education" \
     \"field_of_study\": \"Computer Science\",
     \"gpa\": 4.0,
     \"start_date\": \"2019-09-01\",
-    \"graduation_date\": \"2023-07-01\"
+    \"graduation_date\": \"2023-07-01\",
+    \"is_present\": false
 }" > /dev/null
 
 # 5. Skills
@@ -147,6 +150,7 @@ curl -s -X POST "$BASE_URL/project" \
     \"company\": \"Personal Project\",
     \"start_date\": \"2025-09-01\",
     \"end_date\": \"2025-09-30\",
+    \"is_present\": false,
     \"location\": \"South Jakarta, Indonesia\"
 }" > /dev/null
 
@@ -165,6 +169,7 @@ curl -s -X POST "$BASE_URL/project" \
     \"company\": \"PT. Semesta Arus Teknologi\",
     \"start_date\": \"2024-10-01\",
     \"end_date\": \"2025-02-01\",
+    \"is_present\": false,
     \"location\": \"South Jakarta, Indonesia\"
 }" > /dev/null
 
@@ -184,6 +189,7 @@ curl -s -X POST "$BASE_URL/project" \
     \"company\": \"Personal Project\",
     \"start_date\": \"2024-04-01\",
     \"end_date\": \"2024-05-31\",
+    \"is_present\": false,
     \"location\": \"Lebak, Indonesia\"
 }" > /dev/null
 
@@ -200,6 +206,7 @@ curl -s -X POST "$BASE_URL/project" \
     \"company\": \"Academic Project\",
     \"start_date\": \"2022-12-01\",
     \"end_date\": \"2023-06-30\",
+    \"is_present\": false,
     \"location\": \"Bandung, Indonesia\"
 }" > /dev/null
 
@@ -216,6 +223,7 @@ curl -s -X POST "$BASE_URL/project" \
     \"company\": \"Academic Project\",
     \"start_date\": \"2022-12-01\",
     \"end_date\": \"2023-06-30\",
+    \"is_present\": false,
     \"location\": \"Bandung, Indonesia\"
 }" > /dev/null
 
@@ -234,6 +242,7 @@ curl -s -X POST "$BASE_URL/project" \
     \"company\": \"Personal Project\",
     \"start_date\": \"2023-12-01\",
     \"end_date\": \"2024-02-29\",
+    \"is_present\": false,
     \"location\": \"Jakarta, Indonesia\"
 }" > /dev/null
 
