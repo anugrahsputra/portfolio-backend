@@ -25,7 +25,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main cmd/api/main.go
 FROM alpine:latest
 
 # Set environment variables
-ENV GO_ENV=production
+ENV ENV=production
 
 # Install ca-certificates (needed for HTTPS requests) and tzdata
 RUN apk add --no-cache ca-certificates tzdata

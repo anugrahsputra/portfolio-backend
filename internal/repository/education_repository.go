@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -64,6 +63,19 @@ func (r *educationRepository) GetEducations(ctx context.Context, profileID strin
 	return result, nil
 }
 
+func (r *educationRepository) GetEducationByID(ctx context.Context, id string) (domain.Education, error) {
+	idStr := uuid.MustParse(id)
+
+	education, err := r.db.GetEducationByID(ctx, idStr)
+	if err != nil {
+		return domain.Education{}, err
+	}
+
+	result := mapper.ToEducationDomain(education)
+
+	return result, nil
+}
+
 func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e domain.EducationUpdateInput) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
@@ -75,13 +87,18 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 		gd = pgtype.Date{Time: *e.GraduationDate, Valid: !e.GraduationDate.IsZero()}
 	}
 
+	current, err := r.GetEducationByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	param := db.UpdateEducationParams{
 		ID:             idStr,
-		School:         ptr.Or(e.School, ""),
-		Degree:         ptr.Or(e.Degree, ""),
-		FieldOfStudy:   ptr.Or(e.FieldOfStudy, ""),
-		Gpa:            ptr.Or(e.Gpa, 0),
-		StartDate:      pgtype.Date{Time: ptr.Or(e.StartDate, time.Time{}), Valid: e.StartDate != nil},
+		School:         ptr.Or(e.School, current.School),
+		Degree:         ptr.Or(e.Degree, current.Degree),
+		FieldOfStudy:   ptr.Or(e.FieldOfStudy, current.FieldOfStudy),
+		Gpa:            ptr.Or(e.Gpa, current.Gpa),
+		StartDate:      pgtype.Date{Time: ptr.Or(e.StartDate, current.StartDate), Valid: e.StartDate != nil},
 		GraduationDate: gd,
 	}
 

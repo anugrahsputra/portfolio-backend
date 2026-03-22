@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
@@ -40,9 +39,10 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 
 	profile, err := h.usecase.CreateProfile(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("Bad request: %v", err),
+		c.Error(err) // Log the real error for middleware
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to create profile",
 		})
 		return
 	}
@@ -61,14 +61,15 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 
 	profile, err := h.usecase.GetProfile(ctx, id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "failed to get profile",
+		c.Error(err)
+		c.JSON(http.StatusNotFound, dto.NoDataResponse{
+			Status:  http.StatusNotFound,
+			Message: "Profile not found",
 		})
 		return
 	}
 
-	res := dto.ToProfileDTO(profile)
+	res := dto.ToProfilePublicDTO(profile)
 
 	c.JSON(http.StatusOK, dto.Response{
 		Status:  http.StatusOK,
@@ -100,9 +101,10 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	if err := h.usecase.UpdateProfile(ctx, id, input); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "failed to update profile",
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to update profile",
 		})
 		return
 	}
@@ -119,9 +121,10 @@ func (h *ProfileHandler) DeleteProfile(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.usecase.DeleteProfile(ctx, id); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "failed to delete profile",
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to delete profile",
 		})
 		return
 	}

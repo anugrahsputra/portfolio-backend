@@ -69,6 +69,27 @@ func (q *Queries) DeleteEducation(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getEducationByID = `-- name: GetEducationByID :one
+select id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date from educations
+where id = $1
+`
+
+func (q *Queries) GetEducationByID(ctx context.Context, id uuid.UUID) (Education, error) {
+	row := q.db.QueryRow(ctx, getEducationByID, id)
+	var i Education
+	err := row.Scan(
+		&i.ID,
+		&i.ProfileID,
+		&i.School,
+		&i.Degree,
+		&i.FieldOfStudy,
+		&i.Gpa,
+		&i.StartDate,
+		&i.GraduationDate,
+	)
+	return i, err
+}
+
 const getEducations = `-- name: GetEducations :many
 select id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date from educations
 where profile_id = $1
@@ -107,12 +128,12 @@ func (q *Queries) GetEducations(ctx context.Context, profileID uuid.UUID) ([]Edu
 const updateEducation = `-- name: UpdateEducation :one
 update educations
 set
-    school = $2,
-    degree = $3,
-    field_of_study = $4,
-    gpa = $5,
-    start_date = $6,
-    graduation_date = $7
+    school = COALESCE($2, school),
+    degree = COALESCE($3, degree),
+    field_of_study = COALESCE($4, field_of_study),
+    gpa = COALESCE($5, gpa),
+    start_date = COALESCE($6, start_date),
+    graduation_date = COALESCE($7, graduation_date)
 where id = $1
 returning id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date
 `

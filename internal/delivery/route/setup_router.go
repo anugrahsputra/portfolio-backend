@@ -7,6 +7,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/repository"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -75,11 +76,18 @@ func SetupRouter(db *config.Database) *gin.Engine {
 		allowMethods = []string{"GET"}
 	}
 
-	route := gin.Default()
+	// route := gin.Default() // gin.Default() includes Logger and Recovery middleware
+	// We use gin.New() to have more control over middlewares
+	route := gin.New()
+
+	// Global Middlewares
+	route.Use(middleware.RecoveryMiddleware())
+	route.Use(gin.Logger())
+	route.Use(middleware.SecurityMiddleware())
 	route.Use(cors.New(cors.Config{
 		AllowOrigins:     allowOrigins,
 		AllowMethods:     allowMethods,
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-KEY"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
@@ -94,6 +102,7 @@ func SetupRouter(db *config.Database) *gin.Engine {
 
 	// API Group
 	api := route.Group("/api/v1")
+	api.Use(middleware.AuthMiddleware())
 	{
 		ProfileRoute(api, profile)
 		ProfileUrlRoute(api, profileUrl)

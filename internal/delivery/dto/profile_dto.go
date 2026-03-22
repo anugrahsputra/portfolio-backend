@@ -12,6 +12,15 @@ type ProfileResp struct {
 	Url     []ProfileUrlResp `json:"url"`
 }
 
+type ProfilePublicResp struct {
+	ID      string           `json:"id"`
+	Name    string           `json:"name"`
+	About   string           `json:"about"`
+	Address string           `json:"address"`
+	Email   string           `json:"email"`
+	Url     []ProfileUrlResp `json:"url"`
+}
+
 type ProfileReq struct {
 	Name    string `json:"name"`
 	About   string `json:"about"`
@@ -34,6 +43,23 @@ func ToProfileDTO(p *domain.Profile) ProfileResp {
 		Address: p.Address,
 		Email:   p.Email,
 		Phone:   p.Phone,
+		Url:     urls,
+	}
+}
+
+func ToProfilePublicDTO(p *domain.Profile) ProfilePublicResp {
+	urls := make([]ProfileUrlResp, 0, len(p.Url))
+	for _, url := range p.Url {
+		item := ToProfileUrlDTO(&url)
+		urls = append(urls, item)
+	}
+
+	return ProfilePublicResp{
+		ID:      p.ID,
+		Name:    p.Name,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
 		Url:     urls,
 	}
 }
