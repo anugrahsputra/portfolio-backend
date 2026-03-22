@@ -34,6 +34,7 @@ create table if not exists educations (
     gpa numeric(3,2) not null check (gpa >= 0.0 and gpa <= 4.0),
     start_date date not null,
     graduation_date date,
+    is_present boolean default false,
     check (graduation_date is null or graduation_date >= start_date),
     unique (profile_id, school, degree, start_date)
 );
@@ -48,6 +49,7 @@ create table if not exists experiences (
     description text[],
     start_date date not null,
     end_date date,
+    is_present boolean default false,
     check (end_date is null or end_date >= start_date),
     unique (profile_id, company, position, start_date)
 );

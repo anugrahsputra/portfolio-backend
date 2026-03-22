@@ -8,9 +8,9 @@ import (
 )
 
 func ToEducationDomain(e db.Education) domain.Education {
-	gd := time.Time{}
+	var gd *time.Time
 	if e.GraduationDate.Valid {
-		gd = e.GraduationDate.Time
+		gd = &e.GraduationDate.Time
 	}
 
 	return domain.Education{
@@ -22,5 +22,6 @@ func ToEducationDomain(e db.Education) domain.Education {
 		Gpa:            e.Gpa,
 		StartDate:      e.StartDate.Time,
 		GraduationDate: gd,
+		IsPresent:      e.IsPresent,
 	}
 }

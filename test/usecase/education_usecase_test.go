@@ -29,6 +29,11 @@ func (m *MockEducationRepository) GetEducations(ctx context.Context, profileID s
 	return args.Get(0).([]domain.Education), args.Error(1)
 }
 
+func (m *MockEducationRepository) GetEducationByID(ctx context.Context, id string) (domain.Education, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(domain.Education), args.Error(1)
+}
+
 func (m *MockEducationRepository) UpdateEducation(ctx context.Context, id string, e domain.EducationUpdateInput) error {
 	args := m.Called(ctx, id, e)
 	return args.Error(0)

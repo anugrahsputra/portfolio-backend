@@ -7,6 +7,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,8 +23,9 @@ func TestToExperienceDomain(t *testing.T) {
 		Company:     "Tech Corp",
 		Position:    "Software Engineer",
 		Description: []string{"Developing cool stuff", "Managing team"},
-		StartDate:   startDate,
-		EndDate:     endDate,
+		StartDate:   pgtype.Date{Time: startDate, Valid: true},
+		EndDate:     pgtype.Date{Time: endDate, Valid: true},
+		IsPresent:   false,
 	}
 
 	domainExperience := mapper.ToExperienceDomain(dbExperience)
@@ -34,5 +36,6 @@ func TestToExperienceDomain(t *testing.T) {
 	assert.Equal(t, "Software Engineer", domainExperience.Position)
 	assert.Equal(t, []string{"Developing cool stuff", "Managing team"}, domainExperience.Description)
 	assert.Equal(t, startDate, domainExperience.StartDate)
-	assert.Equal(t, endDate, domainExperience.EndDate)
+	assert.Equal(t, &endDate, domainExperience.EndDate)
+	assert.Equal(t, false, domainExperience.IsPresent)
 }

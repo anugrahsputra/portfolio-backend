@@ -29,6 +29,11 @@ func (m *MockExperienceRepository) GetExperiences(ctx context.Context, profileID
 	return args.Get(0).([]domain.Experience), args.Error(1)
 }
 
+func (m *MockExperienceRepository) GetExperienceByID(ctx context.Context, id string) (domain.Experience, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(domain.Experience), args.Error(1)
+}
+
 func (m *MockExperienceRepository) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
 	args := m.Called(ctx, id, ex)
 	return args.Get(0).(domain.Experience), args.Error(1)

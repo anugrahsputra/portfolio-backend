@@ -74,7 +74,7 @@ func (h *EducationHandler) UpdateEducation(c *gin.Context) {
 	ctx := c.Request.Context()
 	eduID := c.Param("education_id")
 
-	var req dto.EducationReq
+	var req dto.EducationUpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,

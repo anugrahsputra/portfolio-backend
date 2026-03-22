@@ -26,6 +26,11 @@ func (r *educationRepository) CreateEducation(ctx context.Context, e domain.Educ
 		return err
 	}
 
+	var gd pgtype.Date
+	if e.GraduationDate != nil {
+		gd = pgtype.Date{Time: *e.GraduationDate, Valid: !e.GraduationDate.IsZero()}
+	}
+
 	param := db.CreateEducationParams{
 		ProfileID:      profileID,
 		School:         e.School,
@@ -33,7 +38,8 @@ func (r *educationRepository) CreateEducation(ctx context.Context, e domain.Educ
 		FieldOfStudy:   e.FieldOfStudy,
 		Gpa:            e.Gpa,
 		StartDate:      pgtype.Date{Time: e.StartDate, Valid: true},
-		GraduationDate: pgtype.Date{Time: e.GraduationDate, Valid: !e.GraduationDate.IsZero()},
+		GraduationDate: gd,
+		IsPresent:      e.IsPresent,
 	}
 
 	if _, err := r.db.CreateEducation(ctx, param); err != nil {
@@ -77,7 +83,7 @@ func (r *educationRepository) GetEducationByID(ctx context.Context, id string) (
 }
 
 func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e domain.EducationUpdateInput) error {
-	idStr, err := uuid.Parse(id)
+	current, err := r.GetEducationByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -85,21 +91,19 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 	var gd pgtype.Date
 	if e.GraduationDate != nil {
 		gd = pgtype.Date{Time: *e.GraduationDate, Valid: !e.GraduationDate.IsZero()}
-	}
-
-	current, err := r.GetEducationByID(ctx, id)
-	if err != nil {
-		return err
+	} else if current.GraduationDate != nil {
+		gd = pgtype.Date{Time: *current.GraduationDate, Valid: !current.GraduationDate.IsZero()}
 	}
 
 	param := db.UpdateEducationParams{
-		ID:             idStr,
+		ID:             uuid.MustParse(current.ID),
 		School:         ptr.Or(e.School, current.School),
 		Degree:         ptr.Or(e.Degree, current.Degree),
 		FieldOfStudy:   ptr.Or(e.FieldOfStudy, current.FieldOfStudy),
 		Gpa:            ptr.Or(e.Gpa, current.Gpa),
-		StartDate:      pgtype.Date{Time: ptr.Or(e.StartDate, current.StartDate), Valid: e.StartDate != nil},
+		StartDate:      pgtype.Date{Time: ptr.Or(e.StartDate, current.StartDate), Valid: true},
 		GraduationDate: gd,
+		IsPresent:      ptr.Or(e.IsPresent, current.IsPresent),
 	}
 
 	if _, err := r.db.UpdateEducation(ctx, param); err != nil {

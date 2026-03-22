@@ -13,7 +13,8 @@ type Education struct {
 	FieldOfStudy   string
 	Gpa            float64
 	StartDate      time.Time
-	GraduationDate time.Time
+	GraduationDate *time.Time
+	IsPresent      bool
 }
 
 type EducationInput struct {
@@ -23,7 +24,8 @@ type EducationInput struct {
 	FieldOfStudy   string
 	Gpa            float64
 	StartDate      time.Time
-	GraduationDate time.Time
+	GraduationDate *time.Time
+	IsPresent      bool
 }
 
 type EducationUpdateInput struct {
@@ -34,6 +36,7 @@ type EducationUpdateInput struct {
 	Gpa            *float64
 	StartDate      *time.Time
 	GraduationDate *time.Time
+	IsPresent      *bool
 }
 
 type EducationRepository interface {

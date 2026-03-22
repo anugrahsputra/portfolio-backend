@@ -1,13 +1,14 @@
 -- name: CreateEducation :one
 insert into educations (
-    profile_id, school, degree, field_of_study, gpa, start_date, graduation_date
+    profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present
 ) values (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6, $7, $8
 ) 
 on conflict (profile_id, school, degree, start_date) do update set
     field_of_study = excluded.field_of_study,
     gpa = excluded.gpa,
-    graduation_date = excluded.graduation_date
+    graduation_date = excluded.graduation_date,
+    is_present = excluded.is_present
 returning *;
 
 
@@ -28,7 +29,8 @@ set
     field_of_study = COALESCE($4, field_of_study),
     gpa = COALESCE($5, gpa),
     start_date = COALESCE($6, start_date),
-    graduation_date = COALESCE($7, graduation_date)
+    graduation_date = COALESCE($7, graduation_date),
+    is_present = COALESCE($8, is_present)
 where id = $1
 returning *;
 

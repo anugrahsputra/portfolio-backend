@@ -14,15 +14,16 @@ import (
 
 const createEducation = `-- name: CreateEducation :one
 insert into educations (
-    profile_id, school, degree, field_of_study, gpa, start_date, graduation_date
+    profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present
 ) values (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6, $7, $8
 ) 
 on conflict (profile_id, school, degree, start_date) do update set
     field_of_study = excluded.field_of_study,
     gpa = excluded.gpa,
-    graduation_date = excluded.graduation_date
-returning id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date
+    graduation_date = excluded.graduation_date,
+    is_present = excluded.is_present
+returning id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present
 `
 
 type CreateEducationParams struct {
@@ -33,6 +34,7 @@ type CreateEducationParams struct {
 	Gpa            float64
 	StartDate      pgtype.Date
 	GraduationDate pgtype.Date
+	IsPresent      bool
 }
 
 func (q *Queries) CreateEducation(ctx context.Context, arg CreateEducationParams) (Education, error) {
@@ -44,6 +46,7 @@ func (q *Queries) CreateEducation(ctx context.Context, arg CreateEducationParams
 		arg.Gpa,
 		arg.StartDate,
 		arg.GraduationDate,
+		arg.IsPresent,
 	)
 	var i Education
 	err := row.Scan(
@@ -55,6 +58,7 @@ func (q *Queries) CreateEducation(ctx context.Context, arg CreateEducationParams
 		&i.Gpa,
 		&i.StartDate,
 		&i.GraduationDate,
+		&i.IsPresent,
 	)
 	return i, err
 }
@@ -70,7 +74,7 @@ func (q *Queries) DeleteEducation(ctx context.Context, id uuid.UUID) error {
 }
 
 const getEducationByID = `-- name: GetEducationByID :one
-select id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date from educations
+select id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present from educations
 where id = $1
 `
 
@@ -86,12 +90,13 @@ func (q *Queries) GetEducationByID(ctx context.Context, id uuid.UUID) (Education
 		&i.Gpa,
 		&i.StartDate,
 		&i.GraduationDate,
+		&i.IsPresent,
 	)
 	return i, err
 }
 
 const getEducations = `-- name: GetEducations :many
-select id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date from educations
+select id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present from educations
 where profile_id = $1
 order by start_date desc
 `
@@ -114,6 +119,7 @@ func (q *Queries) GetEducations(ctx context.Context, profileID uuid.UUID) ([]Edu
 			&i.Gpa,
 			&i.StartDate,
 			&i.GraduationDate,
+			&i.IsPresent,
 		); err != nil {
 			return nil, err
 		}
@@ -133,9 +139,10 @@ set
     field_of_study = COALESCE($4, field_of_study),
     gpa = COALESCE($5, gpa),
     start_date = COALESCE($6, start_date),
-    graduation_date = COALESCE($7, graduation_date)
+    graduation_date = COALESCE($7, graduation_date),
+    is_present = COALESCE($8, is_present)
 where id = $1
-returning id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date
+returning id, profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present
 `
 
 type UpdateEducationParams struct {
@@ -146,6 +153,7 @@ type UpdateEducationParams struct {
 	Gpa            float64
 	StartDate      pgtype.Date
 	GraduationDate pgtype.Date
+	IsPresent      bool
 }
 
 func (q *Queries) UpdateEducation(ctx context.Context, arg UpdateEducationParams) (Education, error) {
@@ -157,6 +165,7 @@ func (q *Queries) UpdateEducation(ctx context.Context, arg UpdateEducationParams
 		arg.Gpa,
 		arg.StartDate,
 		arg.GraduationDate,
+		arg.IsPresent,
 	)
 	var i Education
 	err := row.Scan(
@@ -168,6 +177,7 @@ func (q *Queries) UpdateEducation(ctx context.Context, arg UpdateEducationParams
 		&i.Gpa,
 		&i.StartDate,
 		&i.GraduationDate,
+		&i.IsPresent,
 	)
 	return i, err
 }

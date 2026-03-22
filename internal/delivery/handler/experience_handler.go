@@ -77,7 +77,7 @@ func (h *ExperienceHandler) UpdateExperience(c *gin.Context) {
 	ctx := c.Request.Context()
 	expID := c.Param("experience_id")
 
-	var req dto.ExperienceReq
+	var req dto.ExperienceUpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,

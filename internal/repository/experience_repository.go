@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -27,13 +26,19 @@ func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.E
 		return domain.Experience{}, err
 	}
 
+	var ed pgtype.Date
+	if ex.EndDate != nil {
+		ed = pgtype.Date{Time: *ex.EndDate, Valid: !ex.EndDate.IsZero()}
+	}
+
 	param := db.CreateExperienceParams{
 		ProfileID:   profileIDStr,
 		Company:     ex.Company,
 		Position:    ex.Position,
 		Description: ex.Description,
 		StartDate:   pgtype.Date{Time: ex.StartDate, Valid: true},
-		EndDate:     pgtype.Date{Time: ex.EndDate, Valid: !ex.EndDate.IsZero()},
+		EndDate:     ed,
+		IsPresent:   ex.IsPresent,
 	}
 
 	experience, err := r.db.CreateExperience(ctx, param)
@@ -65,8 +70,23 @@ func (r *experienceRepository) GetExperiences(ctx context.Context, profileID str
 	return result, nil
 }
 
-func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
+func (r *experienceRepository) GetExperienceByID(ctx context.Context, id string) (domain.Experience, error) {
 	idStr, err := uuid.Parse(id)
+	if err != nil {
+		return domain.Experience{}, err
+	}
+
+	experience, err := r.db.GetExperienceByID(ctx, idStr)
+	if err != nil {
+		return domain.Experience{}, err
+	}
+
+	result := mapper.ToExperienceDomain(experience)
+	return result, nil
+}
+
+func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
+	current, err := r.GetExperienceByID(ctx, id)
 	if err != nil {
 		return domain.Experience{}, err
 	}
@@ -74,15 +94,18 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 	var ed pgtype.Date
 	if ex.EndDate != nil {
 		ed = pgtype.Date{Time: *ex.EndDate, Valid: !ex.EndDate.IsZero()}
+	} else if current.EndDate != nil {
+		ed = pgtype.Date{Time: *current.EndDate, Valid: !current.EndDate.IsZero()}
 	}
 
 	param := db.UpdateExperienceParams{
-		ID:          idStr,
-		Company:     ptr.Or(ex.Company, ""),
-		Position:    ptr.Or(ex.Position, ""),
-		Description: ptr.Or(ex.Description, []string{}),
-		StartDate:   pgtype.Date{Time: ptr.Or(ex.StartDate, time.Time{}), Valid: ex.StartDate != nil},
+		ID:          uuid.MustParse(current.ID),
+		Company:     ptr.Or(ex.Company, current.Company),
+		Position:    ptr.Or(ex.Position, current.Position),
+		Description: ptr.Or(ex.Description, current.Description),
+		StartDate:   pgtype.Date{Time: ptr.Or(ex.StartDate, current.StartDate), Valid: true},
 		EndDate:     ed,
+		IsPresent:   ptr.Or(ex.IsPresent, current.IsPresent),
 	}
 
 	experience, err := r.db.UpdateExperience(ctx, param)

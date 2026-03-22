@@ -7,6 +7,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,8 +24,9 @@ func TestToEducationDomain(t *testing.T) {
 		Degree:         "Bachelor of Science",
 		FieldOfStudy:   "Computer Science",
 		Gpa:            3.8,
-		StartDate:      startDate,
-		GraduationDate: graduationDate,
+		StartDate:      pgtype.Date{Time: startDate, Valid: true},
+		GraduationDate: pgtype.Date{Time: graduationDate, Valid: true},
+		IsPresent:      false,
 	}
 
 	domainEducation := mapper.ToEducationDomain(dbEducation)
@@ -36,5 +38,6 @@ func TestToEducationDomain(t *testing.T) {
 	assert.Equal(t, "Computer Science", domainEducation.FieldOfStudy)
 	assert.Equal(t, 3.8, domainEducation.Gpa)
 	assert.Equal(t, startDate, domainEducation.StartDate)
-	assert.Equal(t, graduationDate, domainEducation.GraduationDate)
+	assert.Equal(t, &graduationDate, domainEducation.GraduationDate)
+	assert.Equal(t, false, domainEducation.IsPresent)
 }

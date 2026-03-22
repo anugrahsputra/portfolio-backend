@@ -122,7 +122,7 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 
 		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 }
 

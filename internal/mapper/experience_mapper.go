@@ -8,9 +8,9 @@ import (
 )
 
 func ToExperienceDomain(ex db.Experience) domain.Experience {
-	ed := time.Time{}
+	var ed *time.Time
 	if ex.EndDate.Valid {
-		ed = ex.EndDate.Time
+		ed = &ex.EndDate.Time
 	}
 
 	return domain.Experience{
@@ -21,5 +21,6 @@ func ToExperienceDomain(ex db.Experience) domain.Experience {
 		Description: ex.Description,
 		StartDate:   ex.StartDate.Time,
 		EndDate:     ed,
+		IsPresent:   ex.IsPresent,
 	}
 }

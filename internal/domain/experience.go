@@ -12,7 +12,8 @@ type Experience struct {
 	Position    string
 	Description []string
 	StartDate   time.Time
-	EndDate     time.Time
+	EndDate     *time.Time
+	IsPresent   bool
 }
 
 type ExperienceInput struct {
@@ -21,7 +22,8 @@ type ExperienceInput struct {
 	Position    string
 	Description []string
 	StartDate   time.Time
-	EndDate     time.Time
+	EndDate     *time.Time
+	IsPresent   bool
 }
 
 type ExperienceUpdateInput struct {
@@ -31,11 +33,13 @@ type ExperienceUpdateInput struct {
 	Description *[]string
 	StartDate   *time.Time
 	EndDate     *time.Time
+	IsPresent   *bool
 }
 
 type ExperienceRepository interface {
 	CreateExperience(ctx context.Context, ex ExperienceInput) (Experience, error)
 	GetExperiences(ctx context.Context, profileID string) ([]Experience, error)
+	GetExperienceByID(ctx context.Context, id string) (Experience, error)
 	UpdateExperience(ctx context.Context, id string, ex ExperienceUpdateInput) (Experience, error)
 	DeleteExperience(ctx context.Context, id string) error
 }

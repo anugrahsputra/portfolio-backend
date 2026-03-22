@@ -66,6 +66,7 @@ type Education struct {
 	Gpa            float64
 	StartDate      pgtype.Date
 	GraduationDate pgtype.Date
+	IsPresent      bool
 }
 
 type Experience struct {
@@ -76,6 +77,7 @@ type Experience struct {
 	Description []string
 	StartDate   pgtype.Date
 	EndDate     pgtype.Date
+	IsPresent   bool
 }
 
 type Language struct {

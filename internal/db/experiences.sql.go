@@ -14,14 +14,15 @@ import (
 
 const createExperience = `-- name: CreateExperience :one
 insert into experiences (
-    profile_id, company, position, description, start_date, end_date
+    profile_id, company, position, description, start_date, end_date, is_present
 ) values (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 ) 
 on conflict (profile_id, company, position, start_date) do update set
     description = excluded.description,
-    end_date = excluded.end_date
-returning id, profile_id, company, position, description, start_date, end_date
+    end_date = excluded.end_date,
+    is_present = excluded.is_present
+returning id, profile_id, company, position, description, start_date, end_date, is_present
 `
 
 type CreateExperienceParams struct {
@@ -31,6 +32,7 @@ type CreateExperienceParams struct {
 	Description []string
 	StartDate   pgtype.Date
 	EndDate     pgtype.Date
+	IsPresent   bool
 }
 
 func (q *Queries) CreateExperience(ctx context.Context, arg CreateExperienceParams) (Experience, error) {
@@ -41,6 +43,7 @@ func (q *Queries) CreateExperience(ctx context.Context, arg CreateExperiencePara
 		arg.Description,
 		arg.StartDate,
 		arg.EndDate,
+		arg.IsPresent,
 	)
 	var i Experience
 	err := row.Scan(
@@ -51,6 +54,7 @@ func (q *Queries) CreateExperience(ctx context.Context, arg CreateExperiencePara
 		&i.Description,
 		&i.StartDate,
 		&i.EndDate,
+		&i.IsPresent,
 	)
 	return i, err
 }
@@ -65,8 +69,29 @@ func (q *Queries) DeleteExperience(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getExperienceByID = `-- name: GetExperienceByID :one
+select id, profile_id, company, position, description, start_date, end_date, is_present from experiences
+where id = $1
+`
+
+func (q *Queries) GetExperienceByID(ctx context.Context, id uuid.UUID) (Experience, error) {
+	row := q.db.QueryRow(ctx, getExperienceByID, id)
+	var i Experience
+	err := row.Scan(
+		&i.ID,
+		&i.ProfileID,
+		&i.Company,
+		&i.Position,
+		&i.Description,
+		&i.StartDate,
+		&i.EndDate,
+		&i.IsPresent,
+	)
+	return i, err
+}
+
 const getExperiences = `-- name: GetExperiences :many
-select id, profile_id, company, position, description, start_date, end_date from experiences
+select id, profile_id, company, position, description, start_date, end_date, is_present from experiences
 where profile_id = $1
 order by start_date desc
 `
@@ -88,6 +113,7 @@ func (q *Queries) GetExperiences(ctx context.Context, profileID uuid.UUID) ([]Ex
 			&i.Description,
 			&i.StartDate,
 			&i.EndDate,
+			&i.IsPresent,
 		); err != nil {
 			return nil, err
 		}
@@ -106,9 +132,10 @@ set
     position = $3,
     description = $4,
     start_date = $5,
-    end_date = $6
+    end_date = $6,
+    is_present = $7
 where id = $1
-returning id, profile_id, company, position, description, start_date, end_date
+returning id, profile_id, company, position, description, start_date, end_date, is_present
 `
 
 type UpdateExperienceParams struct {
@@ -118,6 +145,7 @@ type UpdateExperienceParams struct {
 	Description []string
 	StartDate   pgtype.Date
 	EndDate     pgtype.Date
+	IsPresent   bool
 }
 
 func (q *Queries) UpdateExperience(ctx context.Context, arg UpdateExperienceParams) (Experience, error) {
@@ -128,6 +156,7 @@ func (q *Queries) UpdateExperience(ctx context.Context, arg UpdateExperiencePara
 		arg.Description,
 		arg.StartDate,
 		arg.EndDate,
+		arg.IsPresent,
 	)
 	var i Experience
 	err := row.Scan(
@@ -138,6 +167,7 @@ func (q *Queries) UpdateExperience(ctx context.Context, arg UpdateExperiencePara
 		&i.Description,
 		&i.StartDate,
 		&i.EndDate,
+		&i.IsPresent,
 	)
 	return i, err
 }

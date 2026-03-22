@@ -6,8 +6,8 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
-	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,8 +30,9 @@ func TestToProjectDomain(t *testing.T) {
 		IsFeatured:    true,
 		ImageUrl:      "https://image.com",
 		Company:       "Test Company",
-		StartDate:     startDate,
-		EndDate:       endDate,
+		StartDate:     pgtype.Date{Time: startDate, Valid: true},
+		EndDate:       pgtype.Date{Time: endDate, Valid: true},
+		IsPresent:     false,
 		Location:      "Remote",
 	}
 
@@ -43,5 +44,6 @@ func TestToProjectDomain(t *testing.T) {
 	assert.Equal(t, dbProject.TechStacks, domainProject.TechStacks)
 	assert.Equal(t, dbProject.IsLive, domainProject.IsLive)
 	assert.Equal(t, startDate, domainProject.StartDate)
-	assert.Equal(t, ptr.To(endDate), domainProject.EndDate)
+	assert.Equal(t, &endDate, domainProject.EndDate)
+	assert.Equal(t, false, domainProject.IsPresent)
 }
