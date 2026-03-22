@@ -1,11 +1,13 @@
 #!/bin/bash
 
 BASE_URL="http://localhost:8082/api/v1"
-TODAY="2026-03-18"
+TODAY="2099-12-31"
+API_KEY="your_secret_api_key_here" # Change this to match your .env
 
 echo "Creating profile..."
 PROFILE_RESPONSE=$(curl -s -X POST "$BASE_URL/profile" \
   -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
   -d '{
     "name": "Anugrah Surya Putra",
     "about": "Mobile Engineer with 2+ years of experience building and maintaining cross-platform applications using Flutter and Kotlin Multiplatform. Strong focus on clean architecture, production stability, CI/CD workflows, and close collaboration with backend teams to deliver reliable, high-quality mobile experiences.",
@@ -24,12 +26,17 @@ fi
 echo "Profile created: $PROFILE_ID"
 
 # 2. LinkedIn URL
-curl -s -X POST "$BASE_URL/profile-url" -H "Content-Type: application/json" \
+curl -s -X POST "$BASE_URL/profile-url" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
   -d "{\"profile_id\":\"$PROFILE_ID\",\"label\":\"LinkedIn\",\"url\":\"https://linkedin.com/in/anugrahsputra\"}" > /dev/null
 
 # 3. Experience
 echo "Adding experiences..."
-curl -s -X POST "$BASE_URL/experience" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/experience" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"company\": \"BRIK Indonesia\",
     \"position\": \"Mobile Engineer\",
@@ -46,7 +53,10 @@ curl -s -X POST "$BASE_URL/experience" -H "Content-Type: application/json" -d "{
     \"end_date\": \"$TODAY\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/experience" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/experience" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"company\": \"PT. Semesta Arus Teknologi\",
     \"position\": \"Mobile Engineer\",
@@ -63,7 +73,10 @@ curl -s -X POST "$BASE_URL/experience" -H "Content-Type: application/json" -d "{
     \"end_date\": \"2025-07-31\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/experience" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/experience" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"company\": \"PT. Inovasi Karya Mahendra (INKARA)\",
     \"position\": \"Mobile Developer Apprenticeship\",
@@ -78,7 +91,10 @@ curl -s -X POST "$BASE_URL/experience" -H "Content-Type: application/json" -d "{
 
 # 4. Education
 echo "Adding education..."
-curl -s -X POST "$BASE_URL/education" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/education" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"school\": \"Universitas Pasundan\",
     \"degree\": \"Bachelor of Engineering\",
@@ -90,7 +106,10 @@ curl -s -X POST "$BASE_URL/education" -H "Content-Type: application/json" -d "{
 
 # 5. Skills
 echo "Adding skills..."
-curl -s -X POST "$BASE_URL/skill" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/skill" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"tools\": [\"Android Studio\", \"Figma\", \"VS Code\", \"Neovim\"],
     \"technologies\": [\"Android\", \"Kotlin\", \"Compose Multiplatform\", \"Dart\", \"Flutter\", \"Firebase\", \"REST API\", \"Git\"],
@@ -100,12 +119,22 @@ curl -s -X POST "$BASE_URL/skill" -H "Content-Type: application/json" -d "{
 
 # 6. Languages
 echo "Adding languages..."
-curl -s -X POST "$BASE_URL/language" -H "Content-Type: application/json" -d "{\"profile_id\":\"$PROFILE_ID\",\"language\":\"English\",\"proficiency\":\"professional\"}" > /dev/null
-curl -s -X POST "$BASE_URL/language" -H "Content-Type: application/json" -d "{\"profile_id\":\"$PROFILE_ID\",\"language\":\"Bahasa Indonesia\",\"proficiency\":\"native\"}" > /dev/null
+curl -s -X POST "$BASE_URL/language" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{\"profile_id\":\"$PROFILE_ID\",\"language\":\"English\",\"proficiency\":\"professional\"}" > /dev/null
+
+curl -s -X POST "$BASE_URL/language" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{\"profile_id\":\"$PROFILE_ID\",\"language\":\"Bahasa Indonesia\",\"proficiency\":\"native\"}" > /dev/null
 
 # 7. Projects
 echo "Adding projects..."
-curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/project" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"title\": \"Change Project Name\",
     \"description\": [\"A powerful CLI tool to rename Flutter/Dart projects and automatically update all package references, and imports.\"],
@@ -121,7 +150,10 @@ curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
     \"location\": \"South Jakarta, Indonesia\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/project" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"title\": \"Cosmic App KIOSK Touchscreen\",
     \"description\": [\"Enhanced and maintained a KIOSK touchscreen application for the Bureau of Publishing (DPR RI).\", \"Refactored codebase to improve readability.\"],
@@ -136,7 +168,10 @@ curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
     \"location\": \"South Jakarta, Indonesia\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/project" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"title\": \"Quraani - Quran Mobile App\",
     \"description\": [\"Simple and easy-to-use Quran app for Android built with Flutter.\"],
@@ -152,7 +187,10 @@ curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
     \"location\": \"Lebak, Indonesia\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/project" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"title\": \"E-Market Seller Mobile Applications\",
     \"description\": [\"Designed for sellers to sell products online, specifically for UMKM in Kecamatan Malingping.\"],
@@ -165,7 +203,10 @@ curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
     \"location\": \"Bandung, Indonesia\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/project" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"title\": \"E-Market Buyer Mobile Applications\",
     \"description\": [\"Platform for buyers in Kecamatan Malingping to browse and purchase products online.\"],
@@ -178,7 +219,10 @@ curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
     \"location\": \"Bandung, Indonesia\"
 }" > /dev/null
 
-curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
+curl -s -X POST "$BASE_URL/project" \
+  -H "Content-Type: application/json" \
+  -H "api-key: $API_KEY" \
+  -d "{
     \"profile_id\": \"$PROFILE_ID\",
     \"title\": \"Get Wallpaper\",
     \"description\": [\"Allows users to browse, download, and set wallpapers from the internet.\"],
@@ -193,4 +237,4 @@ curl -s -X POST "$BASE_URL/project" -H "Content-Type: application/json" -d "{
     \"location\": \"Jakarta, Indonesia\"
 }" > /dev/null
 
-echo \"All data imported successfully!\"
+echo "All data imported successfully!"
