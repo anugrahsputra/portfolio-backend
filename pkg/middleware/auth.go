@@ -10,12 +10,6 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Only check auth for non-GET requests (e.g., POST, PUT, DELETE)
-		if c.Request.Method == http.MethodGet {
-			c.Next()
-			return
-		}
-
 		apiKey := os.Getenv("API_KEY")
 		if apiKey == "" {
 			// In case the API_KEY is not set, we can either allow it in development
