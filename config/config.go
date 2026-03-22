@@ -13,14 +13,9 @@ type Config struct {
 }
 
 func Load() *Config {
-	env := getEnv("GO_ENV", "development")
+	env := getEnv("ENV", "development")
 
-	switch env {
-	case "development":
-		_ = godotenv.Load(".env.development", ".env")
-	default:
-		_ = godotenv.Load(".env")
-	}
+	_ = godotenv.Load(".env")
 
 	return &Config{
 		Port:        getEnv("PORT", "8082"),

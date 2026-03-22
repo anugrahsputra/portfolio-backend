@@ -1,6 +1,8 @@
 package route
 
 import (
+	"os"
+
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/repository"
@@ -59,6 +61,14 @@ func wireProjectRoute(db *config.Database) *handler.ProjectHandler {
 }
 
 func SetupRouter(db *config.Database) *gin.Engine {
+	env := os.Getenv("ENV")
+
+	if env == "development" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	route := gin.Default()
 	route.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
