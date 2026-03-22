@@ -62,17 +62,23 @@ func wireProjectRoute(db *config.Database) *handler.ProjectHandler {
 
 func SetupRouter(db *config.Database) *gin.Engine {
 	env := os.Getenv("ENV")
+	var allowOrigins []string
+	var allowMethods []string
 
 	if env == "development" {
 		gin.SetMode(gin.DebugMode)
+		allowOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000"}
+		allowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	} else {
 		gin.SetMode(gin.ReleaseMode)
+		allowOrigins = []string{"https://www.downormal.dev", "https://downormal.dev"}
+		allowMethods = []string{"GET"}
 	}
 
 	route := gin.Default()
 	route.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "https://www.downormal.dev"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowOrigins:     allowOrigins,
+		AllowMethods:     allowMethods,
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
