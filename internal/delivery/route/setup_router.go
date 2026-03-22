@@ -87,7 +87,7 @@ func SetupRouter(db *config.Database) *gin.Engine {
 	route.Use(cors.New(cors.Config{
 		AllowOrigins:     allowOrigins,
 		AllowMethods:     allowMethods,
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-KEY"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "api-key"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))

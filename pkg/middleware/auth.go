@@ -31,7 +31,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			}
 		}
 
-		clientKey := c.GetHeader("X-API-KEY")
+		clientKey := c.GetHeader("api-key")
 		if clientKey != apiKey {
 			c.JSON(http.StatusUnauthorized, dto.NoDataResponse{
 				Status:  http.StatusUnauthorized,
