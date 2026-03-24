@@ -101,16 +101,16 @@ func SetupRouter(db *config.Database) *gin.Engine {
 	project := wireProjectRoute(db)
 
 	// API Group
+	apiKey := os.Getenv("API_KEY")
 	api := route.Group("/api/v1")
-	api.Use(middleware.AuthMiddleware())
 	{
-		ProfileRoute(api, profile)
-		ProfileUrlRoute(api, profileUrl)
-		ExperienceRoute(api, experience)
-		EducationRoute(api, education)
-		SkillRoute(api, skill)
-		LanguageRoute(api, language)
-		ProjectRoute(api, project)
+		ProfileRoute(api, profile, apiKey)
+		ProfileUrlRoute(api, profileUrl, apiKey)
+		ExperienceRoute(api, experience, apiKey)
+		EducationRoute(api, education, apiKey)
+		SkillRoute(api, skill, apiKey)
+		LanguageRoute(api, language, apiKey)
+		ProjectRoute(api, project, apiKey)
 	}
 
 	return route
