@@ -12,6 +12,7 @@ type ExperienceResp struct {
 	Company     string     `json:"company"`
 	Position    string     `json:"position"`
 	Description []string   `json:"description"`
+	Location    string     `json:"location"`
 	StartDate   time.Time  `json:"start_date"`
 	EndDate     *time.Time `json:"end_date"`
 	IsPresent   bool       `json:"is_present"`
@@ -22,6 +23,7 @@ type ExperienceReq struct {
 	Company     string   `json:"company"`
 	Position    string   `json:"position"`
 	Description []string `json:"description"`
+	Location    string   `json:"location"`
 	StartDate   string   `json:"start_date"`
 	EndDate     string   `json:"end_date"`
 	IsPresent   bool     `json:"is_present"`
@@ -32,6 +34,7 @@ type ExperienceUpdateReq struct {
 	Company     *string   `json:"company"`
 	Position    *string   `json:"position"`
 	Description *[]string `json:"description"`
+	Location    *string   `json:"location"`
 	StartDate   *string   `json:"start_date"`
 	EndDate     *string   `json:"end_date"`
 	IsPresent   *bool     `json:"is_present"`
@@ -44,6 +47,7 @@ func ToExperienceDTO(ex *domain.Experience) ExperienceResp {
 		Company:     ex.Company,
 		Position:    ex.Position,
 		Description: ex.Description,
+		Location:    ex.Location,
 		StartDate:   ex.StartDate,
 		EndDate:     ex.EndDate,
 		IsPresent:   ex.IsPresent,
@@ -64,6 +68,7 @@ func ToExperienceInput(ex *ExperienceReq) domain.ExperienceInput {
 		Company:     ex.Company,
 		Position:    ex.Position,
 		Description: ex.Description,
+		Location:    ex.Location,
 		StartDate:   sd,
 		EndDate:     ed,
 		IsPresent:   ex.IsPresent,
@@ -92,6 +97,7 @@ func ToExperienceUpdateInput(ex *ExperienceUpdateReq) domain.ExperienceUpdateInp
 		Company:     ex.Company,
 		Position:    ex.Position,
 		Description: ex.Description,
+		Location:    ex.Location,
 		StartDate:   sd,
 		EndDate:     ed,
 		IsPresent:   ex.IsPresent,

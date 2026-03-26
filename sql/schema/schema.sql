@@ -47,6 +47,7 @@ create table if not exists experiences (
     company text not null,
     position text not null,
     description text[],
+    location text,
     start_date date not null,
     end_date date,
     is_present boolean default false,

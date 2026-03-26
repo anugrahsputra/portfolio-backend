@@ -75,6 +75,7 @@ type Experience struct {
 	Company     string
 	Position    string
 	Description []string
+	Location    string
 	StartDate   pgtype.Date
 	EndDate     pgtype.Date
 	IsPresent   bool

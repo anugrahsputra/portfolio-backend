@@ -11,6 +11,7 @@ type Experience struct {
 	Company     string
 	Position    string
 	Description []string
+	Location    string
 	StartDate   time.Time
 	EndDate     *time.Time
 	IsPresent   bool
@@ -21,6 +22,7 @@ type ExperienceInput struct {
 	Company     string
 	Position    string
 	Description []string
+	Location    string
 	StartDate   time.Time
 	EndDate     *time.Time
 	IsPresent   bool
@@ -31,6 +33,7 @@ type ExperienceUpdateInput struct {
 	Company     *string
 	Position    *string
 	Description *[]string
+	Location    *string
 	StartDate   *time.Time
 	EndDate     *time.Time
 	IsPresent   *bool
