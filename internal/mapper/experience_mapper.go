@@ -19,6 +19,7 @@ func ToExperienceDomain(ex db.Experience) domain.Experience {
 		Company:     ex.Company,
 		Position:    ex.Position,
 		Description: ex.Description,
+		Location:    ex.Location,
 		StartDate:   ex.StartDate.Time,
 		EndDate:     ed,
 		IsPresent:   ex.IsPresent,
