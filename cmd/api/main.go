@@ -31,6 +31,15 @@ func initDatabase(cfg *config.Config) *config.Database {
 	return db
 }
 
+func initMail(cfg *config.Config) *config.Mail {
+	m, err := config.NewMail(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize mailer: %v", err)
+	}
+
+	return m
+}
+
 func main() {
 	// Initialize Logger
 	logger.ConfigureLogger()
@@ -42,8 +51,11 @@ func main() {
 	db := initDatabase(cfg)
 	defer db.Close()
 
+	// initialize mailer
+	mail := initMail(cfg)
+
 	// Initialize router
-	r := route.SetupRouter(db)
+	r := route.SetupRouter(db, mail, cfg)
 
 	// Server Configuration
 	server := &http.Server{

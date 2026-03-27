@@ -10,6 +10,8 @@ type Config struct {
 	Port        string
 	DatabaseURL string
 	Env         string
+	GmailUser   string
+	GmailPass   string
 }
 
 func Load() *Config {
@@ -21,6 +23,8 @@ func Load() *Config {
 		Port:        getEnv("PORT", "8082"),
 		DatabaseURL: getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"),
 		Env:         env,
+		GmailUser:   getEnv("GMAIL_USER", ""),
+		GmailPass:   getEnv("GMAIL_PASS", ""),
 	}
 }
 

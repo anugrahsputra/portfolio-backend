@@ -23,6 +23,7 @@ func TestToExperienceDomain(t *testing.T) {
 		Company:     "Tech Corp",
 		Position:    "Software Engineer",
 		Description: []string{"Developing cool stuff", "Managing team"},
+		Location:    "Jakarta, Indonesia",
 		StartDate:   pgtype.Date{Time: startDate, Valid: true},
 		EndDate:     pgtype.Date{Time: endDate, Valid: true},
 		IsPresent:   false,
@@ -35,6 +36,7 @@ func TestToExperienceDomain(t *testing.T) {
 	assert.Equal(t, "Tech Corp", domainExperience.Company)
 	assert.Equal(t, "Software Engineer", domainExperience.Position)
 	assert.Equal(t, []string{"Developing cool stuff", "Managing team"}, domainExperience.Description)
+	assert.Equal(t, "Jakarta, Indonesia", domainExperience.Location)
 	assert.Equal(t, startDate, domainExperience.StartDate)
 	assert.Equal(t, &endDate, domainExperience.EndDate)
 	assert.Equal(t, false, domainExperience.IsPresent)

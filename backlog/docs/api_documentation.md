@@ -55,3 +55,30 @@ This document provides a summary of all API endpoints available in the Portfolio
 | GET | `/api/v1/skill/:profile_id` | Get skill entries by profile ID | `GetSkills` |
 | PUT | `/api/v1/skill/:skill_id` | Update a skill entry by ID | `UpdateSkill` |
 | DELETE | `/api/v1/skill/:skill_id` | Delete a skill entry by ID | `DeleteSkill` |
+
+## Projects
+
+| HTTP Method | Path | Description | Handler Method |
+|-------------|------|-------------|----------------|
+| POST | `/api/v1/project` | Create a new project entry | `CreateProject` |
+| GET | `/api/v1/project/:profile_id` | Get projects by profile ID | `GetProjects` |
+| PUT | `/api/v1/project/:project_id` | Update a project entry by ID | `UpdateProject` |
+| DELETE | `/api/v1/project/:project_id` | Delete a project entry by ID | `DeleteProject` |
+
+## Contact Form
+
+| HTTP Method | Path | Description | Handler Method |
+|-------------|------|-------------|----------------|
+| POST | `/api/v1/send-email` | Send an email to a profile owner | `SendMail` |
+
+### Send Email Payload
+```json
+{
+  "profile_id": "uuid",
+  "name": "string",
+  "email": "string",
+  "subject": "string",
+  "message": "string"
+}
+```
+

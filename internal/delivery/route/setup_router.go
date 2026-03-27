@@ -61,7 +61,15 @@ func wireProjectRoute(db *config.Database) *handler.ProjectHandler {
 	return projectHandler
 }
 
-func SetupRouter(db *config.Database) *gin.Engine {
+func wireContactFormRoute(db *config.Database, mail *config.Mail, cfg *config.Config) *handler.ContactFormHandler {
+	profileRepo := repository.NewProfileRepository(db)
+	contactFormRepo := repository.NewEmailContactRepository(mail, cfg, profileRepo)
+	contactFormUsecase := usecase.NewEmailContactUsecase(contactFormRepo)
+	contactFormHandler := handler.NewContactFormHandler(contactFormUsecase)
+	return contactFormHandler
+}
+
+func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gin.Engine {
 	env := os.Getenv("ENV")
 	var allowOrigins []string
 	var allowMethods []string
@@ -99,6 +107,7 @@ func SetupRouter(db *config.Database) *gin.Engine {
 	skill := wireSkillRoute(db)
 	language := wireLanguageRoute(db)
 	project := wireProjectRoute(db)
+	contactForm := wireContactFormRoute(db, mail, cfg)
 
 	// API Group
 	apiKey := os.Getenv("API_KEY")
@@ -111,6 +120,7 @@ func SetupRouter(db *config.Database) *gin.Engine {
 		SkillRoute(api, skill, apiKey)
 		LanguageRoute(api, language, apiKey)
 		ProjectRoute(api, project, apiKey)
+		ContactFormRoute(api, contactForm, apiKey)
 	}
 
 	return route
