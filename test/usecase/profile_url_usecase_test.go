@@ -24,9 +24,14 @@ func (m *MockProfileUrlRepository) CreateProfileUrl(ctx context.Context, pu doma
 	return args.Get(0).(*domain.ProfileUrl), args.Error(1)
 }
 
-func (m *MockProfileUrlRepository) GetProfileUrl(ctx context.Context, id string) (domain.ProfileUrl, error) {
+func (m *MockProfileUrlRepository) GetProfileUrlByID(ctx context.Context, id string) (domain.ProfileUrl, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.ProfileUrl), args.Error(1)
+}
+
+func (m *MockProfileUrlRepository) GetProfileUrl(ctx context.Context, profileID string) ([]domain.ProfileUrl, error) {
+	args := m.Called(ctx, profileID)
+	return args.Get(0).([]domain.ProfileUrl), args.Error(1)
 }
 
 func (m *MockProfileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, pu domain.ProfileUrlUpdateInput) error {
@@ -82,6 +87,37 @@ func TestGetProfileUrl(t *testing.T) {
 	uc := usecase.NewProfileUrlUsecase(mockRepo)
 
 	ctx := context.Background()
+	profileID := "profile-1"
+	expectedProfileUrls := []domain.ProfileUrl{
+		{ID: "1", ProfileID: profileID, Label: "LinkedIn", Url: "https://linkedin.com/in/test"},
+	}
+
+	t.Run("success", func(t *testing.T) {
+		mockRepo.On("GetProfileUrl", ctx, profileID).Return(expectedProfileUrls, nil).Once()
+
+		result, err := uc.GetProfileUrl(ctx, profileID)
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedProfileUrls, result)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		mockRepo.On("GetProfileUrl", ctx, profileID).Return([]domain.ProfileUrl(nil), errors.New("not found")).Once()
+
+		result, err := uc.GetProfileUrl(ctx, profileID)
+
+		assert.Error(t, err)
+		assert.Nil(t, result)
+		mockRepo.AssertExpectations(t)
+	})
+}
+
+func TestGetProfileUrlByID(t *testing.T) {
+	mockRepo := new(MockProfileUrlRepository)
+	uc := usecase.NewProfileUrlUsecase(mockRepo)
+
+	ctx := context.Background()
 	id := "1"
 	expectedProfileUrl := domain.ProfileUrl{
 		ID:        id,
@@ -91,9 +127,9 @@ func TestGetProfileUrl(t *testing.T) {
 	}
 
 	t.Run("success", func(t *testing.T) {
-		mockRepo.On("GetProfileUrl", ctx, id).Return(expectedProfileUrl, nil).Once()
+		mockRepo.On("GetProfileUrlByID", ctx, id).Return(expectedProfileUrl, nil).Once()
 
-		result, err := uc.GetProfileUrl(ctx, id)
+		result, err := uc.GetProfileUrlByID(ctx, id)
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedProfileUrl, result)
@@ -101,9 +137,9 @@ func TestGetProfileUrl(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo.On("GetProfileUrl", ctx, id).Return(domain.ProfileUrl{}, errors.New("not found")).Once()
+		mockRepo.On("GetProfileUrlByID", ctx, id).Return(domain.ProfileUrl{}, errors.New("not found")).Once()
 
-		result, err := uc.GetProfileUrl(ctx, id)
+		result, err := uc.GetProfileUrlByID(ctx, id)
 
 		assert.Error(t, err)
 		assert.Equal(t, domain.ProfileUrl{}, result)

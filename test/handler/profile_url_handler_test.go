@@ -29,7 +29,12 @@ func (m *MockProfileUrlUsecase) CreateProfileUrl(ctx context.Context, pu domain.
 	return args.Get(0).(*domain.ProfileUrl), args.Error(1)
 }
 
-func (m *MockProfileUrlUsecase) GetProfileUrl(ctx context.Context, id string) (domain.ProfileUrl, error) {
+func (m *MockProfileUrlUsecase) GetProfileUrl(ctx context.Context, profileID string) ([]domain.ProfileUrl, error) {
+	args := m.Called(ctx, profileID)
+	return args.Get(0).([]domain.ProfileUrl), args.Error(1)
+}
+
+func (m *MockProfileUrlUsecase) GetProfileUrlByID(ctx context.Context, id string) (domain.ProfileUrl, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.ProfileUrl), args.Error(1)
 }
@@ -113,13 +118,13 @@ func TestProfileUrlHandler_GetProfileUrl(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrl)
+		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrlByID)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profile-urls/1", nil)
 		w := httptest.NewRecorder()
 
 		expectedProfileUrl := domain.ProfileUrl{ID: "1", ProfileID: "1", Label: "LinkedIn"}
-		mockUsecase.On("GetProfileUrl", mock.Anything, "1").Return(expectedProfileUrl, nil)
+		mockUsecase.On("GetProfileUrlByID", mock.Anything, "1").Return(expectedProfileUrl, nil)
 
 		r.ServeHTTP(w, req)
 
@@ -131,16 +136,15 @@ func TestProfileUrlHandler_GetProfileUrl(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
 		r := gin.Default()
-		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrl)
+		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrlByID)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profile-urls/1", nil)
 		w := httptest.NewRecorder()
 
-		mockUsecase.On("GetProfileUrl", mock.Anything, "1").Return(domain.ProfileUrl{}, errors.New("not found"))
+		mockUsecase.On("GetProfileUrlByID", mock.Anything, "1").Return(domain.ProfileUrl{}, errors.New("not found"))
 
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
-
