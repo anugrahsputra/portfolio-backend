@@ -54,11 +54,37 @@ func (h *ProfileUrlHandler) CreateProfileUrl(c *gin.Context) {
 	})
 }
 
-func (h *ProfileUrlHandler) GetProfileUrl(c *gin.Context) {
+func (h *ProfileUrlHandler) GetProfileURL(c *gin.Context) {
+	ctx := c.Request.Context()
+	profileID := c.Param("profile_id")
+
+	profileUrls, err := h.usecase.GetProfileUrl(ctx, profileID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: fmt.Sprintf("Failed to get profile url: %v", err),
+		})
+		return
+	}
+
+	res := make([]dto.ProfileUrlResp, 0, len(profileUrls))
+	for _, pUrl := range profileUrls {
+		item := dto.ToProfileUrlDTO(&pUrl)
+		res = append(res, item)
+	}
+
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    res,
+	})
+}
+
+func (h *ProfileUrlHandler) GetProfileUrlByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("profile_url_id")
 
-	profileUrl, err := h.usecase.GetProfileUrl(ctx, id)
+	profileUrl, err := h.usecase.GetProfileUrlByID(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,

@@ -39,7 +39,27 @@ func (r *profileUrlRepository) CreateProfileUrl(ctx context.Context, pu domain.P
 
 }
 
-func (r *profileUrlRepository) GetProfileUrl(ctx context.Context, id string) (domain.ProfileUrl, error) {
+func (r *profileUrlRepository) GetProfileUrl(ctx context.Context, profileID string) ([]domain.ProfileUrl, error) {
+	profileIdStr, err := uuid.Parse(profileID)
+	if err != nil {
+		return nil, err
+	}
+
+	profileUrls, err := r.db.ListProfileURLs(ctx, profileIdStr)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]domain.ProfileUrl, 0, len(profileUrls))
+	for _, profileUrl := range profileUrls {
+		item := mapper.ToProfileURLDomain(profileUrl)
+		result = append(result, item)
+	}
+
+	return result, nil
+}
+
+func (r *profileUrlRepository) GetProfileUrlByID(ctx context.Context, id string) (domain.ProfileUrl, error) {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
 		return domain.ProfileUrl{}, err

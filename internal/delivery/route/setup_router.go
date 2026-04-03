@@ -80,7 +80,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gi
 		allowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	} else {
 		gin.SetMode(gin.ReleaseMode)
-		allowOrigins = []string{"https://www.downormal.dev", "https://downormal.dev"}
+		allowOrigins = []string{"https://www.downormal.dev", "https://downormal.dev", "http://localhost:3000"}
 		allowMethods = []string{"GET"}
 	}
 

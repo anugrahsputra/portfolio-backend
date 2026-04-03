@@ -23,7 +23,8 @@ type ProfileUrlUpdateInput struct {
 
 type ProfileUrlRepository interface {
 	CreateProfileUrl(ctx context.Context, pu ProfileUrlInput) (*ProfileUrl, error)
-	GetProfileUrl(ctx context.Context, id string) (ProfileUrl, error)
+	GetProfileUrlByID(ctx context.Context, id string) (ProfileUrl, error)
+	GetProfileUrl(ctx context.Context, profileID string) ([]ProfileUrl, error)
 	UpdateProfileUrl(ctx context.Context, id string, pu ProfileUrlUpdateInput) error
 	DeleteProfileUrl(ctx context.Context, id string) error
 }

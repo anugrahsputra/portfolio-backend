@@ -8,7 +8,8 @@ import (
 
 func ProfileUrlRoute(r *gin.RouterGroup, h *handler.ProfileUrlHandler, apiKey string) {
 	route := r.Group("/profile-url")
-	route.GET("/:profile_url_id", h.GetProfileUrl)
+	route.GET("/:profile_id", h.GetProfileURL)
+	route.GET("/:profile_url_id", h.GetProfileUrlByID)
 
 	protectedRoute := route.Group("")
 	protectedRoute.Use(middleware.AuthMiddleware(apiKey))
