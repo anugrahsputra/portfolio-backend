@@ -5,6 +5,7 @@ import "github.com/anugrahsputra/portfolio-backend/internal/domain"
 type ProfileResp struct {
 	ID      string           `json:"id"`
 	Name    string           `json:"name"`
+	Title   string           `json:"title"`
 	About   string           `json:"about"`
 	Address string           `json:"address"`
 	Email   string           `json:"email"`
@@ -15,6 +16,7 @@ type ProfileResp struct {
 type ProfilePublicResp struct {
 	ID      string           `json:"id"`
 	Name    string           `json:"name"`
+	Title   string           `json:"title"`
 	About   string           `json:"about"`
 	Address string           `json:"address"`
 	Email   string           `json:"email"`
@@ -23,6 +25,7 @@ type ProfilePublicResp struct {
 
 type ProfileReq struct {
 	Name    string `json:"name"`
+	Title   string `json:"title"`
 	About   string `json:"about"`
 	Address string `json:"address"`
 	Email   string `json:"email"`
@@ -39,6 +42,7 @@ func ToProfileDTO(p *domain.Profile) ProfileResp {
 	return ProfileResp{
 		ID:      p.ID,
 		Name:    p.Name,
+		Title:   p.Title,
 		About:   p.About,
 		Address: p.Address,
 		Email:   p.Email,
@@ -57,6 +61,7 @@ func ToProfilePublicDTO(p *domain.Profile) ProfilePublicResp {
 	return ProfilePublicResp{
 		ID:      p.ID,
 		Name:    p.Name,
+		Title:   p.Title,
 		About:   p.About,
 		Address: p.Address,
 		Email:   p.Email,

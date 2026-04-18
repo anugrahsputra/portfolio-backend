@@ -1,14 +1,15 @@
 -- name: CreateProfile :one
 insert into profiles (
-    name, about, address, email, phone
+    name, title, about, address, email, phone
 ) values (
-    $1, $2, $3, $4, $5
+    $1, $2, $3, $4, $5, $6
 ) returning *;
 
 -- name: GetProfile :one
 SELECT
     p.id,
     p.name,
+    p.title,
     p.about,
     p.address,
     p.email,
@@ -28,10 +29,11 @@ WHERE p.id = $1;
 update profiles
 set
     name = COALESCE($2, name),
-    about = COALESCE($3, about),
-    address = COALESCE($4, address),
-    email = COALESCE($5, email),
-    phone = COALESCE($6, phone)
+    title = COALESCE($3, title),
+    about = COALESCE($4, about),
+    address = COALESCE($5, address),
+    email = COALESCE($6, email),
+    phone = COALESCE($7, phone)
 where id = $1;
 
 -- name: DeleteProfile :exec

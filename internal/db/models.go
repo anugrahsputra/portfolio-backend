@@ -91,6 +91,7 @@ type Language struct {
 type Profile struct {
 	ID      uuid.UUID
 	Name    string
+	Title   string
 	About   string
 	Address string
 	Email   string

@@ -13,14 +13,15 @@ import (
 
 const createProfile = `-- name: CreateProfile :one
 insert into profiles (
-    name, about, address, email, phone
+    name, title, about, address, email, phone
 ) values (
-    $1, $2, $3, $4, $5
-) returning id, name, about, address, email, phone
+    $1, $2, $3, $4, $5, $6
+) returning id, name, title, about, address, email, phone
 `
 
 type CreateProfileParams struct {
 	Name    string
+	Title   string
 	About   string
 	Address string
 	Email   string
@@ -30,6 +31,7 @@ type CreateProfileParams struct {
 func (q *Queries) CreateProfile(ctx context.Context, arg CreateProfileParams) (Profile, error) {
 	row := q.db.QueryRow(ctx, createProfile,
 		arg.Name,
+		arg.Title,
 		arg.About,
 		arg.Address,
 		arg.Email,
@@ -39,6 +41,7 @@ func (q *Queries) CreateProfile(ctx context.Context, arg CreateProfileParams) (P
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Title,
 		&i.About,
 		&i.Address,
 		&i.Email,
@@ -61,6 +64,7 @@ const getProfile = `-- name: GetProfile :one
 SELECT
     p.id,
     p.name,
+    p.title,
     p.about,
     p.address,
     p.email,
@@ -80,6 +84,7 @@ WHERE p.id = $1
 type GetProfileRow struct {
 	ID      uuid.UUID
 	Name    string
+	Title   string
 	About   string
 	Address string
 	Email   string
@@ -93,6 +98,7 @@ func (q *Queries) GetProfile(ctx context.Context, id uuid.UUID) (GetProfileRow, 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Title,
 		&i.About,
 		&i.Address,
 		&i.Email,
@@ -106,16 +112,18 @@ const updateProfile = `-- name: UpdateProfile :exec
 update profiles
 set
     name = COALESCE($2, name),
-    about = COALESCE($3, about),
-    address = COALESCE($4, address),
-    email = COALESCE($5, email),
-    phone = COALESCE($6, phone)
+    title = COALESCE($3, title),
+    about = COALESCE($4, about),
+    address = COALESCE($5, address),
+    email = COALESCE($6, email),
+    phone = COALESCE($7, phone)
 where id = $1
 `
 
 type UpdateProfileParams struct {
 	ID      uuid.UUID
 	Name    string
+	Title   string
 	About   string
 	Address string
 	Email   string
@@ -126,6 +134,7 @@ func (q *Queries) UpdateProfile(ctx context.Context, arg UpdateProfileParams) er
 	_, err := q.db.Exec(ctx, updateProfile,
 		arg.ID,
 		arg.Name,
+		arg.Title,
 		arg.About,
 		arg.Address,
 		arg.Email,

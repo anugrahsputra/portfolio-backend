@@ -5,6 +5,7 @@ import "context"
 type Profile struct {
 	ID      string
 	Name    string
+	Title   string
 	About   string
 	Address string
 	Email   string
@@ -14,6 +15,7 @@ type Profile struct {
 
 type ProfileInput struct {
 	Name    string
+	Title   string
 	About   string
 	Address string
 	Email   string
@@ -22,6 +24,7 @@ type ProfileInput struct {
 
 type ProfileUpdateInput struct {
 	Name    *string
+	Title   *string
 	About   *string
 	Address *string
 	Email   *string

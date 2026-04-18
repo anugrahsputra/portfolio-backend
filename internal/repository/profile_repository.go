@@ -24,6 +24,7 @@ func NewProfileRepository(database *config.Database) domain.ProfileRepository {
 func (r *profileRepository) CreateProfile(ctx context.Context, p domain.ProfileInput) (*domain.Profile, error) {
 	params := db.CreateProfileParams{
 		Name:    p.Name,
+		Title:   p.Title,
 		About:   p.About,
 		Address: p.Address,
 		Email:   p.Email,
@@ -64,6 +65,7 @@ func (r *profileRepository) UpdateProfile(ctx context.Context, id string, p doma
 	param := db.UpdateProfileParams{
 		ID:      idStr,
 		Name:    *p.Name,
+		Title:   *p.Title,
 		About:   *p.About,
 		Address: *p.Address,
 		Email:   *p.Email,

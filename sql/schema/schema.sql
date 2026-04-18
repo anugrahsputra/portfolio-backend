@@ -1,18 +1,15 @@
-do $$ begin
-    create type proficiency_level as enum (
-        'basic',
-        'intermediate',
-        'advanced',
-        'professional',
-        'native'
-    );
-exception
-    when duplicate_object then null;
-end $$;
+create type proficiency_level as enum (
+    'basic',
+    'intermediate',
+    'advanced',
+    'professional',
+    'native'
+);
 
 create table if not exists profiles (
     id uuid primary key default gen_random_uuid(),
     name text not null,
+    title text not null,
     about text not null,
     address text not null,
     email text not null unique,

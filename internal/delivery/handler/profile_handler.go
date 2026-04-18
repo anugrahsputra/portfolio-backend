@@ -31,6 +31,7 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 
 	input := domain.ProfileInput{
 		Name:    req.Name,
+		Title:   req.Title,
 		About:   req.About,
 		Address: req.Address,
 		Email:   req.Email,
