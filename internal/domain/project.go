@@ -66,3 +66,7 @@ type ProjectRepository interface {
 	UpdateProject(ctx context.Context, id string, pr ProjectUpdateInput) (Project, error)
 	DeleteProject(ctx context.Context, id string) error
 }
+
+func (p *Project) SetProfileID(profileID string) {
+	p.ProfileID = profileID
+}

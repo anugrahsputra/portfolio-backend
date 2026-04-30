@@ -28,3 +28,7 @@ type ProfileUrlRepository interface {
 	UpdateProfileUrl(ctx context.Context, id string, pu ProfileUrlUpdateInput) error
 	DeleteProfileUrl(ctx context.Context, id string) error
 }
+
+func (p *ProfileUrl) SetProfileID(profileID string) {
+	p.ProfileID = profileID
+}

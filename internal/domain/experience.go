@@ -46,3 +46,7 @@ type ExperienceRepository interface {
 	UpdateExperience(ctx context.Context, id string, ex ExperienceUpdateInput) (Experience, error)
 	DeleteExperience(ctx context.Context, id string) error
 }
+
+func (e *Experience) SetProfileID(profileID string) {
+	e.ProfileID = profileID
+}

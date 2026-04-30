@@ -26,3 +26,7 @@ type LanguageRepository interface {
 	UpdateLanguage(ctx context.Context, id string, l LanguageUpdateInput) error
 	DeleteLanguage(ctx context.Context, id string) error
 }
+
+func (l *Language) SetProfileID(profileID string) {
+	l.ProfileID = profileID
+}

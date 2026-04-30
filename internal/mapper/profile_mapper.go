@@ -1,27 +1,19 @@
 package mapper
 
 import (
-	"encoding/json"
-
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
+	"github.com/anugrahsputra/portfolio-backend/pkg/parser"
 )
 
 // ToProfileDomain maps db.GetProfileRow (with URLs) to domain.Profile
 func ToProfileDomain(p db.GetProfileRow) (domain.Profile, error) {
 	var urls []domain.ProfileUrl
+	id := p.ID.String()
 
-	if p.Urls != nil {
-		data, _ := json.Marshal(p.Urls)
-		if len(data) > 0 {
-			if err := json.Unmarshal(data, &urls); err != nil {
-				return domain.Profile{}, err
-			}
-
-			for i := range urls {
-				urls[i].ProfileID = p.ID.String()
-			}
-		}
+	urls, err := parser.JsonSliceParser[domain.ProfileUrl](p.Urls, id)
+	if err != nil {
+		return domain.Profile{}, err
 	}
 
 	return domain.Profile{
