@@ -41,8 +41,8 @@ LEFT JOIN LATERAL (
             company AS "Company",
             position AS "Position",
             description AS "Description",
-            start_date AS "StartDate",
-            end_date AS "EndDate",
+            start_date::timestamptz AS "StartDate",
+            end_date::timestamptz AS "EndDate",
             is_present AS "IsPresent",
             location AS "Location"
         FROM experiences
@@ -67,8 +67,8 @@ LEFT JOIN LATERAL (
             is_featured AS "IsFeatured",
             image_url AS "ImageUrl",
             company AS "Company",
-            start_date AS "StartDate",
-            end_date AS "EndDate",
+            start_date::timestamptz AS "StartDate",
+            end_date::timestamptz AS "EndDate",
             location AS "Location"
         FROM projects
         WHERE profile_id = p.id
@@ -86,8 +86,8 @@ LEFT JOIN LATERAL (
             degree AS "Degree",
             field_of_study AS "FieldOfStudy",
             gpa AS "GPA",
-            start_date AS "StartDate",
-            graduation_date AS "GraduationDate"
+            start_date::timestamptz AS "StartDate",
+            graduation_date::timestamptz AS "GraduationDate"
         FROM educations
         WHERE profile_id = p.id
     ) ed
