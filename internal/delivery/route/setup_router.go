@@ -69,6 +69,14 @@ func wireContactFormRoute(db *config.Database, mail *config.Mail, cfg *config.Co
 	return contactFormHandler
 }
 
+func wireResumeRoute(db *config.Database) *handler.ResumeHandler {
+	resumeRepo := repository.NewResumeRepository(db)
+	resumeUsecase := usecase.NewResumeUsecase(resumeRepo)
+	resumeHandler := handler.NewResumeHandler(resumeUsecase)
+	return resumeHandler
+
+}
+
 func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gin.Engine {
 	env := os.Getenv("ENV")
 	var allowOrigins []string
@@ -108,6 +116,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gi
 	language := wireLanguageRoute(db)
 	project := wireProjectRoute(db)
 	contactForm := wireContactFormRoute(db, mail, cfg)
+	resume := wireResumeRoute(db)
 
 	// API Group
 	apiKey := os.Getenv("API_KEY")
@@ -121,6 +130,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gi
 		LanguageRoute(api, language, apiKey)
 		ProjectRoute(api, project, apiKey)
 		ContactFormRoute(api, contactForm, apiKey)
+		ResumeRoute(api, resume)
 	}
 
 	return route
