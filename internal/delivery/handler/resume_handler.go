@@ -23,18 +23,18 @@ func (h *ResumeHandler) GetResume(c *gin.Context) {
 	resume, err := h.usecase.GetResume(ctx, id)
 	if err != nil {
 		c.Error(err)
-		c.JSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNotFound,
-			"message": "Resume not found",
+		c.JSON(http.StatusNotFound, dto.NoDataResponse{
+			Status:  http.StatusNotFound,
+			Message: "Resume not found",
 		})
 		return
 	}
 
 	res := dto.ToResumeDTO(resume)
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "success get resume",
-		"data":    res,
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success get resume",
+		Data:    res,
 	})
 }
