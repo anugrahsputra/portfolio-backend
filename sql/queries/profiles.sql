@@ -14,15 +14,24 @@ SELECT
     p.address,
     p.email,
     p.phone,
-    (
-        SELECT COALESCE(json_agg(urls), '[]'::json)
-        FROM (
-            SELECT id AS "ID", profile_id AS "ProfileID", label AS "Label", url AS "Url"
-            FROM profile_urls
-            WHERE profile_id = p.id
-        ) urls
-    ) AS urls
+
+    urls.urls
 FROM profiles p
+
+-- URLS
+LEFT JOIN LATERAL (
+    SELECT COALESCE(jsonb_agg(u), '[]'::jsonb) AS urls
+    FROM (
+        SELECT
+            id AS "ID",
+            profile_id AS "ProfileID",
+            label AS "Label",
+            url AS "Url"
+        FROM profile_urls
+        WHERE profile_id = p.id
+    ) u
+) urls ON true
+
 WHERE p.id = $1;
 
 -- name: UpdateProfile :exec
