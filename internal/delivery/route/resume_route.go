@@ -8,6 +8,6 @@ import (
 func ResumeRoute(r *gin.RouterGroup, h *handler.ResumeHandler) {
 	route := r.Group("/resume")
 	{
-		route.GET("/:id", h.GetResume)
+		route.GET("/:profile_id", h.GetResume)
 	}
 }

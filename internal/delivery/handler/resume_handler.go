@@ -18,7 +18,7 @@ func NewResumeHandler(u usecase.ResumeUsecase) *ResumeHandler {
 
 func (h *ResumeHandler) GetResume(c *gin.Context) {
 	ctx := c.Request.Context()
-	id := c.Param("id")
+	id := c.Param("profile_id")
 
 	resume, err := h.usecase.GetResume(ctx, id)
 	if err != nil {
