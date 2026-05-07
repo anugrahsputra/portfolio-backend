@@ -79,6 +79,7 @@ LEFT JOIN LATERAL (
             company AS "Company",
             start_date::timestamptz AS "StartDate",
             end_date::timestamptz AS "EndDate",
+            is_present AS "IsPresent",
             location AS "Location"
         FROM projects
         WHERE profile_id = p.id
@@ -96,7 +97,8 @@ LEFT JOIN LATERAL (
             field_of_study AS "FieldOfStudy",
             gpa AS "GPA",
             start_date::timestamptz AS "StartDate",
-            graduation_date::timestamptz AS "GraduationDate"
+            graduation_date::timestamptz AS "GraduationDate",
+            is_present AS "IsPresent"
         FROM educations
         WHERE profile_id = p.id
     ) ed
