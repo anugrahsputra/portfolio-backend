@@ -6,13 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,13 +44,11 @@ func (m *MockEducationUsecase) DeleteEducation(ctx context.Context, id string) e
 }
 
 func TestEducationHandler_CreateEducation(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := gin.Default()
-		r.POST("/educations", handlerObj.CreateEducation)
+		app := fiber.New()
+		app.Post("/educations", handlerObj.CreateEducation)
 
 		input := dto.EducationReq{
 			ProfileID:    "1",
@@ -61,87 +58,88 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 		}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/educations", bytes.NewBuffer(body))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
 		mockUsecase.On("CreateEducation", mock.Anything, mock.Anything).Return(nil)
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusCreated, w.Code)
+		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := gin.Default()
-		r.POST("/educations", handlerObj.CreateEducation)
+		app := fiber.New()
+		app.Post("/educations", handlerObj.CreateEducation)
 
 		req, _ := http.NewRequest(http.MethodPost, "/educations", bytes.NewBufferString("invalid json"))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := gin.Default()
-		r.POST("/educations", handlerObj.CreateEducation)
+		app := fiber.New()
+		app.Post("/educations", handlerObj.CreateEducation)
 
 		input := dto.EducationReq{
 			ProfileID: "1",
 		}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/educations", bytes.NewBuffer(body))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
 		mockUsecase.On("CreateEducation", mock.Anything, mock.Anything).Return(errors.New("internal error"))
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 }
 
 func TestEducationHandler_GetEducation(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := gin.Default()
-		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
+		app := fiber.New()
+		app.Get("/profiles/:profile_id/educations", handlerObj.GetEducation)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/educations", nil)
-		w := httptest.NewRecorder()
 
 		expectedEducations := []domain.Education{
 			{ID: "1", ProfileID: "1", School: "University"},
 		}
 		mockUsecase.On("GetEducations", mock.Anything, "1").Return(expectedEducations, nil)
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := gin.Default()
-		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
+		app := fiber.New()
+		app.Get("/profiles/:profile_id/educations", handlerObj.GetEducation)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/educations", nil)
-		w := httptest.NewRecorder()
 
 		mockUsecase.On("GetEducations", mock.Anything, "1").Return(nil, errors.New("not found"))
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 }

@@ -3,13 +3,11 @@ package route
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func ContactFormRoute(r *gin.RouterGroup, h *handler.ContactFormHandler, apiKey string) {
-	route := r.Group("/send-email")
-	route.Use(middleware.AuthMiddleware(apiKey))
-	{
-		route.POST("/", h.SendMail)
-	}
+func ContactFormRoute(r fiber.Router, h *handler.ContactFormHandler, apiKey string) {
+	route := r.Group("/send-email", middleware.AuthMiddleware(apiKey))
+	route.Post("/", h.SendMail)
 }
+

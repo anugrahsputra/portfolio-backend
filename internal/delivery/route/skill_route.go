@@ -3,18 +3,16 @@ package route
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func SkillRoute(r *gin.RouterGroup, h *handler.SkillHandler, apiKey string) {
+func SkillRoute(r fiber.Router, h *handler.SkillHandler, apiKey string) {
 	route := r.Group("/skill")
-	route.GET("/:profile_id", h.GetSkills)
+	route.Get("/:profile_id", h.GetSkills)
 
-	protectedRoute := route.Group("")
-	protectedRoute.Use(middleware.AuthMiddleware(apiKey))
-	{
-		protectedRoute.POST("", h.CreateSkill)
-		protectedRoute.PUT("/:skill_id", h.UpdateSkill)
-		protectedRoute.DELETE("/:skill_id", h.DeleteSkill)
-	}
+	protectedRoute := route.Group("/", middleware.AuthMiddleware(apiKey))
+	protectedRoute.Post("/", h.CreateSkill)
+	protectedRoute.Put("/:skill_id", h.UpdateSkill)
+	protectedRoute.Delete("/:skill_id", h.DeleteSkill)
 }
+

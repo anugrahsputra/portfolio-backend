@@ -2,12 +2,10 @@ package route
 
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func ResumeRoute(r *gin.RouterGroup, h *handler.ResumeHandler) {
+func ResumeRoute(r fiber.Router, h *handler.ResumeHandler) {
 	route := r.Group("/resume")
-	{
-		route.GET("/:profile_id", h.GetResume)
-	}
+	route.Get("/:profile_id", h.GetResume)
 }

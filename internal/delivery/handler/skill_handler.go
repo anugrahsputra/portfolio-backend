@@ -7,7 +7,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
 type SkillHandler struct {
@@ -18,16 +18,15 @@ func NewSkillHandler(u usecase.SkillUsecase) *SkillHandler {
 	return &SkillHandler{usecase: u}
 }
 
-func (h *SkillHandler) CreateSkill(c *gin.Context) {
-	ctx := c.Request.Context()
+func (h *SkillHandler) CreateSkill(c fiber.Ctx) error {
+	ctx := c.Context()
 
 	var req dto.SkillReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("internal server error: %v", err),
 		})
-		return
 	}
 
 	input := domain.SkillInput{
@@ -40,53 +39,50 @@ func (h *SkillHandler) CreateSkill(c *gin.Context) {
 
 	skill, err := h.usecase.CreateSkill(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("Failed create skill: %v", err),
 		})
-		return
 	}
 
 	res := dto.ToSkillDTO(&skill)
-	c.JSON(http.StatusOK, dto.Response{
+	return c.Status(http.StatusOK).JSON(dto.Response{
 		Status:  http.StatusOK,
 		Message: "success",
 		Data:    res,
 	})
 }
 
-func (h *SkillHandler) GetSkills(c *gin.Context) {
-	ctx := c.Request.Context()
-	profileID := c.Param("profile_id")
+func (h *SkillHandler) GetSkills(c fiber.Ctx) error {
+	ctx := c.Context()
+	profileID := c.Params("profile_id")
 
 	skill, err := h.usecase.GetSkills(ctx, profileID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("internal server error: %v", err),
 		})
-		return
 	}
 
 	res := dto.ToSkillDTO(&skill)
-	c.JSON(http.StatusOK, dto.Response{
+	return c.Status(http.StatusOK).JSON(dto.Response{
 		Status:  http.StatusOK,
 		Message: "success",
 		Data:    res,
 	})
 }
 
-func (h *SkillHandler) UpdateSkill(c *gin.Context) {
-	ctx := c.Request.Context()
-	skillId := c.Param("skill_id")
+func (h *SkillHandler) UpdateSkill(c fiber.Ctx) error {
+	ctx := c.Context()
+	skillId := c.Params("skill_id")
 
 	var req dto.SkillUpdateReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("internal server error: %v", err),
 		})
-		return
 	}
 
 	input := domain.SkillUpdateInput{
@@ -97,33 +93,32 @@ func (h *SkillHandler) UpdateSkill(c *gin.Context) {
 	}
 
 	if err := h.usecase.UpdateSkill(ctx, skillId, input); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("failed to update skill: %v", err),
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "success",
 	})
 }
 
-func (h *SkillHandler) DeleteSkill(c *gin.Context) {
-	ctx := c.Request.Context()
-	skillId := c.Param("skill_id")
+func (h *SkillHandler) DeleteSkill(c fiber.Ctx) error {
+	ctx := c.Context()
+	skillId := c.Params("skill_id")
 
 	if err := h.usecase.DeleteSkill(ctx, skillId); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("failed to delete skill: %v", err),
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "success",
 	})
 }
+

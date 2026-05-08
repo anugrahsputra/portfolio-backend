@@ -4,26 +4,24 @@ import (
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func AuthMiddleware(apiKey string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if c.Request.Method == http.MethodGet || c.Request.Method == http.MethodOptions {
-			c.Next()
-			return
+func AuthMiddleware(apiKey string) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		if c.Method() == http.MethodGet || c.Method() == http.MethodOptions {
+			return c.Next()
 		}
 
-		clientKey := c.GetHeader("X-API-Key")
+		clientKey := c.Get("X-API-Key")
 		if clientKey != apiKey {
-			c.JSON(http.StatusUnauthorized, dto.NoDataResponse{
+			return c.Status(http.StatusUnauthorized).JSON(dto.NoDataResponse{
 				Status:  http.StatusUnauthorized,
 				Message: "Unauthorized: Invalid API Key",
 			})
-			c.Abort()
-			return
 		}
 
-		c.Next()
+		return c.Next()
 	}
 }
+

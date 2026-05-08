@@ -3,18 +3,16 @@ package route
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func LanguageRoute(r *gin.RouterGroup, h *handler.LanguageHandler, apiKey string) {
+func LanguageRoute(r fiber.Router, h *handler.LanguageHandler, apiKey string) {
 	route := r.Group("/language")
-	route.GET("/:profile_id", h.GetLanguages)
+	route.Get("/:profile_id", h.GetLanguages)
 
-	protectedRoute := route.Group("")
-	protectedRoute.Use(middleware.AuthMiddleware(apiKey))
-	{
-		protectedRoute.POST("", h.CreateLanguage)
-		protectedRoute.PUT("/:language_id", h.UpdateLanguage)
-		protectedRoute.DELETE("/:language_id", h.DeleteLanguage)
-	}
+	protectedRoute := route.Group("/", middleware.AuthMiddleware(apiKey))
+	protectedRoute.Post("/", h.CreateLanguage)
+	protectedRoute.Put("/:language_id", h.UpdateLanguage)
+	protectedRoute.Delete("/:language_id", h.DeleteLanguage)
 }
+

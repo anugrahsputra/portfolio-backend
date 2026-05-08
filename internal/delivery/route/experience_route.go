@@ -3,18 +3,16 @@ package route
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func ExperienceRoute(r *gin.RouterGroup, h *handler.ExperienceHandler, apiKey string) {
+func ExperienceRoute(r fiber.Router, h *handler.ExperienceHandler, apiKey string) {
 	route := r.Group("/experience")
-	route.GET("/:profile_id", h.GetExperiences)
+	route.Get("/:profile_id", h.GetExperiences)
 
-	protectedRoute := route.Group("")
-	protectedRoute.Use(middleware.AuthMiddleware(apiKey))
-	{
-		protectedRoute.POST("", h.CreateExperience)
-		protectedRoute.PUT("/:experience_id", h.UpdateExperience)
-		protectedRoute.DELETE("/:experience_id", h.DeleteExperience)
-	}
+	protectedRoute := route.Group("/", middleware.AuthMiddleware(apiKey))
+	protectedRoute.Post("/", h.CreateExperience)
+	protectedRoute.Put("/:experience_id", h.UpdateExperience)
+	protectedRoute.Delete("/:experience_id", h.DeleteExperience)
 }
+

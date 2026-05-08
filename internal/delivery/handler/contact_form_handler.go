@@ -6,7 +6,7 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
 type ContactFormHandler struct {
@@ -17,29 +17,27 @@ func NewContactFormHandler(u usecase.EmailContactUsecase) *ContactFormHandler {
 	return &ContactFormHandler{usecase: u}
 }
 
-func (h *ContactFormHandler) SendMail(c *gin.Context) {
-	ctx := c.Request.Context()
-
+func (h *ContactFormHandler) SendMail(c fiber.Ctx) error {
+	ctx := c.Context()
 	var req dto.ContactFormReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("internal server error: %v", err),
 		})
-		return
 	}
 
 	input := dto.ToContactFormInput(&req)
 	if err := h.usecase.SendEmail(ctx, input); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
+			Message: fmt.Sprintf("failed to send email: %v", err),
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "email submitted",
 	})
 }
+

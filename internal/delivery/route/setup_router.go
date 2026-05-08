@@ -1,15 +1,19 @@
 package route
 
 import (
+	"errors"
 	"os"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/repository"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/helmet"
+	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 )
 
 func wireProfileRoute(db *config.Database) *handler.ProfileHandler {
@@ -77,33 +81,39 @@ func wireResumeRoute(db *config.Database) *handler.ResumeHandler {
 
 }
 
-func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gin.Engine {
+func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *fiber.App {
 	env := os.Getenv("ENV")
 	var allowOrigins []string
-	var allowMethods []string
 
 	if env == "development" {
-		gin.SetMode(gin.DebugMode)
 		allowOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000"}
-		allowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	} else {
-		gin.SetMode(gin.ReleaseMode)
 		allowOrigins = []string{"https://www.downormal.dev", "https://downormal.dev", "http://localhost:3000"}
-		allowMethods = []string{"GET"}
 	}
 
-	// route := gin.Default() // gin.Default() includes Logger and Recovery middleware
-	// We use gin.New() to have more control over middlewares
-	route := gin.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			return c.Status(code).JSON(dto.NoDataResponse{
+				Status:  code,
+				Message: err.Error(),
+			})
+		},
+	})
 
 	// Global Middlewares
-	route.Use(middleware.RecoveryMiddleware())
-	route.Use(gin.Logger())
-	route.Use(middleware.SecurityMiddleware())
-	route.Use(cors.New(cors.Config{
+	app.Use(recover.New())
+	app.Use(logger.New())
+	app.Use(helmet.New())
+	app.Use(cors.New(cors.Config{
 		AllowOrigins:     allowOrigins,
-		AllowMethods:     allowMethods,
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "api-key"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
@@ -120,18 +130,18 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gi
 
 	// API Group
 	apiKey := os.Getenv("API_KEY")
-	api := route.Group("/api/v1")
-	{
-		ProfileRoute(api, profile, apiKey)
-		ProfileUrlRoute(api, profileUrl, apiKey)
-		ExperienceRoute(api, experience, apiKey)
-		EducationRoute(api, education, apiKey)
-		SkillRoute(api, skill, apiKey)
-		LanguageRoute(api, language, apiKey)
-		ProjectRoute(api, project, apiKey)
-		ContactFormRoute(api, contactForm, apiKey)
-		ResumeRoute(api, resume)
-	}
+	api := app.Group("/api/v1")
 
-	return route
+	ProfileRoute(api, profile, apiKey)
+	ProfileUrlRoute(api, profileUrl, apiKey)
+	ExperienceRoute(api, experience, apiKey)
+	EducationRoute(api, education, apiKey)
+	SkillRoute(api, skill, apiKey)
+	LanguageRoute(api, language, apiKey)
+	ProjectRoute(api, project, apiKey)
+	ContactFormRoute(api, contactForm, apiKey)
+	ResumeRoute(api, resume)
+
+	return app
 }
+

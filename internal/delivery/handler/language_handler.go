@@ -6,7 +6,7 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
 type LanguageHandler struct {
@@ -17,47 +17,44 @@ func NewLanguageHandler(u usecase.LanguageUsecase) *LanguageHandler {
 	return &LanguageHandler{usecase: u}
 }
 
-func (h *LanguageHandler) CreateLanguage(c *gin.Context) {
-	ctx := c.Request.Context()
+func (h *LanguageHandler) CreateLanguage(c fiber.Ctx) error {
+	ctx := c.Context()
 
 	var req dto.LanguageReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("internal server error: %v", err),
 		})
-		return
 	}
 
 	input := dto.ToLanguageInput(&req)
 	language, err := h.usecase.CreateLanguage(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
 			Message: fmt.Sprintf("bad request: %v", err),
 		})
-		return
 	}
 
 	res := dto.ToLanguageDTO(&language)
-	c.JSON(http.StatusOK, dto.Response{
+	return c.Status(http.StatusOK).JSON(dto.Response{
 		Status:  http.StatusOK,
 		Message: "success",
 		Data:    res,
 	})
 }
 
-func (h *LanguageHandler) GetLanguages(c *gin.Context) {
-	ctx := c.Request.Context()
-	profileID := c.Param("profile_id")
+func (h *LanguageHandler) GetLanguages(c fiber.Ctx) error {
+	ctx := c.Context()
+	profileID := c.Params("profile_id")
 
 	languages, err := h.usecase.GetLanguages(ctx, profileID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
 			Message: fmt.Sprintf("bad request: %v", err),
 		})
-		return
 	}
 
 	res := make([]dto.LanguageResp, 0, len(languages))
@@ -66,56 +63,54 @@ func (h *LanguageHandler) GetLanguages(c *gin.Context) {
 		res = append(res, item)
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
+	return c.Status(http.StatusOK).JSON(dto.Response{
 		Status:  http.StatusOK,
 		Message: "success",
 		Data:    res,
 	})
 }
 
-func (h *LanguageHandler) UpdateLanguage(c *gin.Context) {
-	ctx := c.Request.Context()
-	languageID := c.Param("language_id")
+func (h *LanguageHandler) UpdateLanguage(c fiber.Ctx) error {
+	ctx := c.Context()
+	languageID := c.Params("language_id")
 
 	var req dto.LanguageUpdateReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: fmt.Sprintf("internal server error: %v", err),
 		})
-		return
 	}
 
 	input := dto.ToLanguageUpdateInput(&req)
 
 	if err := h.usecase.UpdateLanguage(ctx, languageID, input); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
 			Message: fmt.Sprintf("bad request: %v", err),
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "success",
 	})
 }
 
-func (h *LanguageHandler) DeleteLanguage(c *gin.Context) {
-	ctx := c.Request.Context()
-	languageID := c.Param("language_id")
+func (h *LanguageHandler) DeleteLanguage(c fiber.Ctx) error {
+	ctx := c.Context()
+	languageID := c.Params("language_id")
 
 	if err := h.usecase.DeleteLanguage(ctx, languageID); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
 			Message: fmt.Sprintf("bad request: %v", err),
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "success",
 	})
 }
+

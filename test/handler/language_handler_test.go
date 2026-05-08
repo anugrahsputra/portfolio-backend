@@ -6,13 +6,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,13 +44,11 @@ func (m *MockLanguageUsecase) DeleteLanguage(ctx context.Context, id string) err
 }
 
 func TestLanguageHandler_CreateLanguage(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := gin.Default()
-		r.POST("/languages", handlerObj.CreateLanguage)
+		app := fiber.New()
+		app.Post("/languages", handlerObj.CreateLanguage)
 
 		input := dto.LanguageReq{
 			ProfileID:   "1",
@@ -60,89 +57,89 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 		}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBuffer(body))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
 		expectedLanguage := domain.Language{ID: "1", ProfileID: "1", Language: "English"}
 		mockUsecase.On("CreateLanguage", mock.Anything, mock.Anything).Return(expectedLanguage, nil)
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := gin.Default()
-		r.POST("/languages", handlerObj.CreateLanguage)
+		app := fiber.New()
+		app.Post("/languages", handlerObj.CreateLanguage)
 
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBufferString("invalid json"))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := gin.Default()
-		r.POST("/languages", handlerObj.CreateLanguage)
+		app := fiber.New()
+		app.Post("/languages", handlerObj.CreateLanguage)
 
 		input := dto.LanguageReq{
 			ProfileID: "1",
 		}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBuffer(body))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
 		mockUsecase.On("CreateLanguage", mock.Anything, mock.Anything).Return(domain.Language{}, errors.New("internal error"))
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 }
 
 func TestLanguageHandler_GetLanguages(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := gin.Default()
-		r.GET("/profiles/:profile_id/languages", handlerObj.GetLanguages)
+		app := fiber.New()
+		app.Get("/profiles/:profile_id/languages", handlerObj.GetLanguages)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/languages", nil)
-		w := httptest.NewRecorder()
 
 		expectedLanguages := []domain.Language{
 			{ID: "1", ProfileID: "1", Language: "English"},
 		}
 		mockUsecase.On("GetLanguages", mock.Anything, "1").Return(expectedLanguages, nil)
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := gin.Default()
-		r.GET("/profiles/:profile_id/languages", handlerObj.GetLanguages)
+		app := fiber.New()
+		app.Get("/profiles/:profile_id/languages", handlerObj.GetLanguages)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/languages", nil)
-		w := httptest.NewRecorder()
 
 		mockUsecase.On("GetLanguages", mock.Anything, "1").Return(nil, errors.New("not found"))
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 }
-

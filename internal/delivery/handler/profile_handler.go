@@ -6,7 +6,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
 type ProfileHandler struct {
@@ -17,16 +17,15 @@ func NewProfileHandler(u usecase.ProfileUsecase) *ProfileHandler {
 	return &ProfileHandler{usecase: u}
 }
 
-func (h *ProfileHandler) CreateProfile(c *gin.Context) {
-	ctx := c.Request.Context()
-
+func (h *ProfileHandler) CreateProfile(c fiber.Ctx) error {
+	ctx := c.Context()
 	var req dto.ProfileReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
 			Message: "invalid request body",
 		})
-		return
 	}
 
 	input := domain.ProfileInput{
@@ -40,57 +39,51 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 
 	profile, err := h.usecase.CreateProfile(ctx, input)
 	if err != nil {
-		c.Error(err) // Log the real error for middleware
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed to create profile",
 		})
-		return
 	}
 
 	res := dto.ToProfileDTO(profile)
-	c.JSON(http.StatusCreated, dto.Response{
+	return c.Status(http.StatusCreated).JSON(dto.Response{
 		Status:  http.StatusCreated,
 		Message: "Success create profile",
 		Data:    res,
 	})
 }
 
-func (h *ProfileHandler) GetProfile(c *gin.Context) {
-	ctx := c.Request.Context()
-	id := c.Param("id")
+func (h *ProfileHandler) GetProfile(c fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
 
 	profile, err := h.usecase.GetProfile(ctx, id)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusNotFound, dto.NoDataResponse{
+		return c.Status(http.StatusNotFound).JSON(dto.NoDataResponse{
 			Status:  http.StatusNotFound,
 			Message: "Profile not found",
 		})
-		return
 	}
 
 	res := dto.ToProfilePublicDTO(profile)
 
-	c.JSON(http.StatusOK, dto.Response{
+	return c.Status(http.StatusOK).JSON(dto.Response{
 		Status:  http.StatusOK,
 		Message: "success get profile",
 		Data:    res,
 	})
 }
 
-func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	id := c.Param("id")
+func (h *ProfileHandler) UpdateProfile(c fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
 
 	var req dto.ProfileReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
 			Status:  http.StatusBadRequest,
 			Message: "invalid request body",
 		})
-		return
 	}
 
 	input := domain.ProfileUpdateInput{
@@ -102,36 +95,32 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	if err := h.usecase.UpdateProfile(ctx, id, input); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed to update profile",
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "success update profile",
 	})
 }
 
-func (h *ProfileHandler) DeleteProfile(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	id := c.Param("id")
+func (h *ProfileHandler) DeleteProfile(c fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
 
 	if err := h.usecase.DeleteProfile(ctx, id); err != nil {
-		c.Error(err)
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed to delete profile",
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
+	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
 		Status:  http.StatusOK,
 		Message: "success delete profile",
 	})
 }
+

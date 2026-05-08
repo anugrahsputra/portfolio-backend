@@ -3,18 +3,16 @@ package route
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func ProfileRoute(r *gin.RouterGroup, h *handler.ProfileHandler, apiKey string) {
+func ProfileRoute(r fiber.Router, h *handler.ProfileHandler, apiKey string) {
 	route := r.Group("/profile")
-	route.GET("/:id", h.GetProfile)
+	route.Get("/:id", h.GetProfile)
 
-	protectedRoute := route.Group("")
-	protectedRoute.Use(middleware.AuthMiddleware(apiKey))
-	{
-		protectedRoute.POST("", h.CreateProfile)
-		protectedRoute.PUT("/:id", h.UpdateProfile)
-		protectedRoute.DELETE("/:id", h.DeleteProfile)
-	}
+	protectedRoute := route.Group("/", middleware.AuthMiddleware(apiKey))
+	protectedRoute.Post("/", h.CreateProfile)
+	protectedRoute.Put("/:id", h.UpdateProfile)
+	protectedRoute.Delete("/:id", h.DeleteProfile)
 }
+

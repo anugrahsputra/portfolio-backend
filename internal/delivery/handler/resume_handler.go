@@ -5,7 +5,7 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
 type ResumeHandler struct {
@@ -16,25 +16,24 @@ func NewResumeHandler(u usecase.ResumeUsecase) *ResumeHandler {
 	return &ResumeHandler{usecase: u}
 }
 
-func (h *ResumeHandler) GetResume(c *gin.Context) {
-	ctx := c.Request.Context()
-	id := c.Param("profile_id")
+func (h *ResumeHandler) GetResume(c fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("profile_id")
 
 	resume, err := h.usecase.GetResume(ctx, id)
 	if err != nil {
-		c.Error(err)
-		c.JSON(http.StatusNotFound, dto.NoDataResponse{
+		return c.Status(http.StatusNotFound).JSON(dto.NoDataResponse{
 			Status:  http.StatusNotFound,
 			Message: "Resume not found",
 		})
-		return
 	}
 
 	res := dto.ToResumeDTO(resume)
 
-	c.JSON(http.StatusOK, dto.Response{
+	return c.Status(http.StatusOK).JSON(dto.Response{
 		Status:  http.StatusOK,
-		Message: "success get resume",
+		Message: "Success get resume",
 		Data:    res,
 	})
 }
+

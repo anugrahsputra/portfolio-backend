@@ -5,13 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -44,41 +43,41 @@ func (m *MockProjectUsecase) DeleteProject(ctx context.Context, id string) error
 }
 
 func TestProjectHandler(t *testing.T) {
-	gin.SetMode(gin.TestMode)
 	mockUsecase := new(MockProjectUsecase)
 	h := handler.NewProjectHandler(mockUsecase)
 
 	t.Run("CreateProject - Success", func(t *testing.T) {
-		r := gin.Default()
-		r.POST("/api/v1/projects", h.CreateProject)
+		app := fiber.New()
+		app.Post("/api/v1/projects", h.CreateProject)
 
 		input := dto.ProjectReq{Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/api/v1/projects", bytes.NewBuffer(body))
-		w := httptest.NewRecorder()
+		req.Header.Set("Content-Type", "application/json")
 
 		expected := domain.Project{ID: "1", Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		mockUsecase.On("CreateProject", mock.Anything, mock.Anything).Return(expected, nil).Once()
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusCreated, w.Code)
+		assert.Equal(t, http.StatusCreated, resp.StatusCode)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("GetProjects - Success", func(t *testing.T) {
-		r := gin.Default()
-		r.GET("/api/v1/profiles/:profile_id/projects", h.GetProjects)
+		app := fiber.New()
+		app.Get("/api/v1/profiles/:profile_id/projects", h.GetProjects)
 
 		req, _ := http.NewRequest(http.MethodGet, "/api/v1/profiles/1/projects", nil)
-		w := httptest.NewRecorder()
 
 		expected := []domain.Project{{ID: "1", Title: "P1", ProfileID: "1"}}
 		mockUsecase.On("GetProjects", mock.Anything, "1").Return(expected, nil).Once()
 
-		r.ServeHTTP(w, req)
+		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 		mockUsecase.AssertExpectations(t)
 	})
 }
