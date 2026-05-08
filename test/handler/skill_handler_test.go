@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -44,8 +45,8 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/skills", handlerObj.CreateSkill)
+		r := chi.NewRouter()
+		r.Post("/skills", handlerObj.CreateSkill)
 
 		input := dto.SkillReq{
 			ProfileID:    "1",
@@ -53,52 +54,49 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 		}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/skills", bytes.NewBuffer(body))
-		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		expectedSkill := domain.Skill{ID: "1", ProfileID: "1", Technologies: []string{"Go", "React"}}
 		mockUsecase.On("CreateSkill", mock.Anything, mock.Anything).Return(expectedSkill, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/skills", handlerObj.CreateSkill)
+		r := chi.NewRouter()
+		r.Post("/skills", handlerObj.CreateSkill)
 
 		req, _ := http.NewRequest(http.MethodPost, "/skills", bytes.NewBufferString("invalid json"))
-		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/skills", handlerObj.CreateSkill)
+		r := chi.NewRouter()
+		r.Post("/skills", handlerObj.CreateSkill)
 
 		input := dto.SkillReq{
 			ProfileID: "1",
 		}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/skills", bytes.NewBuffer(body))
-		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("CreateSkill", mock.Anything, mock.Anything).Return(domain.Skill{}, errors.New("internal error"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
 
@@ -106,34 +104,35 @@ func TestSkillHandler_GetSkills(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profiles/:profile_id/skills", handlerObj.GetSkills)
+		r := chi.NewRouter()
+		r.Get("/profiles/{profile_id}/skills", handlerObj.GetSkills)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/skills", nil)
+		w := httptest.NewRecorder()
 
 		expectedSkill := domain.Skill{ID: "1", ProfileID: "1", Technologies: []string{"Go"}}
 		mockUsecase.On("GetSkills", mock.Anything, "1").Return(expectedSkill, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusOK, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profiles/:profile_id/skills", handlerObj.GetSkills)
+		r := chi.NewRouter()
+		r.Get("/profiles/{profile_id}/skills", handlerObj.GetSkills)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/skills", nil)
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("GetSkills", mock.Anything, "1").Return(domain.Skill{}, errors.New("not found"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
+

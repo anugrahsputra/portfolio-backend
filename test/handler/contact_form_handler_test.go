@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -30,8 +31,8 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEmailContactUsecase)
 		handlerObj := handler.NewContactFormHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/send-email", handlerObj.SendMail)
+		r := chi.NewRouter()
+		r.Post("/send-email", handlerObj.SendMail)
 
 		input := dto.ContactFormReq{
 			ProfileID: "550e8400-e29b-41d4-a716-446655440000",
@@ -43,36 +44,36 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/send-email", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("SendEmail", mock.Anything, mock.Anything).Return(nil).Once()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusOK, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad json", func(t *testing.T) {
 		mockUsecase := new(MockEmailContactUsecase)
 		handlerObj := handler.NewContactFormHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/send-email", handlerObj.SendMail)
+		r := chi.NewRouter()
+		r.Post("/send-email", handlerObj.SendMail)
 
 		req, _ := http.NewRequest(http.MethodPost, "/send-email", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockEmailContactUsecase)
 		handlerObj := handler.NewContactFormHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/send-email", handlerObj.SendMail)
+		r := chi.NewRouter()
+		r.Post("/send-email", handlerObj.SendMail)
 
 		input := dto.ContactFormReq{
 			Name: "John Doe",
@@ -80,18 +81,18 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/send-email", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("SendEmail", mock.Anything, mock.Anything).Return(errors.New("validation failed")).Once()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		
 		var response dto.NoDataResponse
-		err = json.NewDecoder(resp.Body).Decode(&response)
+		err := json.Unmarshal(w.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.Equal(t, http.StatusBadRequest, response.Status)
+		assert.Equal(t, http.StatusInternalServerError, response.Status)
 		
 		mockUsecase.AssertExpectations(t)
 	})

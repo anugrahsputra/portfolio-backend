@@ -3,25 +3,26 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/gofiber/fiber/v3"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 )
 
-func AuthMiddleware(apiKey string) fiber.Handler {
-	return func(c fiber.Ctx) error {
-		if c.Method() == http.MethodGet || c.Method() == http.MethodOptions {
-			return c.Next()
-		}
+func AuthMiddleware(apiKey string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodGet || r.Method == http.MethodOptions {
+				next.ServeHTTP(w, r)
+				return
+			}
 
-		clientKey := c.Get("X-API-Key")
-		if clientKey != apiKey {
-			return c.Status(http.StatusUnauthorized).JSON(dto.NoDataResponse{
-				Status:  http.StatusUnauthorized,
-				Message: "Unauthorized: Invalid API Key",
-			})
-		}
+			clientKey := r.Header.Get("X-API-Key")
+			if clientKey != apiKey {
+				handler.ResponseError(w, r, http.StatusUnauthorized, "Unauthorized: Invalid API Key")
+				return
+			}
 
-		return c.Next()
+			next.ServeHTTP(w, r)
+		})
 	}
 }
+
 

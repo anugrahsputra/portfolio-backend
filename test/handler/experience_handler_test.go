@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -47,8 +48,8 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/experiences", handlerObj.CreateExperience)
+		r := chi.NewRouter()
+		r.Post("/experiences", handlerObj.CreateExperience)
 
 		input := dto.ExperienceReq{
 			ProfileID:    "1",
@@ -58,37 +59,37 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/experiences", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		expectedExperience := domain.Experience{ID: "1", ProfileID: "1", Company: "Company"}
 		mockUsecase.On("CreateExperience", mock.Anything, mock.Anything).Return(expectedExperience, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusCreated, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/experiences", handlerObj.CreateExperience)
+		r := chi.NewRouter()
+		r.Post("/experiences", handlerObj.CreateExperience)
 
 		req, _ := http.NewRequest(http.MethodPost, "/experiences", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/experiences", handlerObj.CreateExperience)
+		r := chi.NewRouter()
+		r.Post("/experiences", handlerObj.CreateExperience)
 
 		input := dto.ExperienceReq{
 			ProfileID: "1",
@@ -96,13 +97,13 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/experiences", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("CreateExperience", mock.Anything, mock.Anything).Return(domain.Experience{}, errors.New("internal error"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
 
@@ -110,36 +111,36 @@ func TestExperienceHandler_GetExperiences(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profiles/:profile_id/experiences", handlerObj.GetExperiences)
+		r := chi.NewRouter()
+		r.Get("/profiles/{profile_id}/experiences", handlerObj.GetExperiences)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/experiences", nil)
+		w := httptest.NewRecorder()
 
 		expectedExperiences := []domain.Experience{
 			{ID: "1", ProfileID: "1", Company: "Company"},
 		}
 		mockUsecase.On("GetExperiences", mock.Anything, "1").Return(expectedExperiences, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusOK, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profiles/:profile_id/experiences", handlerObj.GetExperiences)
+		r := chi.NewRouter()
+		r.Get("/profiles/{profile_id}/experiences", handlerObj.GetExperiences)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/experiences", nil)
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("GetExperiences", mock.Anything, "1").Return(nil, errors.New("not found"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 }

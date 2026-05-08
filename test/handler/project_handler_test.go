@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -47,37 +48,37 @@ func TestProjectHandler(t *testing.T) {
 	h := handler.NewProjectHandler(mockUsecase)
 
 	t.Run("CreateProject - Success", func(t *testing.T) {
-		app := fiber.New()
-		app.Post("/api/v1/projects", h.CreateProject)
+		r := chi.NewRouter()
+		r.Post("/api/v1/projects", h.CreateProject)
 
 		input := dto.ProjectReq{Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/api/v1/projects", bytes.NewBuffer(body))
-		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		expected := domain.Project{ID: "1", Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		mockUsecase.On("CreateProject", mock.Anything, mock.Anything).Return(expected, nil).Once()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusCreated, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("GetProjects - Success", func(t *testing.T) {
-		app := fiber.New()
-		app.Get("/api/v1/profiles/:profile_id/projects", h.GetProjects)
+		r := chi.NewRouter()
+		r.Get("/api/v1/profiles/{profile_id}/projects", h.GetProjects)
 
 		req, _ := http.NewRequest(http.MethodGet, "/api/v1/profiles/1/projects", nil)
+		w := httptest.NewRecorder()
 
 		expected := []domain.Project{{ID: "1", Title: "P1", ProfileID: "1"}}
 		mockUsecase.On("GetProjects", mock.Anything, "1").Return(expected, nil).Once()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusOK, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 }
+

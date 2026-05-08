@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 )
 
 type LanguageHandler struct {
@@ -17,44 +17,31 @@ func NewLanguageHandler(u usecase.LanguageUsecase) *LanguageHandler {
 	return &LanguageHandler{usecase: u}
 }
 
-func (h *LanguageHandler) CreateLanguage(c fiber.Ctx) error {
-	ctx := c.Context()
-
+func (h *LanguageHandler) CreateLanguage(w http.ResponseWriter, r *http.Request) {
 	var req dto.LanguageReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToLanguageInput(&req)
-	language, err := h.usecase.CreateLanguage(ctx, input)
+	language, err := h.usecase.CreateLanguage(r.Context(), input)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
 	res := dto.ToLanguageDTO(&language)
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(w, r, http.StatusCreated, "success", res)
 }
 
-func (h *LanguageHandler) GetLanguages(c fiber.Ctx) error {
-	ctx := c.Context()
-	profileID := c.Params("profile_id")
+func (h *LanguageHandler) GetLanguages(w http.ResponseWriter, r *http.Request) {
+	profileID := chi.URLParam(r, "profile_id")
 
-	languages, err := h.usecase.GetLanguages(ctx, profileID)
+	languages, err := h.usecase.GetLanguages(r.Context(), profileID)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+		ResponseError(w, r, http.StatusBadRequest, "bad request")
+		return
 	}
 
 	res := make([]dto.LanguageResp, 0, len(languages))
@@ -63,54 +50,35 @@ func (h *LanguageHandler) GetLanguages(c fiber.Ctx) error {
 		res = append(res, item)
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(w, r, http.StatusOK, "success", res)
 }
 
-func (h *LanguageHandler) UpdateLanguage(c fiber.Ctx) error {
-	ctx := c.Context()
-	languageID := c.Params("language_id")
+func (h *LanguageHandler) UpdateLanguage(w http.ResponseWriter, r *http.Request) {
+	languageID := chi.URLParam(r, "language_id")
 
 	var req dto.LanguageUpdateReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToLanguageUpdateInput(&req)
 
-	if err := h.usecase.UpdateLanguage(ctx, languageID, input); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+	if err := h.usecase.UpdateLanguage(r.Context(), languageID, input); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
 
-func (h *LanguageHandler) DeleteLanguage(c fiber.Ctx) error {
-	ctx := c.Context()
-	languageID := c.Params("language_id")
+func (h *LanguageHandler) DeleteLanguage(w http.ResponseWriter, r *http.Request) {
+	languageID := chi.URLParam(r, "language_id")
 
-	if err := h.usecase.DeleteLanguage(ctx, languageID); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+	if err := h.usecase.DeleteLanguage(r.Context(), languageID); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
-

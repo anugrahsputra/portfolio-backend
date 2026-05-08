@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -52,8 +53,8 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/profile-urls", handlerObj.CreateProfileUrl)
+		r := chi.NewRouter()
+		r.Post("/profile-urls", handlerObj.CreateProfileUrl)
 
 		input := dto.ProfileUrlReq{
 			ProfileID: "1",
@@ -63,37 +64,37 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/profile-urls", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		expectedProfileUrl := &domain.ProfileUrl{ID: "1", ProfileID: "1", Label: "LinkedIn"}
 		mockUsecase.On("CreateProfileUrl", mock.Anything, mock.Anything).Return(expectedProfileUrl, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusCreated, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/profile-urls", handlerObj.CreateProfileUrl)
+		r := chi.NewRouter()
+		r.Post("/profile-urls", handlerObj.CreateProfileUrl)
 
 		req, _ := http.NewRequest(http.MethodPost, "/profile-urls", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/profile-urls", handlerObj.CreateProfileUrl)
+		r := chi.NewRouter()
+		r.Post("/profile-urls", handlerObj.CreateProfileUrl)
 
 		input := dto.ProfileUrlReq{
 			ProfileID: "1",
@@ -101,13 +102,13 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/profile-urls", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("CreateProfileUrl", mock.Anything, mock.Anything).Return(nil, errors.New("internal error"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
 
@@ -115,34 +116,34 @@ func TestProfileUrlHandler_GetProfileUrl(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profile-urls/:profile_url_id", handlerObj.GetProfileUrlByID)
+		r := chi.NewRouter()
+		r.Get("/profile-urls/{profile_url_id}", handlerObj.GetProfileUrlByID)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profile-urls/1", nil)
+		w := httptest.NewRecorder()
 
 		expectedProfileUrl := domain.ProfileUrl{ID: "1", ProfileID: "1", Label: "LinkedIn"}
 		mockUsecase.On("GetProfileUrlByID", mock.Anything, "1").Return(expectedProfileUrl, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusOK, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profile-urls/:profile_url_id", handlerObj.GetProfileUrlByID)
+		r := chi.NewRouter()
+		r.Get("/profile-urls/{profile_url_id}", handlerObj.GetProfileUrlByID)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profile-urls/1", nil)
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("GetProfileUrlByID", mock.Anything, "1").Return(domain.ProfileUrl{}, errors.New("not found"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }

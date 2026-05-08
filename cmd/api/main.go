@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/route"
@@ -52,12 +55,18 @@ func main() {
 	mail := initMail(cfg)
 
 	// Initialize router
-	app := route.SetupRouter(db, mail, cfg)
+	r := route.SetupRouter(db, mail, cfg)
+
+	// Server Configuration
+	server := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: r,
+	}
 
 	// Graceful Shutdown
 	go func() {
 		log.Infof("Server starting on port %s", cfg.Port)
-		if err := app.Listen(":" + cfg.Port); err != nil {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
@@ -68,10 +77,11 @@ func main() {
 	<-quit
 	log.Info("Shutting down server...")
 
-	if err := app.Shutdown(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
 		log.Fatal("Server forced to shutdown:", err)
 	}
 
 	log.Info("Server exiting")
 }
-

@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 )
 
 type SkillHandler struct {
@@ -18,15 +18,11 @@ func NewSkillHandler(u usecase.SkillUsecase) *SkillHandler {
 	return &SkillHandler{usecase: u}
 }
 
-func (h *SkillHandler) CreateSkill(c fiber.Ctx) error {
-	ctx := c.Context()
-
+func (h *SkillHandler) CreateSkill(w http.ResponseWriter, r *http.Request) {
 	var req dto.SkillReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := domain.SkillInput{
@@ -37,52 +33,36 @@ func (h *SkillHandler) CreateSkill(c fiber.Ctx) error {
 		SoftSkills:   req.SoftSkills,
 	}
 
-	skill, err := h.usecase.CreateSkill(ctx, input)
+	skill, err := h.usecase.CreateSkill(r.Context(), input)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("Failed create skill: %v", err),
-		})
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
 	res := dto.ToSkillDTO(&skill)
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(w, r, http.StatusCreated, "success", res)
 }
 
-func (h *SkillHandler) GetSkills(c fiber.Ctx) error {
-	ctx := c.Context()
-	profileID := c.Params("profile_id")
+func (h *SkillHandler) GetSkills(w http.ResponseWriter, r *http.Request) {
+	profileID := chi.URLParam(r, "profile_id")
 
-	skill, err := h.usecase.GetSkills(ctx, profileID)
+	skill, err := h.usecase.GetSkills(r.Context(), profileID)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
 	res := dto.ToSkillDTO(&skill)
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(w, r, http.StatusOK, "success", res)
 }
 
-func (h *SkillHandler) UpdateSkill(c fiber.Ctx) error {
-	ctx := c.Context()
-	skillId := c.Params("skill_id")
+func (h *SkillHandler) UpdateSkill(w http.ResponseWriter, r *http.Request) {
+	skillId := chi.URLParam(r, "skill_id")
 
 	var req dto.SkillUpdateReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := domain.SkillUpdateInput{
@@ -92,33 +72,21 @@ func (h *SkillHandler) UpdateSkill(c fiber.Ctx) error {
 		SoftSkills:   req.SoftSkills,
 	}
 
-	if err := h.usecase.UpdateSkill(ctx, skillId, input); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("failed to update skill: %v", err),
-		})
+	if err := h.usecase.UpdateSkill(r.Context(), skillId, input); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
 
-func (h *SkillHandler) DeleteSkill(c fiber.Ctx) error {
-	ctx := c.Context()
-	skillId := c.Params("skill_id")
+func (h *SkillHandler) DeleteSkill(w http.ResponseWriter, r *http.Request) {
+	skillId := chi.URLParam(r, "skill_id")
 
-	if err := h.usecase.DeleteSkill(ctx, skillId); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("failed to delete skill: %v", err),
-		})
+	if err := h.usecase.DeleteSkill(r.Context(), skillId); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
-

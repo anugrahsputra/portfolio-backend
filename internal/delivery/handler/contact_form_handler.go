@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gofiber/fiber/v3"
 )
 
 type ContactFormHandler struct {
@@ -17,27 +16,18 @@ func NewContactFormHandler(u usecase.EmailContactUsecase) *ContactFormHandler {
 	return &ContactFormHandler{usecase: u}
 }
 
-func (h *ContactFormHandler) SendMail(c fiber.Ctx) error {
-	ctx := c.Context()
+func (h *ContactFormHandler) SendMail(w http.ResponseWriter, r *http.Request) {
 	var req dto.ContactFormReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToContactFormInput(&req)
-	if err := h.usecase.SendEmail(ctx, input); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("failed to send email: %v", err),
-		})
+	if err := h.usecase.SendEmail(r.Context(), input); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "email submitted",
-	})
+	ResponseError(w, r, http.StatusOK, "email submitted")
 }
-

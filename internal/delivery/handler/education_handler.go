@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 )
 
 type EducationHandler struct {
@@ -17,40 +17,29 @@ func NewEducationHandler(u usecase.EducationUsecase) *EducationHandler {
 	return &EducationHandler{usecase: u}
 }
 
-func (h *EducationHandler) CreateEducation(c fiber.Ctx) error {
-	ctx := c.Context()
+func (h *EducationHandler) CreateEducation(w http.ResponseWriter, r *http.Request) {
 	var req dto.EducationReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToEducationInput(&req)
-	if err := h.usecase.CreateEducation(ctx, input); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+	if err := h.usecase.CreateEducation(r.Context(), input); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusCreated).JSON(dto.NoDataResponse{
-		Status:  http.StatusCreated,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusCreated, "success")
 }
 
-func (h *EducationHandler) GetEducation(c fiber.Ctx) error {
-	ctx := c.Context()
-	profileID := c.Params("profile_id")
+func (h *EducationHandler) GetEducation(w http.ResponseWriter, r *http.Request) {
+	profileID := chi.URLParam(r, "profile_id")
 
-	educations, err := h.usecase.GetEducations(ctx, profileID)
+	educations, err := h.usecase.GetEducations(r.Context(), profileID)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+		ResponseError(w, r, http.StatusBadRequest, "bad request")
+		return
 	}
 
 	res := make([]dto.EducationResp, 0, len(educations))
@@ -59,53 +48,34 @@ func (h *EducationHandler) GetEducation(c fiber.Ctx) error {
 		res = append(res, item)
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(w, r, http.StatusOK, "success", res)
 }
 
-func (h *EducationHandler) UpdateEducation(c fiber.Ctx) error {
-	ctx := c.Context()
-	eduID := c.Params("education_id")
+func (h *EducationHandler) UpdateEducation(w http.ResponseWriter, r *http.Request) {
+	eduID := chi.URLParam(r, "education_id")
 
 	var req dto.EducationUpdateReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("internal server error: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToEducationUpdateInput(&req)
-	if err := h.usecase.UpdateEducation(ctx, eduID, input); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+	if err := h.usecase.UpdateEducation(r.Context(), eduID, input); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
 
-func (h *EducationHandler) DeleteEducation(c fiber.Ctx) error {
-	ctx := c.Context()
-	eduID := c.Params("education_id")
+func (h *EducationHandler) DeleteEducation(w http.ResponseWriter, r *http.Request) {
+	eduID := chi.URLParam(r, "education_id")
 
-	if err := h.usecase.DeleteEducation(ctx, eduID); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("bad request: %v", err),
-		})
+	if err := h.usecase.DeleteEducation(r.Context(), eduID); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
-

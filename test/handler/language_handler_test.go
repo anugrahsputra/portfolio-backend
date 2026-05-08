@@ -6,12 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -47,8 +48,8 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/languages", handlerObj.CreateLanguage)
+		r := chi.NewRouter()
+		r.Post("/languages", handlerObj.CreateLanguage)
 
 		input := dto.LanguageReq{
 			ProfileID:   "1",
@@ -58,37 +59,37 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		expectedLanguage := domain.Language{ID: "1", ProfileID: "1", Language: "English"}
 		mockUsecase.On("CreateLanguage", mock.Anything, mock.Anything).Return(expectedLanguage, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusCreated, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/languages", handlerObj.CreateLanguage)
+		r := chi.NewRouter()
+		r.Post("/languages", handlerObj.CreateLanguage)
 
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		app := fiber.New()
-		app.Post("/languages", handlerObj.CreateLanguage)
+		r := chi.NewRouter()
+		r.Post("/languages", handlerObj.CreateLanguage)
 
 		input := dto.LanguageReq{
 			ProfileID: "1",
@@ -96,13 +97,13 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 		body, _ := json.Marshal(input)
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("CreateLanguage", mock.Anything, mock.Anything).Return(domain.Language{}, errors.New("internal error"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
 
@@ -110,36 +111,36 @@ func TestLanguageHandler_GetLanguages(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profiles/:profile_id/languages", handlerObj.GetLanguages)
+		r := chi.NewRouter()
+		r.Get("/profiles/{profile_id}/languages", handlerObj.GetLanguages)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/languages", nil)
+		w := httptest.NewRecorder()
 
 		expectedLanguages := []domain.Language{
 			{ID: "1", ProfileID: "1", Language: "English"},
 		}
 		mockUsecase.On("GetLanguages", mock.Anything, "1").Return(expectedLanguages, nil)
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		assert.Equal(t, http.StatusOK, w.Code)
 		mockUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		app := fiber.New()
-		app.Get("/profiles/:profile_id/languages", handlerObj.GetLanguages)
+		r := chi.NewRouter()
+		r.Get("/profiles/{profile_id}/languages", handlerObj.GetLanguages)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/languages", nil)
+		w := httptest.NewRecorder()
 
 		mockUsecase.On("GetLanguages", mock.Anything, "1").Return(nil, errors.New("not found"))
 
-		resp, err := app.Test(req)
-		assert.NoError(t, err)
+		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 }

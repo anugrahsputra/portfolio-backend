@@ -3,16 +3,20 @@ module github.com/anugrahsputra/portfolio-backend
 go 1.25.0
 
 require (
+	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/render v1.0.3
 	github.com/gofiber/fiber/v3 v3.2.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/joho/godotenv v1.5.1
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
+	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
 require (
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/andybalholm/brotli v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gofiber/schema v1.7.1 // indirect

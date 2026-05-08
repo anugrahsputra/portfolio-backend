@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 )
 
 type ProjectHandler struct {
@@ -17,44 +17,31 @@ func NewProjectHandler(u usecase.ProjectUsecase) *ProjectHandler {
 	return &ProjectHandler{usecase: u}
 }
 
-func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
-	ctx := c.Context()
-
+func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 	var req dto.ProjectReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("Something went wrong: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToProjectInput(&req)
-	project, err := h.usecase.CreateProject(ctx, input)
+	project, err := h.usecase.CreateProject(r.Context(), input)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("Failed to create project url: %v", err),
-		})
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
 	resp := dto.ToProjectDTO(&project)
-	return c.Status(http.StatusCreated).JSON(dto.Response{
-		Status:  http.StatusCreated,
-		Message: "created",
-		Data:    resp,
-	})
+	ResponseJSON(w, r, http.StatusCreated, "created", resp)
 }
 
-func (h *ProjectHandler) GetProjects(c fiber.Ctx) error {
-	ctx := c.Context()
-	profileID := c.Params("profile_id")
+func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
+	profileID := chi.URLParam(r, "profile_id")
 
-	projects, err := h.usecase.GetProjects(ctx, profileID)
+	projects, err := h.usecase.GetProjects(r.Context(), profileID)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("Failed to get projects: %v", err),
-		})
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
 	resp := make([]dto.ProjectResp, 0, len(projects))
@@ -63,56 +50,36 @@ func (h *ProjectHandler) GetProjects(c fiber.Ctx) error {
 		resp = append(resp, item)
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    resp,
-	})
+	ResponseJSON(w, r, http.StatusOK, "success", resp)
 }
 
-func (h *ProjectHandler) UpdateProject(c fiber.Ctx) error {
-	ctx := c.Context()
-	id := c.Params("project_id")
+func (h *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "project_id")
 
 	var req dto.ProjectUpdateReq
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: fmt.Sprintf("Something went wrong: %v", err),
-		})
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	input := dto.ToProjectUpdateInput(&req)
-	project, err := h.usecase.UpdateProject(ctx, id, input)
+	project, err := h.usecase.UpdateProject(r.Context(), id, input)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("Failed to update project: %v", err),
-		})
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
 	resp := dto.ToProjectDTO(&project)
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    resp,
-	})
+	ResponseJSON(w, r, http.StatusOK, "success", resp)
 }
 
-func (h *ProjectHandler) DeleteProject(c fiber.Ctx) error {
-	ctx := c.Context()
-	id := c.Params("project_id")
+func (h *ProjectHandler) DeleteProject(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "project_id")
 
-	if err := h.usecase.DeleteProject(ctx, id); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: fmt.Sprintf("Failed to delete project: %v", err),
-		})
+	if err := h.usecase.DeleteProject(r.Context(), id); err != nil {
+		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		return
 	}
 
-	return c.Status(http.StatusOK).JSON(dto.Response{
-		Status:  http.StatusOK,
-		Message: "Success",
-	})
+	ResponseError(w, r, http.StatusOK, "success")
 }
-

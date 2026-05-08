@@ -3,16 +3,20 @@ package route
 import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
-	"github.com/gofiber/fiber/v3"
+	"github.com/go-chi/chi/v5"
 )
 
-func ProjectRoute(r fiber.Router, h *handler.ProjectHandler, apiKey string) {
-	route := r.Group("/project")
-	route.Get("/:profile_id", h.GetProjects)
+func ProjectRoute(r chi.Router, h *handler.ProjectHandler, apiKey string) {
+	r.Route("/project", func(r chi.Router) {
+		r.Get("/{profile_id}", h.GetProjects)
 
-	protectedRoute := route.Group("/", middleware.AuthMiddleware(apiKey))
-	protectedRoute.Post("/", h.CreateProject)
-	protectedRoute.Put("/:project_id", h.UpdateProject)
-	protectedRoute.Delete("/:project_id", h.DeleteProject)
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.AuthMiddleware(apiKey))
+			r.Post("/", h.CreateProject)
+			r.Put("/{project_id}", h.UpdateProject)
+			r.Delete("/{project_id}", h.DeleteProject)
+		})
+	})
 }
+
 
