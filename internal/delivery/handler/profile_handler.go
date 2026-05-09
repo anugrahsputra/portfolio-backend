@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 )
 
 type ProfileHandler struct {
@@ -18,10 +17,15 @@ func NewProfileHandler(u usecase.ProfileUsecase) *ProfileHandler {
 	return &ProfileHandler{usecase: u}
 }
 
-func (h *ProfileHandler) CreateProfile(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) CreateProfile(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req dto.ProfileReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
@@ -34,35 +38,54 @@ func (h *ProfileHandler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		Phone:   req.Phone,
 	}
 
-	profile, err := h.usecase.CreateProfile(r.Context(), input)
+	profile, err := h.usecase.CreateProfile(ctx, input)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "Failed to create profile")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to create profile",
+		})
 		return
 	}
 
 	res := dto.ToProfileDTO(profile)
-	ResponseJSON(w, r, http.StatusCreated, "Success create profile", res)
+	c.JSON(http.StatusCreated, dto.Response{
+		Status:  http.StatusCreated,
+		Message: "Success create profile",
+		Data:    res,
+	})
 }
 
-func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+func (h *ProfileHandler) GetProfile(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("id")
 
-	profile, err := h.usecase.GetProfile(r.Context(), id)
+	profile, err := h.usecase.GetProfile(ctx, id)
 	if err != nil {
-		ResponseError(w, r, http.StatusNotFound, "Profile not found")
+		c.JSON(http.StatusNotFound, dto.NoDataResponse{
+			Status:  http.StatusNotFound,
+			Message: "Profile not found",
+		})
 		return
 	}
 
 	res := dto.ToProfilePublicDTO(profile)
-	ResponseJSON(w, r, http.StatusOK, "success get profile", res)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success get profile",
+		Data:    res,
+	})
 }
 
-func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("id")
 
 	var req dto.ProfileReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
@@ -74,23 +97,37 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		Phone:   &req.Phone,
 	}
 
-	if err := h.usecase.UpdateProfile(r.Context(), id, input); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "Failed to update profile")
+	if err := h.usecase.UpdateProfile(ctx, id, input); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to update profile",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "success update profile")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "success update profile",
+	})
 }
 
-func (h *ProfileHandler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+func (h *ProfileHandler) DeleteProfile(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("id")
 
-	if err := h.usecase.DeleteProfile(r.Context(), id); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "Failed to delete profile")
+	if err := h.usecase.DeleteProfile(ctx, id); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "Failed to delete profile",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "success delete profile")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "success delete profile",
+	})
 }
+
 
 

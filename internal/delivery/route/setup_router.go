@@ -1,16 +1,15 @@
 package route
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/repository"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/rs/cors"
+	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func wireProfileRoute(db *config.Database) *handler.ProfileHandler {
@@ -78,32 +77,34 @@ func wireResumeRoute(db *config.Database) *handler.ResumeHandler {
 
 }
 
-func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *chi.Mux {
+func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gin.Engine {
 	env := os.Getenv("ENV")
 	var allowOrigins []string
+	var allowMethods []string
 
 	if env == "development" {
+		gin.SetMode(gin.DebugMode)
 		allowOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000"}
+		allowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	} else {
+		gin.SetMode(gin.ReleaseMode)
 		allowOrigins = []string{"https://www.downormal.dev", "https://downormal.dev", "http://localhost:3000"}
+		allowMethods = []string{"GET"}
 	}
 
-	r := chi.NewRouter()
+	route := gin.New()
 
 	// Global Middlewares
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   allowOrigins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key"},
-		ExposedHeaders:   []string{"Content-Length"},
+	route.Use(middleware.RecoveryMiddleware())
+	route.Use(gin.Logger())
+	route.Use(middleware.SecurityMiddleware())
+	route.Use(cors.New(cors.Config{
+		AllowOrigins:     allowOrigins,
+		AllowMethods:     allowMethods,
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key"},
+		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-	}).Handler)
-
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		handler.ResponseError(w, r, http.StatusNotFound, "Endpoint not found")
-	})
+	}))
 
 	profile := wireProfileRoute(db)
 	profileUrl := wireProfileUrlRoute(db)
@@ -115,20 +116,20 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *ch
 	contactForm := wireContactFormRoute(db, mail, cfg)
 	resume := wireResumeRoute(db)
 
-	apiKey := os.Getenv("API_KEY")
-
 	// API Group
-	r.Route("/api/v1", func(r chi.Router) {
-		ProfileRoute(r, profile, apiKey)
-		ProfileUrlRoute(r, profileUrl, apiKey)
-		ExperienceRoute(r, experience, apiKey)
-		EducationRoute(r, education, apiKey)
-		SkillRoute(r, skill, apiKey)
-		LanguageRoute(r, language, apiKey)
-		ProjectRoute(r, project, apiKey)
-		ContactFormRoute(r, contactForm, apiKey)
-		ResumeRoute(r, resume)
-	})
+	apiKey := os.Getenv("API_KEY")
+	api := route.Group("/api/v1")
+	{
+		ProfileRoute(api, profile, apiKey)
+		ProfileUrlRoute(api, profileUrl, apiKey)
+		ExperienceRoute(api, experience, apiKey)
+		EducationRoute(api, education, apiKey)
+		SkillRoute(api, skill, apiKey)
+		LanguageRoute(api, language, apiKey)
+		ProjectRoute(api, project, apiKey)
+		ContactFormRoute(api, contactForm, apiKey)
+		ResumeRoute(api, resume)
+	}
 
-	return r
+	return route
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -28,11 +28,12 @@ func (m *MockEmailContactUsecase) SendEmail(ctx context.Context, form domain.Ema
 }
 
 func TestContactFormHandler_SendMail(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEmailContactUsecase)
 		handlerObj := handler.NewContactFormHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/send-email", handlerObj.SendMail)
+		r := gin.New()
+		r.POST("/send-email", handlerObj.SendMail)
 
 		input := dto.ContactFormReq{
 			ProfileID: "550e8400-e29b-41d4-a716-446655440000",
@@ -57,8 +58,8 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 	t.Run("bad json", func(t *testing.T) {
 		mockUsecase := new(MockEmailContactUsecase)
 		handlerObj := handler.NewContactFormHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/send-email", handlerObj.SendMail)
+		r := gin.New()
+		r.POST("/send-email", handlerObj.SendMail)
 
 		req, _ := http.NewRequest(http.MethodPost, "/send-email", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
@@ -72,8 +73,8 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockEmailContactUsecase)
 		handlerObj := handler.NewContactFormHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/send-email", handlerObj.SendMail)
+		r := gin.New()
+		r.POST("/send-email", handlerObj.SendMail)
 
 		input := dto.ContactFormReq{
 			Name: "John Doe",

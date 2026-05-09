@@ -12,7 +12,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -49,11 +49,12 @@ func (m *MockProfileUsecase) DeleteProfile(ctx context.Context, id string) error
 }
 
 func TestProfileHandler_CreateProfile(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/profiles", handlerObj.CreateProfile)
+		r := gin.New()
+		r.POST("/profiles", handlerObj.CreateProfile)
 
 		input := dto.ProfileReq{
 			Name: "John Doe",
@@ -74,8 +75,8 @@ func TestProfileHandler_CreateProfile(t *testing.T) {
 	t.Run("bad request", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/profiles", handlerObj.CreateProfile)
+		r := gin.New()
+		r.POST("/profiles", handlerObj.CreateProfile)
 
 		req, _ := http.NewRequest(http.MethodPost, "/profiles", bytes.NewBufferString("invalid json"))
 		w := httptest.NewRecorder()
@@ -87,11 +88,12 @@ func TestProfileHandler_CreateProfile(t *testing.T) {
 }
 
 func TestProfileHandler_GetProfile(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{id}", handlerObj.GetProfile)
+		r := gin.New()
+		r.GET("/profiles/:id", handlerObj.GetProfile)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1", nil)
 		w := httptest.NewRecorder()
@@ -108,8 +110,8 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{id}", handlerObj.GetProfile)
+		r := gin.New()
+		r.GET("/profiles/:id", handlerObj.GetProfile)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1", nil)
 		w := httptest.NewRecorder()
@@ -121,6 +123,3 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 }
-
-
-

@@ -12,7 +12,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,11 +45,12 @@ func (m *MockLanguageUsecase) DeleteLanguage(ctx context.Context, id string) err
 }
 
 func TestLanguageHandler_CreateLanguage(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/languages", handlerObj.CreateLanguage)
+		r := gin.New()
+		r.POST("/languages", handlerObj.CreateLanguage)
 
 		input := dto.LanguageReq{
 			ProfileID:   "1",
@@ -73,8 +74,8 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/languages", handlerObj.CreateLanguage)
+		r := gin.New()
+		r.POST("/languages", handlerObj.CreateLanguage)
 
 		req, _ := http.NewRequest(http.MethodPost, "/languages", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
@@ -88,8 +89,8 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/languages", handlerObj.CreateLanguage)
+		r := gin.New()
+		r.POST("/languages", handlerObj.CreateLanguage)
 
 		input := dto.LanguageReq{
 			ProfileID: "1",
@@ -108,11 +109,12 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 }
 
 func TestLanguageHandler_GetLanguages(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{profile_id}/languages", handlerObj.GetLanguages)
+		r := gin.New()
+		r.GET("/profiles/:profile_id/languages", handlerObj.GetLanguages)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/languages", nil)
 		w := httptest.NewRecorder()
@@ -131,8 +133,8 @@ func TestLanguageHandler_GetLanguages(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{profile_id}/languages", handlerObj.GetLanguages)
+		r := gin.New()
+		r.GET("/profiles/:profile_id/languages", handlerObj.GetLanguages)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/languages", nil)
 		w := httptest.NewRecorder()

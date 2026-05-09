@@ -12,7 +12,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,11 +45,12 @@ func (m *MockEducationUsecase) DeleteEducation(ctx context.Context, id string) e
 }
 
 func TestEducationHandler_CreateEducation(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/educations", handlerObj.CreateEducation)
+		r := gin.New()
+		r.POST("/educations", handlerObj.CreateEducation)
 
 		input := dto.EducationReq{
 			ProfileID:    "1",
@@ -73,8 +74,8 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/educations", handlerObj.CreateEducation)
+		r := gin.New()
+		r.POST("/educations", handlerObj.CreateEducation)
 
 		req, _ := http.NewRequest(http.MethodPost, "/educations", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
@@ -88,8 +89,8 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/educations", handlerObj.CreateEducation)
+		r := gin.New()
+		r.POST("/educations", handlerObj.CreateEducation)
 
 		input := dto.EducationReq{
 			ProfileID: "1",
@@ -108,11 +109,12 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 }
 
 func TestEducationHandler_GetEducation(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{profile_id}/educations", handlerObj.GetEducation)
+		r := gin.New()
+		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/educations", nil)
 		w := httptest.NewRecorder()
@@ -131,8 +133,8 @@ func TestEducationHandler_GetEducation(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{profile_id}/educations", handlerObj.GetEducation)
+		r := gin.New()
+		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/educations", nil)
 		w := httptest.NewRecorder()

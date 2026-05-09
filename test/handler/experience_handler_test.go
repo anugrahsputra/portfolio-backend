@@ -12,7 +12,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,11 +45,12 @@ func (m *MockExperienceUsecase) DeleteExperience(ctx context.Context, id string)
 }
 
 func TestExperienceHandler_CreateExperience(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/experiences", handlerObj.CreateExperience)
+		r := gin.New()
+		r.POST("/experiences", handlerObj.CreateExperience)
 
 		input := dto.ExperienceReq{
 			ProfileID:    "1",
@@ -73,8 +74,8 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 	t.Run("bad request - invalid json", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/experiences", handlerObj.CreateExperience)
+		r := gin.New()
+		r.POST("/experiences", handlerObj.CreateExperience)
 
 		req, _ := http.NewRequest(http.MethodPost, "/experiences", bytes.NewBufferString("invalid json"))
 		req.Header.Set("Content-Type", "application/json")
@@ -88,8 +89,8 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 	t.Run("usecase error", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Post("/experiences", handlerObj.CreateExperience)
+		r := gin.New()
+		r.POST("/experiences", handlerObj.CreateExperience)
 
 		input := dto.ExperienceReq{
 			ProfileID: "1",
@@ -108,11 +109,12 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 }
 
 func TestExperienceHandler_GetExperiences(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{profile_id}/experiences", handlerObj.GetExperiences)
+		r := gin.New()
+		r.GET("/profiles/:profile_id/experiences", handlerObj.GetExperiences)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/experiences", nil)
 		w := httptest.NewRecorder()
@@ -131,8 +133,8 @@ func TestExperienceHandler_GetExperiences(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		mockUsecase := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockUsecase)
-		r := chi.NewRouter()
-		r.Get("/profiles/{profile_id}/experiences", handlerObj.GetExperiences)
+		r := gin.New()
+		r.GET("/profiles/:profile_id/experiences", handlerObj.GetExperiences)
 
 		req, _ := http.NewRequest(http.MethodGet, "/profiles/1/experiences", nil)
 		w := httptest.NewRecorder()

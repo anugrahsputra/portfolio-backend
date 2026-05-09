@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 )
 
 type ProfileUrlHandler struct {
@@ -18,10 +17,15 @@ func NewProfileUrlHandler(u usecase.ProfileUrlUsecase) *ProfileUrlHandler {
 	return &ProfileUrlHandler{usecase: u}
 }
 
-func (h *ProfileUrlHandler) CreateProfileUrl(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileUrlHandler) CreateProfileUrl(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req dto.ProfileUrlReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
@@ -31,22 +35,33 @@ func (h *ProfileUrlHandler) CreateProfileUrl(w http.ResponseWriter, r *http.Requ
 		Url:       req.Url,
 	}
 
-	profileUrl, err := h.usecase.CreateProfileUrl(r.Context(), input)
+	profileUrl, err := h.usecase.CreateProfileUrl(ctx, input)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
 	res := dto.ToProfileUrlDTO(profileUrl)
-	ResponseJSON(w, r, http.StatusCreated, "created", res)
+	c.JSON(http.StatusCreated, dto.Response{
+		Status:  http.StatusCreated,
+		Message: "created",
+		Data:    res,
+	})
 }
 
-func (h *ProfileUrlHandler) GetProfileURL(w http.ResponseWriter, r *http.Request) {
-	profileID := chi.URLParam(r, "profile_id")
+func (h *ProfileUrlHandler) GetProfileURL(c *gin.Context) {
+	ctx := c.Request.Context()
+	profileID := c.Param("profile_id")
 
-	profileUrls, err := h.usecase.GetProfileUrl(r.Context(), profileID)
+	profileUrls, err := h.usecase.GetProfileUrl(ctx, profileID)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
@@ -56,28 +71,44 @@ func (h *ProfileUrlHandler) GetProfileURL(w http.ResponseWriter, r *http.Request
 		res = append(res, item)
 	}
 
-	ResponseJSON(w, r, http.StatusOK, "success", res)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    res,
+	})
 }
 
-func (h *ProfileUrlHandler) GetProfileUrlByID(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "profile_url_id")
+func (h *ProfileUrlHandler) GetProfileUrlByID(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("profile_url_id")
 
-	profileUrl, err := h.usecase.GetProfileUrlByID(r.Context(), id)
+	profileUrl, err := h.usecase.GetProfileUrlByID(ctx, id)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
 	res := dto.ToProfileUrlDTO(&profileUrl)
-	ResponseJSON(w, r, http.StatusOK, "success", res)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    res,
+	})
 }
 
-func (h *ProfileUrlHandler) UpdateProfileUrl(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "profile_url_id")
+func (h *ProfileUrlHandler) UpdateProfileUrl(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("profile_url_id")
 
 	var req dto.ProfileUrlReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
@@ -87,21 +118,35 @@ func (h *ProfileUrlHandler) UpdateProfileUrl(w http.ResponseWriter, r *http.Requ
 		Url:       &req.Url,
 	}
 
-	if err := h.usecase.UpdateProfileUrl(r.Context(), id, input); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+	if err := h.usecase.UpdateProfileUrl(ctx, id, input); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "Profile url updated")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "Profile url updated",
+	})
 }
 
-func (h *ProfileUrlHandler) DeleteProfileUrl(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "profile_url_id")
+func (h *ProfileUrlHandler) DeleteProfileUrl(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("profile_url_id")
 
-	if err := h.usecase.DeleteProfileUrl(r.Context(), id); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+	if err := h.usecase.DeleteProfileUrl(ctx, id); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "Profile url deleted")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "Profile url deleted",
+	})
 }
+

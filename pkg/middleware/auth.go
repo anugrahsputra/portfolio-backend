@@ -3,26 +3,27 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
+	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
+	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(apiKey string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Method == http.MethodGet || r.Method == http.MethodOptions {
-				next.ServeHTTP(w, r)
-				return
-			}
+func AuthMiddleware(apiKey string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Method == http.MethodGet || c.Request.Method == http.MethodOptions {
+			c.Next()
+			return
+		}
 
-			clientKey := r.Header.Get("X-API-Key")
-			if clientKey != apiKey {
-				handler.ResponseError(w, r, http.StatusUnauthorized, "Unauthorized: Invalid API Key")
-				return
-			}
+		clientKey := c.GetHeader("X-API-Key")
+		if clientKey != apiKey {
+			c.JSON(http.StatusUnauthorized, dto.NoDataResponse{
+				Status:  http.StatusUnauthorized,
+				Message: "Unauthorized: Invalid API Key",
+			})
+			c.Abort()
+			return
+		}
 
-			next.ServeHTTP(w, r)
-		})
+		c.Next()
 	}
 }
-
-

@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 )
 
 type ProjectHandler struct {
@@ -17,30 +16,46 @@ func NewProjectHandler(u usecase.ProjectUsecase) *ProjectHandler {
 	return &ProjectHandler{usecase: u}
 }
 
-func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
+func (h *ProjectHandler) CreateProject(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req dto.ProjectReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
 	input := dto.ToProjectInput(&req)
-	project, err := h.usecase.CreateProject(r.Context(), input)
+	project, err := h.usecase.CreateProject(ctx, input)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
 	resp := dto.ToProjectDTO(&project)
-	ResponseJSON(w, r, http.StatusCreated, "created", resp)
+	c.JSON(http.StatusCreated, dto.Response{
+		Status:  http.StatusCreated,
+		Message: "created",
+		Data:    resp,
+	})
 }
 
-func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
-	profileID := chi.URLParam(r, "profile_id")
+func (h *ProjectHandler) GetProjects(c *gin.Context) {
+	ctx := c.Request.Context()
+	profileID := c.Param("profile_id")
 
-	projects, err := h.usecase.GetProjects(r.Context(), profileID)
+	projects, err := h.usecase.GetProjects(ctx, profileID)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
@@ -50,36 +65,59 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 		resp = append(resp, item)
 	}
 
-	ResponseJSON(w, r, http.StatusOK, "success", resp)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    resp,
+	})
 }
 
-func (h *ProjectHandler) UpdateProject(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "project_id")
+func (h *ProjectHandler) UpdateProject(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("project_id")
 
 	var req dto.ProjectUpdateReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
 	input := dto.ToProjectUpdateInput(&req)
-	project, err := h.usecase.UpdateProject(r.Context(), id, input)
+	project, err := h.usecase.UpdateProject(ctx, id, input)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
 	resp := dto.ToProjectDTO(&project)
-	ResponseJSON(w, r, http.StatusOK, "success", resp)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    resp,
+	})
 }
 
-func (h *ProjectHandler) DeleteProject(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "project_id")
+func (h *ProjectHandler) DeleteProject(c *gin.Context) {
+	ctx := c.Request.Context()
+	id := c.Param("project_id")
 
-	if err := h.usecase.DeleteProject(r.Context(), id); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+	if err := h.usecase.DeleteProject(ctx, id); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "success")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "success",
+	})
 }
+

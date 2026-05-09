@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/gin-gonic/gin"
 )
 
 type ContactFormHandler struct {
@@ -16,18 +16,27 @@ func NewContactFormHandler(u usecase.EmailContactUsecase) *ContactFormHandler {
 	return &ContactFormHandler{usecase: u}
 }
 
-func (h *ContactFormHandler) SendMail(w http.ResponseWriter, r *http.Request) {
+func (h *ContactFormHandler) SendMail(c *gin.Context) {
 	var req dto.ContactFormReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
 	input := dto.ToContactFormInput(&req)
-	if err := h.usecase.SendEmail(r.Context(), input); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+	if err := h.usecase.SendEmail(c.Request.Context(), input); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "email submitted")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "email submitted",
+	})
 }

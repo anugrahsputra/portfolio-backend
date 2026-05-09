@@ -11,7 +11,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -44,12 +44,13 @@ func (m *MockProjectUsecase) DeleteProject(ctx context.Context, id string) error
 }
 
 func TestProjectHandler(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	mockUsecase := new(MockProjectUsecase)
 	h := handler.NewProjectHandler(mockUsecase)
 
 	t.Run("CreateProject - Success", func(t *testing.T) {
-		r := chi.NewRouter()
-		r.Post("/api/v1/projects", h.CreateProject)
+		r := gin.New()
+		r.POST("/api/v1/projects", h.CreateProject)
 
 		input := dto.ProjectReq{Title: "New Project", ProfileID: "1", Description: []string{"Desc"}}
 		body, _ := json.Marshal(input)
@@ -66,8 +67,8 @@ func TestProjectHandler(t *testing.T) {
 	})
 
 	t.Run("GetProjects - Success", func(t *testing.T) {
-		r := chi.NewRouter()
-		r.Get("/api/v1/profiles/{profile_id}/projects", h.GetProjects)
+		r := gin.New()
+		r.GET("/api/v1/profiles/:profile_id/projects", h.GetProjects)
 
 		req, _ := http.NewRequest(http.MethodGet, "/api/v1/profiles/1/projects", nil)
 		w := httptest.NewRecorder()
@@ -81,4 +82,3 @@ func TestProjectHandler(t *testing.T) {
 		mockUsecase.AssertExpectations(t)
 	})
 }
-

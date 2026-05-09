@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 )
 
 type ExperienceHandler struct {
@@ -17,30 +16,43 @@ func NewExperienceHandler(u usecase.ExperienceUsecase) *ExperienceHandler {
 	return &ExperienceHandler{usecase: u}
 }
 
-func (h *ExperienceHandler) CreateExperience(w http.ResponseWriter, r *http.Request) {
+func (h *ExperienceHandler) CreateExperience(c *gin.Context) {
 	var req dto.ExperienceReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
 	input := dto.ToExperienceInput(&req)
-	experience, err := h.usecase.CreateExperience(r.Context(), input)
+	experience, err := h.usecase.CreateExperience(c.Request.Context(), input)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
 	res := dto.ToExperienceDTO(&experience)
-	ResponseJSON(w, r, http.StatusCreated, "success", res)
+	c.JSON(http.StatusCreated, dto.Response{
+		Status:  http.StatusCreated,
+		Message: "success",
+		Data:    res,
+	})
 }
 
-func (h *ExperienceHandler) GetExperiences(w http.ResponseWriter, r *http.Request) {
-	profileID := chi.URLParam(r, "profile_id")
+func (h *ExperienceHandler) GetExperiences(c *gin.Context) {
+	profileID := c.Param("profile_id")
 
-	experiences, err := h.usecase.GetExperiences(r.Context(), profileID)
+	experiences, err := h.usecase.GetExperiences(c.Request.Context(), profileID)
 	if err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "bad request")
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "bad request",
+		})
 		return
 	}
 
@@ -50,36 +62,56 @@ func (h *ExperienceHandler) GetExperiences(w http.ResponseWriter, r *http.Reques
 		res = append(res, item)
 	}
 
-	ResponseJSON(w, r, http.StatusOK, "success", res)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    res,
+	})
 }
 
-func (h *ExperienceHandler) UpdateExperience(w http.ResponseWriter, r *http.Request) {
-	expID := chi.URLParam(r, "experience_id")
+func (h *ExperienceHandler) UpdateExperience(c *gin.Context) {
+	expID := c.Param("experience_id")
 
 	var req dto.ExperienceUpdateReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, r, http.StatusBadRequest, "invalid request body")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
+			Status:  http.StatusBadRequest,
+			Message: "invalid request body",
+		})
 		return
 	}
 
 	input := dto.ToExperienceUpdateInput(&req)
-	experience, err := h.usecase.UpdateExperience(r.Context(), expID, input)
+	experience, err := h.usecase.UpdateExperience(c.Request.Context(), expID, input)
 	if err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
 	res := dto.ToExperienceDTO(&experience)
-	ResponseJSON(w, r, http.StatusOK, "success", res)
+	c.JSON(http.StatusOK, dto.Response{
+		Status:  http.StatusOK,
+		Message: "success",
+		Data:    res,
+	})
 }
 
-func (h *ExperienceHandler) DeleteExperience(w http.ResponseWriter, r *http.Request) {
-	expID := chi.URLParam(r, "experience_id")
+func (h *ExperienceHandler) DeleteExperience(c *gin.Context) {
+	expID := c.Param("experience_id")
 
-	if err := h.usecase.DeleteExperience(r.Context(), expID); err != nil {
-		ResponseError(w, r, http.StatusInternalServerError, "internal server error")
+	if err := h.usecase.DeleteExperience(c.Request.Context(), expID); err != nil {
+		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
+			Status:  http.StatusInternalServerError,
+			Message: "internal server error",
+		})
 		return
 	}
 
-	ResponseError(w, r, http.StatusOK, "success")
+	c.JSON(http.StatusOK, dto.NoDataResponse{
+		Status:  http.StatusOK,
+		Message: "success",
+	})
 }
