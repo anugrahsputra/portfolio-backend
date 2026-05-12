@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
@@ -22,9 +23,9 @@ func NewProjectRepository(database *config.Database) domain.ProjectRepository {
 }
 
 func (r *projectRepository) CreateProject(ctx context.Context, pr domain.ProjectInput) (domain.Project, error) {
-	projectIDStr, err := uuid.Parse(pr.ProfileID)
+	profileIDStr, err := uuid.Parse(pr.ProfileID)
 	if err != nil {
-		return domain.Project{}, err
+		return domain.Project{}, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	var ed pgtype.Date
@@ -33,7 +34,7 @@ func (r *projectRepository) CreateProject(ctx context.Context, pr domain.Project
 	}
 
 	param := db.CreateProjectParams{
-		ProfileID:     projectIDStr,
+		ProfileID:     profileIDStr,
 		Title:         pr.Title,
 		Description:   pr.Description,
 		TechStacks:    pr.TechStacks,
@@ -52,7 +53,7 @@ func (r *projectRepository) CreateProject(ctx context.Context, pr domain.Project
 
 	project, err := r.db.CreateProject(ctx, param)
 	if err != nil {
-		return domain.Project{}, err
+		return domain.Project{}, fmt.Errorf("failed to create project: %w", err)
 	}
 
 	result := mapper.ToProjectDomain(project)
@@ -62,12 +63,12 @@ func (r *projectRepository) CreateProject(ctx context.Context, pr domain.Project
 func (r *projectRepository) GetProjects(ctx context.Context, profileID string) ([]domain.Project, error) {
 	projectIDStr, err := uuid.Parse(profileID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	projects, err := r.db.GetProjects(ctx, projectIDStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get projects: %w", err)
 	}
 
 	result := make([]domain.Project, 0, len(projects))
@@ -82,12 +83,12 @@ func (r *projectRepository) GetProjects(ctx context.Context, profileID string) (
 func (r *projectRepository) GetProjectByID(ctx context.Context, id string) (domain.Project, error) {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return domain.Project{}, err
+		return domain.Project{}, fmt.Errorf("invalid project id: %w", err)
 	}
 
 	project, err := r.db.GetProjectByID(ctx, idStr)
 	if err != nil {
-		return domain.Project{}, err
+		return domain.Project{}, fmt.Errorf("failed to get project by id: %w", err)
 	}
 
 	result := mapper.ToProjectDomain(project)
@@ -95,11 +96,16 @@ func (r *projectRepository) GetProjectByID(ctx context.Context, id string) (doma
 }
 
 func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr domain.ProjectUpdateInput) (domain.Project, error) {
-
-	current, err := r.GetProjectByID(ctx, id)
+	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return domain.Project{}, err
+		return domain.Project{}, fmt.Errorf("invalid project id: %w", err)
 	}
+
+	currentDB, err := r.db.GetProjectByID(ctx, idStr)
+	if err != nil {
+		return domain.Project{}, fmt.Errorf("failed to fetch existing project for update: %w", err)
+	}
+	current := mapper.ToProjectDomain(currentDB)
 
 	var ed pgtype.Date
 	if pr.EndDate != nil {
@@ -109,7 +115,7 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 	}
 
 	param := db.UpdateProjectParams{
-		ID:            uuid.MustParse(current.ID),
+		ID:            idStr,
 		Title:         ptr.Or(pr.Title, current.Title),
 		Description:   ptr.Or(pr.Description, current.Description),
 		TechStacks:    ptr.Or(pr.TechStacks, current.TechStacks),
@@ -128,7 +134,7 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 
 	project, err := r.db.UpdateProject(ctx, param)
 	if err != nil {
-		return domain.Project{}, err
+		return domain.Project{}, fmt.Errorf("failed to update project: %w", err)
 	}
 
 	result := mapper.ToProjectDomain(project)
@@ -138,11 +144,11 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 func (r *projectRepository) DeleteProject(ctx context.Context, id string) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid project id: %w", err)
 	}
 
 	if err := r.db.DeleteProject(ctx, idStr); err != nil {
-		return err
+		return fmt.Errorf("failed to delete project: %w", err)
 	}
 
 	return nil

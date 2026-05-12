@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -23,7 +24,7 @@ func NewExperienceRepository(database *config.Database) domain.ExperienceReposit
 func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.ExperienceInput) (domain.Experience, error) {
 	profileIDStr, err := uuid.Parse(ex.ProfileID)
 	if err != nil {
-		return domain.Experience{}, err
+		return domain.Experience{}, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	var ed pgtype.Date
@@ -44,7 +45,7 @@ func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.E
 
 	experience, err := r.db.CreateExperience(ctx, param)
 	if err != nil {
-		return domain.Experience{}, err
+		return domain.Experience{}, fmt.Errorf("failed to create experience: %w", err)
 	}
 
 	result := mapper.ToExperienceDomain(experience)
@@ -54,12 +55,12 @@ func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.E
 func (r *experienceRepository) GetExperiences(ctx context.Context, profileID string) ([]domain.Experience, error) {
 	profileIDStr, err := uuid.Parse(profileID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	experiences, err := r.db.GetExperiences(ctx, profileIDStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get experiences: %w", err)
 	}
 
 	var result []domain.Experience
@@ -74,12 +75,12 @@ func (r *experienceRepository) GetExperiences(ctx context.Context, profileID str
 func (r *experienceRepository) GetExperienceByID(ctx context.Context, id string) (domain.Experience, error) {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return domain.Experience{}, err
+		return domain.Experience{}, fmt.Errorf("invalid experience id: %w", err)
 	}
 
 	experience, err := r.db.GetExperienceByID(ctx, idStr)
 	if err != nil {
-		return domain.Experience{}, err
+		return domain.Experience{}, fmt.Errorf("failed to get experience by id: %w", err)
 	}
 
 	result := mapper.ToExperienceDomain(experience)
@@ -87,10 +88,16 @@ func (r *experienceRepository) GetExperienceByID(ctx context.Context, id string)
 }
 
 func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
-	current, err := r.GetExperienceByID(ctx, id)
+	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return domain.Experience{}, err
+		return domain.Experience{}, fmt.Errorf("invalid experience id: %w", err)
 	}
+
+	currentDB, err := r.db.GetExperienceByID(ctx, idStr)
+	if err != nil {
+		return domain.Experience{}, fmt.Errorf("failed to fetch existing experience for update: %w", err)
+	}
+	current := mapper.ToExperienceDomain(currentDB)
 
 	var ed pgtype.Date
 	if ex.EndDate != nil {
@@ -100,7 +107,7 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 	}
 
 	param := db.UpdateExperienceParams{
-		ID:          uuid.MustParse(current.ID),
+		ID:          idStr,
 		Company:     ptr.Or(ex.Company, current.Company),
 		Position:    ptr.Or(ex.Position, current.Position),
 		Description: ptr.Or(ex.Description, current.Description),
@@ -112,7 +119,7 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 
 	experience, err := r.db.UpdateExperience(ctx, param)
 	if err != nil {
-		return domain.Experience{}, err
+		return domain.Experience{}, fmt.Errorf("failed to update experience: %w", err)
 	}
 
 	result := mapper.ToExperienceDomain(experience)
@@ -120,14 +127,13 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 }
 
 func (r *experienceRepository) DeleteExperience(ctx context.Context, id string) error {
-
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid experience id: %w", err)
 	}
 
 	if err := r.db.DeleteExperience(ctx, idStr); err != nil {
-		return err
+		return fmt.Errorf("failed to delete experience: %w", err)
 	}
 
 	return nil

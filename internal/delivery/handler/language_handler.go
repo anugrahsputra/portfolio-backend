@@ -21,29 +21,19 @@ func (h *LanguageHandler) CreateLanguage(c *gin.Context) {
 
 	var req dto.LanguageReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToLanguageInput(&req)
 	language, err := h.usecase.CreateLanguage(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	res := dto.ToLanguageDTO(&language)
-	c.JSON(http.StatusCreated, dto.Response{
-		Status:  http.StatusCreated,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(c, http.StatusCreated, "success", res)
 }
 
 func (h *LanguageHandler) GetLanguages(c *gin.Context) {
@@ -52,10 +42,7 @@ func (h *LanguageHandler) GetLanguages(c *gin.Context) {
 
 	languages, err := h.usecase.GetLanguages(ctx, profileID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "bad request",
-		})
+		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -65,11 +52,7 @@ func (h *LanguageHandler) GetLanguages(c *gin.Context) {
 		res = append(res, item)
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(c, http.StatusOK, "success", res)
 }
 
 func (h *LanguageHandler) UpdateLanguage(c *gin.Context) {
@@ -78,27 +61,18 @@ func (h *LanguageHandler) UpdateLanguage(c *gin.Context) {
 
 	var req dto.LanguageUpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToLanguageUpdateInput(&req)
 
 	if err := h.usecase.UpdateLanguage(ctx, languageID, input); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(c, http.StatusOK, "success")
 }
 
 func (h *LanguageHandler) DeleteLanguage(c *gin.Context) {
@@ -106,16 +80,10 @@ func (h *LanguageHandler) DeleteLanguage(c *gin.Context) {
 	languageID := c.Param("language_id")
 
 	if err := h.usecase.DeleteLanguage(ctx, languageID); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(c, http.StatusOK, "success")
 }
 

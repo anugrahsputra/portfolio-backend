@@ -19,26 +19,17 @@ func NewEducationHandler(u usecase.EducationUsecase) *EducationHandler {
 func (h *EducationHandler) CreateEducation(c *gin.Context) {
 	var req dto.EducationReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToEducationInput(&req)
 	if err := h.usecase.CreateEducation(c.Request.Context(), input); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.NoDataResponse{
-		Status:  http.StatusCreated,
-		Message: "success",
-	})
+	ResponseError(c, http.StatusCreated, "success")
 }
 
 func (h *EducationHandler) GetEducation(c *gin.Context) {
@@ -46,10 +37,7 @@ func (h *EducationHandler) GetEducation(c *gin.Context) {
 
 	educations, err := h.usecase.GetEducations(c.Request.Context(), profileID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "bad request",
-		})
+		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -59,11 +47,7 @@ func (h *EducationHandler) GetEducation(c *gin.Context) {
 		res = append(res, item)
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(c, http.StatusOK, "success", res)
 }
 
 func (h *EducationHandler) UpdateEducation(c *gin.Context) {
@@ -71,41 +55,26 @@ func (h *EducationHandler) UpdateEducation(c *gin.Context) {
 
 	var req dto.EducationUpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToEducationUpdateInput(&req)
 	if err := h.usecase.UpdateEducation(c.Request.Context(), eduID, input); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(c, http.StatusOK, "success")
 }
 
 func (h *EducationHandler) DeleteEducation(c *gin.Context) {
 	eduID := c.Param("education_id")
 
 	if err := h.usecase.DeleteEducation(c.Request.Context(), eduID); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(c, http.StatusOK, "success")
 }

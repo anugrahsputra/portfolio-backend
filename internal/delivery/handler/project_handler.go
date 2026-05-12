@@ -21,29 +21,19 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 
 	var req dto.ProjectReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToProjectInput(&req)
 	project, err := h.usecase.CreateProject(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	resp := dto.ToProjectDTO(&project)
-	c.JSON(http.StatusCreated, dto.Response{
-		Status:  http.StatusCreated,
-		Message: "created",
-		Data:    resp,
-	})
+	ResponseJSON(c, http.StatusCreated, "created", resp)
 }
 
 func (h *ProjectHandler) GetProjects(c *gin.Context) {
@@ -52,10 +42,7 @@ func (h *ProjectHandler) GetProjects(c *gin.Context) {
 
 	projects, err := h.usecase.GetProjects(ctx, profileID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -65,11 +52,7 @@ func (h *ProjectHandler) GetProjects(c *gin.Context) {
 		resp = append(resp, item)
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    resp,
-	})
+	ResponseJSON(c, http.StatusOK, "success", resp)
 }
 
 func (h *ProjectHandler) UpdateProject(c *gin.Context) {
@@ -78,29 +61,19 @@ func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 
 	var req dto.ProjectUpdateReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToProjectUpdateInput(&req)
 	project, err := h.usecase.UpdateProject(ctx, id, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	resp := dto.ToProjectDTO(&project)
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    resp,
-	})
+	ResponseJSON(c, http.StatusOK, "success", resp)
 }
 
 func (h *ProjectHandler) DeleteProject(c *gin.Context) {
@@ -108,16 +81,10 @@ func (h *ProjectHandler) DeleteProject(c *gin.Context) {
 	id := c.Param("project_id")
 
 	if err := h.usecase.DeleteProject(ctx, id); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "success",
-	})
+	ResponseError(c, http.StatusOK, "success")
 }
 

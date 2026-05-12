@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -23,7 +24,7 @@ func NewEducationRepository(database *config.Database) domain.EducationRepositor
 func (r *educationRepository) CreateEducation(ctx context.Context, e domain.EducationInput) error {
 	profileID, err := uuid.Parse(e.ProfileID)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	var gd pgtype.Date
@@ -43,7 +44,7 @@ func (r *educationRepository) CreateEducation(ctx context.Context, e domain.Educ
 	}
 
 	if _, err := r.db.CreateEducation(ctx, param); err != nil {
-		return err
+		return fmt.Errorf("failed to create education: %w", err)
 	}
 
 	return nil
@@ -52,12 +53,12 @@ func (r *educationRepository) CreateEducation(ctx context.Context, e domain.Educ
 func (r *educationRepository) GetEducations(ctx context.Context, profileID string) ([]domain.Education, error) {
 	profileIDStr, err := uuid.Parse(profileID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	educations, err := r.db.GetEducations(ctx, profileIDStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get educations: %w", err)
 	}
 
 	result := make([]domain.Education, 0, len(educations))
@@ -70,11 +71,14 @@ func (r *educationRepository) GetEducations(ctx context.Context, profileID strin
 }
 
 func (r *educationRepository) GetEducationByID(ctx context.Context, id string) (domain.Education, error) {
-	idStr := uuid.MustParse(id)
+	idStr, err := uuid.Parse(id)
+	if err != nil {
+		return domain.Education{}, fmt.Errorf("invalid education id: %w", err)
+	}
 
 	education, err := r.db.GetEducationByID(ctx, idStr)
 	if err != nil {
-		return domain.Education{}, err
+		return domain.Education{}, fmt.Errorf("failed to get education by id: %w", err)
 	}
 
 	result := mapper.ToEducationDomain(education)
@@ -83,10 +87,16 @@ func (r *educationRepository) GetEducationByID(ctx context.Context, id string) (
 }
 
 func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e domain.EducationUpdateInput) error {
-	current, err := r.GetEducationByID(ctx, id)
+	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid education id: %w", err)
 	}
+
+	currentDB, err := r.db.GetEducationByID(ctx, idStr)
+	if err != nil {
+		return fmt.Errorf("failed to fetch existing education for update: %w", err)
+	}
+	current := mapper.ToEducationDomain(currentDB)
 
 	var gd pgtype.Date
 	if e.GraduationDate != nil {
@@ -96,7 +106,7 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 	}
 
 	param := db.UpdateEducationParams{
-		ID:             uuid.MustParse(current.ID),
+		ID:             idStr,
 		School:         ptr.Or(e.School, current.School),
 		Degree:         ptr.Or(e.Degree, current.Degree),
 		FieldOfStudy:   ptr.Or(e.FieldOfStudy, current.FieldOfStudy),
@@ -107,7 +117,7 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 	}
 
 	if _, err := r.db.UpdateEducation(ctx, param); err != nil {
-		return err
+		return fmt.Errorf("failed to update education: %w", err)
 	}
 
 	return nil
@@ -116,11 +126,11 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 func (r *educationRepository) DeleteEducation(ctx context.Context, id string) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid education id: %w", err)
 	}
 
 	if err := r.db.DeleteEducation(ctx, idStr); err != nil {
-		return err
+		return fmt.Errorf("failed to delete education: %w", err)
 	}
 
 	return nil

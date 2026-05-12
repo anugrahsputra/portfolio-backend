@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -21,7 +22,7 @@ func NewSkillRepository(database *config.Database) domain.SkillRepository {
 func (r *skillRepository) CreateSkill(ctx context.Context, s domain.SkillInput) (domain.Skill, error) {
 	profileIDStr, err := uuid.Parse(s.ProfileID)
 	if err != nil {
-		return domain.Skill{}, err
+		return domain.Skill{}, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	param := db.CreateSkillParams{
@@ -34,7 +35,7 @@ func (r *skillRepository) CreateSkill(ctx context.Context, s domain.SkillInput) 
 
 	skill, err := r.db.CreateSkill(ctx, param)
 	if err != nil {
-		return domain.Skill{}, err
+		return domain.Skill{}, fmt.Errorf("failed to create skill: %w", err)
 	}
 
 	result := mapper.ToSkillDomain(&skill)
@@ -44,12 +45,12 @@ func (r *skillRepository) CreateSkill(ctx context.Context, s domain.SkillInput) 
 func (r *skillRepository) GetSkills(ctx context.Context, profileID string) (domain.Skill, error) {
 	profileIDStr, err := uuid.Parse(profileID)
 	if err != nil {
-		return domain.Skill{}, err
+		return domain.Skill{}, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	skill, err := r.db.GetSkillsByProfile(ctx, profileIDStr)
 	if err != nil {
-		return domain.Skill{}, nil
+		return domain.Skill{}, fmt.Errorf("failed to get skills: %w", err)
 	}
 
 	result := mapper.ToSkillDomain(&skill)
@@ -59,7 +60,7 @@ func (r *skillRepository) GetSkills(ctx context.Context, profileID string) (doma
 func (r *skillRepository) UpdateSkill(ctx context.Context, id string, s domain.SkillUpdateInput) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid skill id: %w", err)
 	}
 
 	param := db.UpdateSkillParams{
@@ -71,7 +72,7 @@ func (r *skillRepository) UpdateSkill(ctx context.Context, id string, s domain.S
 	}
 
 	if _, err := r.db.UpdateSkill(ctx, param); err != nil {
-		return err
+		return fmt.Errorf("failed to update skill: %w", err)
 	}
 
 	return nil
@@ -80,11 +81,11 @@ func (r *skillRepository) UpdateSkill(ctx context.Context, id string, s domain.S
 func (r *skillRepository) DeleteSkill(ctx context.Context, id string) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid skill id: %w", err)
 	}
 
 	if err := r.db.DeleteSkill(ctx, idStr); err != nil {
-		return err
+		return fmt.Errorf("failed to delete skill: %w", err)
 	}
 
 	return nil

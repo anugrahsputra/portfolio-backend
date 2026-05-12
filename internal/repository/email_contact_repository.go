@@ -36,7 +36,11 @@ func (r *emailContactRepository) SendEmail(ctx context.Context, form domain.Emai
 	body := emailTemplate(form)
 	m.SetBody("text/html", body)
 
-	return r.dialer.DialAndSend(m)
+	if err := r.dialer.DialAndSend(m); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	return nil
 }
 
 func emailTemplate(form domain.EmailContactFormInput) string {

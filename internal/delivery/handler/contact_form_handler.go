@@ -19,24 +19,15 @@ func NewContactFormHandler(u usecase.EmailContactUsecase) *ContactFormHandler {
 func (h *ContactFormHandler) SendMail(c *gin.Context) {
 	var req dto.ContactFormReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
 	input := dto.ToContactFormInput(&req)
 	if err := h.usecase.SendEmail(c.Request.Context(), input); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "email submitted",
-	})
+	ResponseError(c, http.StatusOK, "email submitted")
 }

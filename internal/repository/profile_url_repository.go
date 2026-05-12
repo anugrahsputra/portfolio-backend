@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -21,7 +22,7 @@ func NewProfileUrlRepository(database *config.Database) domain.ProfileUrlReposit
 func (r *profileUrlRepository) CreateProfileUrl(ctx context.Context, pu domain.ProfileUrlInput) (*domain.ProfileUrl, error) {
 	profileId, err := uuid.Parse(pu.ProfileID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid profile id: %w", err)
 	}
 	param := db.CreateProfileURLParams{
 		ProfileID: profileId,
@@ -31,7 +32,7 @@ func (r *profileUrlRepository) CreateProfileUrl(ctx context.Context, pu domain.P
 
 	profileUrl, err := r.db.CreateProfileURL(ctx, param)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create profile url: %w", err)
 	}
 
 	result := mapper.ToProfileURLDomain(profileUrl)
@@ -42,12 +43,12 @@ func (r *profileUrlRepository) CreateProfileUrl(ctx context.Context, pu domain.P
 func (r *profileUrlRepository) GetProfileUrl(ctx context.Context, profileID string) ([]domain.ProfileUrl, error) {
 	profileIdStr, err := uuid.Parse(profileID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	profileUrls, err := r.db.ListProfileURLs(ctx, profileIdStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list profile urls: %w", err)
 	}
 
 	result := make([]domain.ProfileUrl, 0, len(profileUrls))
@@ -62,12 +63,12 @@ func (r *profileUrlRepository) GetProfileUrl(ctx context.Context, profileID stri
 func (r *profileUrlRepository) GetProfileUrlByID(ctx context.Context, id string) (domain.ProfileUrl, error) {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return domain.ProfileUrl{}, err
+		return domain.ProfileUrl{}, fmt.Errorf("invalid profile url id: %w", err)
 	}
 
 	profileUrl, err := r.db.GetProfileURL(ctx, idStr)
 	if err != nil {
-		return domain.ProfileUrl{}, err
+		return domain.ProfileUrl{}, fmt.Errorf("failed to get profile url by id: %w", err)
 	}
 
 	result := mapper.ToProfileURLDomain(profileUrl)
@@ -77,7 +78,7 @@ func (r *profileUrlRepository) GetProfileUrlByID(ctx context.Context, id string)
 func (r *profileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, pu domain.ProfileUrlUpdateInput) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid profile url id: %w", err)
 	}
 
 	param := db.UpdateProfileURLParams{
@@ -87,7 +88,7 @@ func (r *profileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, 
 	}
 
 	if _, err := r.db.UpdateProfileURL(ctx, param); err != nil {
-		return err
+		return fmt.Errorf("failed to update profile url: %w", err)
 	}
 
 	return nil
@@ -96,11 +97,11 @@ func (r *profileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, 
 func (r *profileUrlRepository) DeleteProfileUrl(ctx context.Context, id string) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid profile url id: %w", err)
 	}
 
 	if err := r.db.DeleteProfileURL(ctx, idStr); err != nil {
-		return err
+		return fmt.Errorf("failed to delete profile url: %w", err)
 	}
 
 	return nil

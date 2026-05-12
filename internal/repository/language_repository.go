@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -21,7 +22,7 @@ func NewLanguageRepository(database *config.Database) domain.LanguageRepository 
 func (r *languageRepository) CreateLanguage(ctx context.Context, l domain.LanguageInput) (domain.Language, error) {
 	profileID, err := uuid.Parse(l.ProfileID)
 	if err != nil {
-		return domain.Language{}, err
+		return domain.Language{}, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	param := db.CreateLanguageParams{
@@ -32,7 +33,7 @@ func (r *languageRepository) CreateLanguage(ctx context.Context, l domain.Langua
 
 	language, err := r.db.CreateLanguage(ctx, param)
 	if err != nil {
-		return domain.Language{}, err
+		return domain.Language{}, fmt.Errorf("failed to create language: %w", err)
 	}
 
 	result := mapper.ToLanguageDomain(&language)
@@ -42,12 +43,12 @@ func (r *languageRepository) CreateLanguage(ctx context.Context, l domain.Langua
 func (r *languageRepository) GetLanguages(ctx context.Context, profileID string) ([]domain.Language, error) {
 	profileIDStr, err := uuid.Parse(profileID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid profile id: %w", err)
 	}
 
 	languages, err := r.db.ListLanguages(ctx, profileIDStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list languages: %w", err)
 	}
 
 	var result []domain.Language
@@ -62,7 +63,7 @@ func (r *languageRepository) GetLanguages(ctx context.Context, profileID string)
 func (r *languageRepository) UpdateLanguage(ctx context.Context, id string, l domain.LanguageUpdateInput) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid language id: %w", err)
 	}
 
 	param := db.UpdateLanguageParams{
@@ -72,7 +73,7 @@ func (r *languageRepository) UpdateLanguage(ctx context.Context, id string, l do
 	}
 
 	if _, err := r.db.UpdateLanguage(ctx, param); err != nil {
-		return err
+		return fmt.Errorf("failed to update language: %w", err)
 	}
 
 	return nil
@@ -81,11 +82,11 @@ func (r *languageRepository) UpdateLanguage(ctx context.Context, id string, l do
 func (r *languageRepository) DeleteLanguage(ctx context.Context, id string) error {
 	idStr, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid language id: %w", err)
 	}
 
 	if err := r.db.DeleteLanguage(ctx, idStr); err != nil {
-		return err
+		return fmt.Errorf("failed to delete language: %w", err)
 	}
 
 	return nil

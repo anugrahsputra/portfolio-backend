@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
@@ -19,15 +20,19 @@ func NewResumeRepository(database *config.Database) domain.ResumeRepository {
 }
 
 func (r *resumeRepository) GetResume(ctx context.Context, id string) (*domain.Resume, error) {
-	idStr, _ := uuid.Parse(id)
+	idStr, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid resume id: %w", err)
+	}
+
 	resume, err := r.db.GetResume(ctx, idStr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get resume: %w", err)
 	}
 
 	result, err := mapper.ToResumeDomain(resume)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to map resume: %w", err)
 	}
 
 	return &result, nil

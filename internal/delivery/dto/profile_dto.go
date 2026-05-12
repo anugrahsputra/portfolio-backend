@@ -32,6 +32,15 @@ type ProfileReq struct {
 	Phone   string `json:"phone"`
 }
 
+type ProfileUpdateReq struct {
+	Name    *string `json:"name"`
+	Title   *string `json:"title"`
+	About   *string `json:"about"`
+	Address *string `json:"address"`
+	Email   *string `json:"email"`
+	Phone   *string `json:"phone"`
+}
+
 func ToProfileDTO(p *domain.Profile) ProfileResp {
 	urls := make([]ProfileUrlResp, 0, len(p.Url))
 	for _, url := range p.Url {

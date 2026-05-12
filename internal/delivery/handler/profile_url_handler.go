@@ -22,10 +22,7 @@ func (h *ProfileUrlHandler) CreateProfileUrl(c *gin.Context) {
 
 	var req dto.ProfileUrlReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -37,19 +34,12 @@ func (h *ProfileUrlHandler) CreateProfileUrl(c *gin.Context) {
 
 	profileUrl, err := h.usecase.CreateProfileUrl(ctx, input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	res := dto.ToProfileUrlDTO(profileUrl)
-	c.JSON(http.StatusCreated, dto.Response{
-		Status:  http.StatusCreated,
-		Message: "created",
-		Data:    res,
-	})
+	ResponseJSON(c, http.StatusCreated, "created", res)
 }
 
 func (h *ProfileUrlHandler) GetProfileURL(c *gin.Context) {
@@ -58,10 +48,7 @@ func (h *ProfileUrlHandler) GetProfileURL(c *gin.Context) {
 
 	profileUrls, err := h.usecase.GetProfileUrl(ctx, profileID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
@@ -71,11 +58,7 @@ func (h *ProfileUrlHandler) GetProfileURL(c *gin.Context) {
 		res = append(res, item)
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(c, http.StatusOK, "success", res)
 }
 
 func (h *ProfileUrlHandler) GetProfileUrlByID(c *gin.Context) {
@@ -84,19 +67,12 @@ func (h *ProfileUrlHandler) GetProfileUrlByID(c *gin.Context) {
 
 	profileUrl, err := h.usecase.GetProfileUrlByID(ctx, id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	res := dto.ToProfileUrlDTO(&profileUrl)
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  http.StatusOK,
-		Message: "success",
-		Data:    res,
-	})
+	ResponseJSON(c, http.StatusOK, "success", res)
 }
 
 func (h *ProfileUrlHandler) UpdateProfileUrl(c *gin.Context) {
@@ -105,10 +81,7 @@ func (h *ProfileUrlHandler) UpdateProfileUrl(c *gin.Context) {
 
 	var req dto.ProfileUrlReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.NoDataResponse{
-			Status:  http.StatusBadRequest,
-			Message: "invalid request body",
-		})
+		ResponseError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -119,17 +92,11 @@ func (h *ProfileUrlHandler) UpdateProfileUrl(c *gin.Context) {
 	}
 
 	if err := h.usecase.UpdateProfileUrl(ctx, id, input); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "Profile url updated",
-	})
+	ResponseError(c, http.StatusOK, "Profile url updated")
 }
 
 func (h *ProfileUrlHandler) DeleteProfileUrl(c *gin.Context) {
@@ -137,16 +104,10 @@ func (h *ProfileUrlHandler) DeleteProfileUrl(c *gin.Context) {
 	id := c.Param("profile_url_id")
 
 	if err := h.usecase.DeleteProfileUrl(ctx, id); err != nil {
-		c.JSON(http.StatusInternalServerError, dto.NoDataResponse{
-			Status:  http.StatusInternalServerError,
-			Message: "internal server error",
-		})
+		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NoDataResponse{
-		Status:  http.StatusOK,
-		Message: "Profile url deleted",
-	})
+	ResponseError(c, http.StatusOK, "Profile url deleted")
 }
 
