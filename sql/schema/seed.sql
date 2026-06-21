@@ -19,16 +19,16 @@ VALUES (
 -- 2. Profile URLs
 INSERT INTO profile_urls (profile_id, label, url)
 VALUES 
-    ('550e8400-e29b-41d4-a716-446655440000', 'GitHub', 'https://github.com/anugrahsputra'),
-    ('550e8400-e29b-41d4-a716-446655440000', 'LinkedIn', 'https://linkedin.com/in/anugrahsputra'),
-    ('550e8400-e29b-41d4-a716-446655440000', 'Portfolio', 'https://downormal.dev')
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'GitHub', 'https://github.com/anugrahsputra'),
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'LinkedIn', 'https://linkedin.com/in/anugrahsputra'),
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'Portfolio', 'https://downormal.dev')
 ON CONFLICT (profile_id, label) DO UPDATE SET url = EXCLUDED.url;
 
 -- 3. Educations
 INSERT INTO educations (profile_id, school, degree, field_of_study, gpa, start_date, graduation_date, is_present)
 VALUES 
-    ('550e8400-e29b-41d4-a716-446655440000', 'University of Indonesia', 'Bachelor of Science', 'Computer Science', 3.85, '2014-09-01', '2018-06-30', false),
-    ('550e8400-e29b-41d4-a716-446655440000', 'Tech Institute of Technology', 'Master of Science', 'Artificial Intelligence', 3.95, '2019-09-01', '2021-06-30', false)
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'University of Indonesia', 'Bachelor of Science', 'Computer Science', 3.85, '2014-09-01', '2018-06-30', false),
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'Tech Institute of Technology', 'Master of Science', 'Artificial Intelligence', 3.95, '2019-09-01', '2021-06-30', false)
 ON CONFLICT (profile_id, school, degree, start_date) DO UPDATE SET
     field_of_study = EXCLUDED.field_of_study,
     gpa = EXCLUDED.gpa,
@@ -39,7 +39,7 @@ ON CONFLICT (profile_id, school, degree, start_date) DO UPDATE SET
 INSERT INTO experiences (profile_id, company, position, description, location, start_date, end_date, is_present)
 VALUES 
     (
-        '550e8400-e29b-41d4-a716-446655440000', 
+        '094b1185-2d0e-483b-b39d-e7c60a670fc6', 
         'Global Tech Solutions', 
         'Lead Backend Engineer', 
         ARRAY[
@@ -53,7 +53,7 @@ VALUES
         true
     ),
     (
-        '550e8400-e29b-41d4-a716-446655440000', 
+        '094b1185-2d0e-483b-b39d-e7c60a670fc6', 
         'Innovate Startups', 
         'Software Engineer', 
         ARRAY[
@@ -75,16 +75,16 @@ ON CONFLICT (profile_id, company, position, start_date) DO UPDATE SET
 -- 5. Languages (Requested: more than 1)
 INSERT INTO languages (profile_id, language, proficiency)
 VALUES 
-    ('550e8400-e29b-41d4-a716-446655440000', 'Indonesian', 'native'),
-    ('550e8400-e29b-41d4-a716-446655440000', 'English', 'professional'),
-    ('550e8400-e29b-41d4-a716-446655440000', 'Japanese', 'basic')
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'Indonesian', 'native'),
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'English', 'professional'),
+    ('094b1185-2d0e-483b-b39d-e7c60a670fc6', 'Japanese', 'basic')
 ON CONFLICT (profile_id, language) DO UPDATE SET proficiency = EXCLUDED.proficiency;
 
 -- 6. Skills (Requested: more than 1, interpreted as multiple items in arrays)
 INSERT INTO skills (profile_id, tools, technologies, hard_skills, soft_skills)
 VALUES 
     (
-        '550e8400-e29b-41d4-a716-446655440000', 
+        '094b1185-2d0e-483b-b39d-e7c60a670fc6', 
         ARRAY['Docker', 'Kubernetes', 'Git', 'Postman', 'VS Code', 'Jira'], 
         ARRAY['Go', 'PostgreSQL', 'Redis', 'Kafka', 'AWS', 'Google Cloud Platform', 'React'], 
         ARRAY['Backend Development', 'System Architecture', 'Cloud Infrastructure', 'API Design', 'Microservices'], 
@@ -100,7 +100,7 @@ ON CONFLICT (profile_id) DO UPDATE SET
 INSERT INTO projects (profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location)
 VALUES 
     (
-        '550e8400-e29b-41d4-a716-446655440000', 
+        '094b1185-2d0e-483b-b39d-e7c60a670fc6', 
         'Scalable Portfolio API', 
         ARRAY[
             'A high-performance RESTful API built with Go and PostgreSQL',
@@ -121,7 +121,7 @@ VALUES
         'GitHub'
     ),
     (
-        '550e8400-e29b-41d4-a716-446655440000', 
+        '094b1185-2d0e-483b-b39d-e7c60a670fc6', 
         'Real-time Analytics Dashboard', 
         ARRAY[
             'Interactive dashboard for visualizing real-time data streams',

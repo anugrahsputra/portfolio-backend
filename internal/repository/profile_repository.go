@@ -40,6 +40,23 @@ func (r *profileRepository) CreateProfile(ctx context.Context, p domain.ProfileI
 	return &result, nil
 }
 
+func (r *profileRepository) GetProfiles(ctx context.Context) ([]domain.Profile, error) {
+	profiles, err := r.db.GetProfiles(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get profiles")
+	}
+
+	var result []domain.Profile
+	for _, profile := range profiles {
+		toDomain, err := mapper.ToProfileDomainFromGetProfilesRow(profile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to map profile: %w", err)
+		}
+		result = append(result, toDomain)
+	}
+	return result, nil
+}
+
 func (r *profileRepository) GetProfile(ctx context.Context, id string) (*domain.Profile, error) {
 	idStr, err := uuid.Parse(id)
 	if err != nil {

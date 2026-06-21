@@ -13,6 +13,7 @@ func ProfileRoute(r *gin.RouterGroup, h *handler.ProfileHandler, apiKey string) 
 	protected := route.Group("")
 	protected.Use(middleware.AuthMiddleware(apiKey))
 	{
+		protected.GET("/", h.GetProfiles)
 		protected.POST("/", h.CreateProfile)
 		protected.PUT("/:id", h.UpdateProfile)
 		protected.DELETE("/:id", h.DeleteProfile)

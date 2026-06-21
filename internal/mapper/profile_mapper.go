@@ -19,6 +19,26 @@ func ToProfileDomain(p db.GetProfileRow) (domain.Profile, error) {
 	return domain.Profile{
 		ID:      p.ID.String(),
 		Name:    p.Name,
+		Title:   p.Title,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
+		Phone:   p.Phone,
+		Url:     urls,
+	}, nil
+}
+
+// ToProfileDomainFromGetProfilesRow maps db.GetProfilesRow (with URLs) to domain.Profile
+func ToProfileDomainFromGetProfilesRow(p db.GetProfilesRow) (domain.Profile, error) {
+	urls, err := parser.JsonSliceParser[domain.ProfileUrl](p.Urls, p.ID.String())
+	if err != nil {
+		return domain.Profile{}, err
+	}
+
+	return domain.Profile{
+		ID:      p.ID.String(),
+		Name:    p.Name,
+		Title:   p.Title,
 		About:   p.About,
 		Address: p.Address,
 		Email:   p.Email,

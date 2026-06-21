@@ -9,7 +9,7 @@ import (
 
 func AuthMiddleware(apiKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.Request.Method == http.MethodGet || c.Request.Method == http.MethodOptions {
+		if c.Request.Method == http.MethodOptions {
 			c.Next()
 			return
 		}

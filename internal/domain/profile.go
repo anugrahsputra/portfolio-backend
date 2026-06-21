@@ -33,6 +33,7 @@ type ProfileUpdateInput struct {
 
 type ProfileRepository interface {
 	CreateProfile(ctx context.Context, p ProfileInput) (*Profile, error)
+	GetProfiles(ctx context.Context) ([]Profile, error)
 	GetProfile(ctx context.Context, id string) (*Profile, error)
 	UpdateProfile(ctx context.Context, id string, p ProfileUpdateInput) error
 	DeleteProfile(ctx context.Context, id string) error

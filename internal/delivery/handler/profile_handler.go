@@ -45,6 +45,22 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 	ResponseJSON(c, http.StatusCreated, "Success create profile", res)
 }
 
+func (h *ProfileHandler) GetProfiles(c *gin.Context) {
+	ctx := c.Request.Context()
+	profiles, err := h.usecase.GetProfiles(ctx)
+	if err != nil {
+		ResponseError(c, http.StatusBadRequest, "bad request")
+	}
+
+	res := make([]dto.ProfileResp, 0, len(profiles))
+	for _, profile := range profiles {
+		item := dto.ToProfileDTO(&profile)
+		res = append(res, item)
+	}
+
+	ResponseJSON(c, http.StatusOK, "success", res)
+}
+
 func (h *ProfileHandler) GetProfile(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
@@ -97,6 +113,3 @@ func (h *ProfileHandler) DeleteProfile(c *gin.Context) {
 
 	ResponseError(c, http.StatusOK, "success delete profile")
 }
-
-
-
