@@ -5,16 +5,15 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
 type ProfileUrlHandler struct {
-	usecase usecase.ProfileUrlUsecase
+	repo domain.ProfileUrlRepository
 }
 
-func NewProfileUrlHandler(u usecase.ProfileUrlUsecase) *ProfileUrlHandler {
-	return &ProfileUrlHandler{usecase: u}
+func NewProfileUrlHandler(r domain.ProfileUrlRepository) *ProfileUrlHandler {
+	return &ProfileUrlHandler{repo: r}
 }
 
 func (h *ProfileUrlHandler) CreateProfileUrl(c *gin.Context) {
@@ -32,7 +31,7 @@ func (h *ProfileUrlHandler) CreateProfileUrl(c *gin.Context) {
 		Url:       req.Url,
 	}
 
-	profileUrl, err := h.usecase.CreateProfileUrl(ctx, input)
+	profileUrl, err := h.repo.CreateProfileUrl(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -46,7 +45,7 @@ func (h *ProfileUrlHandler) GetProfileURL(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	profileUrls, err := h.usecase.GetProfileUrl(ctx, profileID)
+	profileUrls, err := h.repo.GetProfileUrl(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -65,7 +64,7 @@ func (h *ProfileUrlHandler) GetProfileUrlByID(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("profile_url_id")
 
-	profileUrl, err := h.usecase.GetProfileUrlByID(ctx, id)
+	profileUrl, err := h.repo.GetProfileUrlByID(ctx, id)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -91,7 +90,7 @@ func (h *ProfileUrlHandler) UpdateProfileUrl(c *gin.Context) {
 		Url:       &req.Url,
 	}
 
-	if err := h.usecase.UpdateProfileUrl(ctx, id, input); err != nil {
+	if err := h.repo.UpdateProfileUrl(ctx, id, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -103,11 +102,10 @@ func (h *ProfileUrlHandler) DeleteProfileUrl(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("profile_url_id")
 
-	if err := h.usecase.DeleteProfileUrl(ctx, id); err != nil {
+	if err := h.repo.DeleteProfileUrl(ctx, id); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	ResponseError(c, http.StatusOK, "Profile url deleted")
 }
-

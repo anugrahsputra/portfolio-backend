@@ -3,12 +3,11 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
-	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -63,7 +62,7 @@ func (r *educationRepository) GetEducations(ctx context.Context, profileID strin
 
 	result := make([]domain.Education, 0, len(educations))
 	for _, education := range educations {
-		ed := mapper.ToEducationDomain(education)
+		ed := r.toDomain(education)
 		result = append(result, ed)
 	}
 
@@ -81,7 +80,7 @@ func (r *educationRepository) GetEducationByID(ctx context.Context, id string) (
 		return domain.Education{}, fmt.Errorf("failed to get education by id: %w", err)
 	}
 
-	result := mapper.ToEducationDomain(education)
+	result := r.toDomain(education)
 
 	return result, nil
 }
@@ -96,7 +95,7 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 	if err != nil {
 		return fmt.Errorf("failed to fetch existing education for update: %w", err)
 	}
-	current := mapper.ToEducationDomain(currentDB)
+	current := r.toDomain(currentDB)
 
 	var gd pgtype.Date
 	if e.GraduationDate != nil {
@@ -105,15 +104,40 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 		gd = pgtype.Date{Time: *current.GraduationDate, Valid: !current.GraduationDate.IsZero()}
 	}
 
+	school := current.School
+	if e.School != nil {
+		school = *e.School
+	}
+	degree := current.Degree
+	if e.Degree != nil {
+		degree = *e.Degree
+	}
+	fieldOfStudy := current.FieldOfStudy
+	if e.FieldOfStudy != nil {
+		fieldOfStudy = *e.FieldOfStudy
+	}
+	gpa := current.Gpa
+	if e.Gpa != nil {
+		gpa = *e.Gpa
+	}
+	startDate := current.StartDate
+	if e.StartDate != nil {
+		startDate = *e.StartDate
+	}
+	isPresent := current.IsPresent
+	if e.IsPresent != nil {
+		isPresent = *e.IsPresent
+	}
+
 	param := db.UpdateEducationParams{
 		ID:             idStr,
-		School:         ptr.Or(e.School, current.School),
-		Degree:         ptr.Or(e.Degree, current.Degree),
-		FieldOfStudy:   ptr.Or(e.FieldOfStudy, current.FieldOfStudy),
-		Gpa:            ptr.Or(e.Gpa, current.Gpa),
-		StartDate:      pgtype.Date{Time: ptr.Or(e.StartDate, current.StartDate), Valid: true},
+		School:         school,
+		Degree:         degree,
+		FieldOfStudy:   fieldOfStudy,
+		Gpa:            gpa,
+		StartDate:      pgtype.Date{Time: startDate, Valid: true},
 		GraduationDate: gd,
-		IsPresent:      ptr.Or(e.IsPresent, current.IsPresent),
+		IsPresent:      isPresent,
 	}
 
 	if _, err := r.db.UpdateEducation(ctx, param); err != nil {
@@ -121,6 +145,25 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 	}
 
 	return nil
+}
+
+func (r *educationRepository) toDomain(e db.Education) domain.Education {
+	var gd *time.Time
+	if e.GraduationDate.Valid {
+		gd = &e.GraduationDate.Time
+	}
+
+	return domain.Education{
+		ID:             e.ID.String(),
+		ProfileID:      e.ProfileID.String(),
+		School:         e.School,
+		Degree:         e.Degree,
+		FieldOfStudy:   e.FieldOfStudy,
+		Gpa:            e.Gpa,
+		StartDate:      e.StartDate.Time,
+		GraduationDate: gd,
+		IsPresent:      e.IsPresent,
+	}
 }
 
 func (r *educationRepository) DeleteEducation(ctx context.Context, id string) error {

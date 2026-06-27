@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
 type LanguageHandler struct {
-	usecase usecase.LanguageUsecase
+	repo domain.LanguageRepository
 }
 
-func NewLanguageHandler(u usecase.LanguageUsecase) *LanguageHandler {
-	return &LanguageHandler{usecase: u}
+func NewLanguageHandler(r domain.LanguageRepository) *LanguageHandler {
+	return &LanguageHandler{repo: r}
 }
 
 func (h *LanguageHandler) CreateLanguage(c *gin.Context) {
@@ -26,7 +26,7 @@ func (h *LanguageHandler) CreateLanguage(c *gin.Context) {
 	}
 
 	input := dto.ToLanguageInput(&req)
-	language, err := h.usecase.CreateLanguage(ctx, input)
+	language, err := h.repo.CreateLanguage(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -40,7 +40,7 @@ func (h *LanguageHandler) GetLanguages(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	languages, err := h.usecase.GetLanguages(ctx, profileID)
+	languages, err := h.repo.GetLanguages(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
@@ -67,7 +67,7 @@ func (h *LanguageHandler) UpdateLanguage(c *gin.Context) {
 
 	input := dto.ToLanguageUpdateInput(&req)
 
-	if err := h.usecase.UpdateLanguage(ctx, languageID, input); err != nil {
+	if err := h.repo.UpdateLanguage(ctx, languageID, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -79,11 +79,10 @@ func (h *LanguageHandler) DeleteLanguage(c *gin.Context) {
 	ctx := c.Request.Context()
 	languageID := c.Param("language_id")
 
-	if err := h.usecase.DeleteLanguage(ctx, languageID); err != nil {
+	if err := h.repo.DeleteLanguage(ctx, languageID); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	ResponseError(c, http.StatusOK, "success")
 }
-

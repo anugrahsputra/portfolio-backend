@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
 type ProjectHandler struct {
-	usecase usecase.ProjectUsecase
+	repo domain.ProjectRepository
 }
 
-func NewProjectHandler(u usecase.ProjectUsecase) *ProjectHandler {
-	return &ProjectHandler{usecase: u}
+func NewProjectHandler(r domain.ProjectRepository) *ProjectHandler {
+	return &ProjectHandler{repo: r}
 }
 
 func (h *ProjectHandler) CreateProject(c *gin.Context) {
@@ -26,7 +26,7 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 	}
 
 	input := dto.ToProjectInput(&req)
-	project, err := h.usecase.CreateProject(ctx, input)
+	project, err := h.repo.CreateProject(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -40,7 +40,7 @@ func (h *ProjectHandler) GetProjects(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	projects, err := h.usecase.GetProjects(ctx, profileID)
+	projects, err := h.repo.GetProjects(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -66,7 +66,7 @@ func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 	}
 
 	input := dto.ToProjectUpdateInput(&req)
-	project, err := h.usecase.UpdateProject(ctx, id, input)
+	project, err := h.repo.UpdateProject(ctx, id, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -80,11 +80,10 @@ func (h *ProjectHandler) DeleteProject(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("project_id")
 
-	if err := h.usecase.DeleteProject(ctx, id); err != nil {
+	if err := h.repo.DeleteProject(ctx, id); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	ResponseError(c, http.StatusOK, "success")
 }
-

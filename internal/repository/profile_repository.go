@@ -2,12 +2,12 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 )
 
@@ -35,7 +35,7 @@ func (r *profileRepository) CreateProfile(ctx context.Context, p domain.ProfileI
 	if err != nil {
 		return nil, fmt.Errorf("failed to create profile: %w", err)
 	}
-	result := mapper.ToProfileDomainFromDB(profile)
+	result := r.toDomainFromDB(profile)
 
 	return &result, nil
 }
@@ -48,11 +48,11 @@ func (r *profileRepository) GetProfiles(ctx context.Context) ([]domain.Profile, 
 
 	var result []domain.Profile
 	for _, profile := range profiles {
-		toDomain, err := mapper.ToProfileDomainFromGetProfilesRow(profile)
+		d, err := r.toDomainFromGetProfilesRow(profile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to map profile: %w", err)
 		}
-		result = append(result, toDomain)
+		result = append(result, d)
 	}
 	return result, nil
 }
@@ -68,12 +68,12 @@ func (r *profileRepository) GetProfile(ctx context.Context, id string) (*domain.
 		return nil, fmt.Errorf("failed to get profile: %w", err)
 	}
 
-	result, err := mapper.ToProfileDomain(profile)
+	d, err := r.toDomain(profile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to map profile: %w", err)
 	}
 
-	return &result, nil
+	return &d, nil
 }
 
 func (r *profileRepository) UpdateProfile(ctx context.Context, id string, p domain.ProfileUpdateInput) error {
@@ -122,6 +122,65 @@ func (r *profileRepository) UpdateProfile(ctx context.Context, id string, p doma
 	}
 
 	return nil
+}
+
+func (r *profileRepository) toDomain(p db.GetProfileRow) (domain.Profile, error) {
+	var urls []domain.ProfileUrl
+	if p.Urls != nil {
+		data, err := json.Marshal(p.Urls)
+		if err != nil {
+			return domain.Profile{}, err
+		}
+		if err := json.Unmarshal(data, &urls); err != nil {
+			return domain.Profile{}, err
+		}
+	}
+
+	return domain.Profile{
+		ID:      p.ID.String(),
+		Name:    p.Name,
+		Title:   p.Title,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
+		Phone:   p.Phone,
+		Url:     urls,
+	}, nil
+}
+
+func (r *profileRepository) toDomainFromGetProfilesRow(p db.GetProfilesRow) (domain.Profile, error) {
+	var urls []domain.ProfileUrl
+	if p.Urls != nil {
+		data, err := json.Marshal(p.Urls)
+		if err != nil {
+			return domain.Profile{}, err
+		}
+		if err := json.Unmarshal(data, &urls); err != nil {
+			return domain.Profile{}, err
+		}
+	}
+
+	return domain.Profile{
+		ID:      p.ID.String(),
+		Name:    p.Name,
+		Title:   p.Title,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
+		Phone:   p.Phone,
+		Url:     urls,
+	}, nil
+}
+
+func (r *profileRepository) toDomainFromDB(p db.Profile) domain.Profile {
+	return domain.Profile{
+		ID:      p.ID.String(),
+		Name:    p.Name,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
+		Phone:   p.Phone,
+	}
 }
 
 func (r *profileRepository) DeleteProfile(ctx context.Context, id string) error {

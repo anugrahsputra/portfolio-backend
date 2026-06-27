@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
 type EducationHandler struct {
-	usecase usecase.EducationUsecase
+	repo domain.EducationRepository
 }
 
-func NewEducationHandler(u usecase.EducationUsecase) *EducationHandler {
-	return &EducationHandler{usecase: u}
+func NewEducationHandler(r domain.EducationRepository) *EducationHandler {
+	return &EducationHandler{repo: r}
 }
 
 func (h *EducationHandler) CreateEducation(c *gin.Context) {
@@ -24,7 +24,7 @@ func (h *EducationHandler) CreateEducation(c *gin.Context) {
 	}
 
 	input := dto.ToEducationInput(&req)
-	if err := h.usecase.CreateEducation(c.Request.Context(), input); err != nil {
+	if err := h.repo.CreateEducation(c.Request.Context(), input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -35,7 +35,7 @@ func (h *EducationHandler) CreateEducation(c *gin.Context) {
 func (h *EducationHandler) GetEducation(c *gin.Context) {
 	profileID := c.Param("profile_id")
 
-	educations, err := h.usecase.GetEducations(c.Request.Context(), profileID)
+	educations, err := h.repo.GetEducations(c.Request.Context(), profileID)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
@@ -60,7 +60,7 @@ func (h *EducationHandler) UpdateEducation(c *gin.Context) {
 	}
 
 	input := dto.ToEducationUpdateInput(&req)
-	if err := h.usecase.UpdateEducation(c.Request.Context(), eduID, input); err != nil {
+	if err := h.repo.UpdateEducation(c.Request.Context(), eduID, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -71,7 +71,7 @@ func (h *EducationHandler) UpdateEducation(c *gin.Context) {
 func (h *EducationHandler) DeleteEducation(c *gin.Context) {
 	eduID := c.Param("education_id")
 
-	if err := h.usecase.DeleteEducation(c.Request.Context(), eduID); err != nil {
+	if err := h.repo.DeleteEducation(c.Request.Context(), eduID); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}

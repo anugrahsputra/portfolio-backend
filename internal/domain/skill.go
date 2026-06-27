@@ -33,6 +33,4 @@ type SkillRepository interface {
 	DeleteSkill(ctx context.Context, id string) error
 }
 
-func (s *Skill) SetProfileID(profileID string) {
-	s.ProfileID = profileID
-}
+

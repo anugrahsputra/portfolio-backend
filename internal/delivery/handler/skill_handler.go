@@ -5,16 +5,15 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
 type SkillHandler struct {
-	usecase usecase.SkillUsecase
+	repo domain.SkillRepository
 }
 
-func NewSkillHandler(u usecase.SkillUsecase) *SkillHandler {
-	return &SkillHandler{usecase: u}
+func NewSkillHandler(r domain.SkillRepository) *SkillHandler {
+	return &SkillHandler{repo: r}
 }
 
 func (h *SkillHandler) CreateSkill(c *gin.Context) {
@@ -34,7 +33,7 @@ func (h *SkillHandler) CreateSkill(c *gin.Context) {
 		SoftSkills:   req.SoftSkills,
 	}
 
-	skill, err := h.usecase.CreateSkill(ctx, input)
+	skill, err := h.repo.CreateSkill(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -48,7 +47,7 @@ func (h *SkillHandler) GetSkills(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	skill, err := h.usecase.GetSkills(ctx, profileID)
+	skill, err := h.repo.GetSkills(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -75,7 +74,7 @@ func (h *SkillHandler) UpdateSkill(c *gin.Context) {
 		SoftSkills:   req.SoftSkills,
 	}
 
-	if err := h.usecase.UpdateSkill(ctx, skillId, input); err != nil {
+	if err := h.repo.UpdateSkill(ctx, skillId, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -87,11 +86,10 @@ func (h *SkillHandler) DeleteSkill(c *gin.Context) {
 	ctx := c.Request.Context()
 	skillId := c.Param("skill_id")
 
-	if err := h.usecase.DeleteSkill(ctx, skillId); err != nil {
+	if err := h.repo.DeleteSkill(ctx, skillId); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	ResponseError(c, http.StatusOK, "success")
 }
-

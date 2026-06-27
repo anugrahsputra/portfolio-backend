@@ -5,16 +5,15 @@ import (
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
 type ProfileHandler struct {
-	usecase usecase.ProfileUsecase
+	repo domain.ProfileRepository
 }
 
-func NewProfileHandler(u usecase.ProfileUsecase) *ProfileHandler {
-	return &ProfileHandler{usecase: u}
+func NewProfileHandler(r domain.ProfileRepository) *ProfileHandler {
+	return &ProfileHandler{repo: r}
 }
 
 func (h *ProfileHandler) CreateProfile(c *gin.Context) {
@@ -35,7 +34,7 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 		Phone:   req.Phone,
 	}
 
-	profile, err := h.usecase.CreateProfile(ctx, input)
+	profile, err := h.repo.CreateProfile(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "Failed to create profile")
 		return
@@ -47,7 +46,7 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 
 func (h *ProfileHandler) GetProfiles(c *gin.Context) {
 	ctx := c.Request.Context()
-	profiles, err := h.usecase.GetProfiles(ctx)
+	profiles, err := h.repo.GetProfiles(ctx)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 	}
@@ -65,13 +64,13 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	profile, err := h.usecase.GetProfile(ctx, id)
+	profile, err := h.repo.GetProfile(ctx, id)
 	if err != nil {
 		ResponseError(c, http.StatusNotFound, "Profile not found")
 		return
 	}
 
-	res := dto.ToProfilePublicDTO(profile)
+	res := dto.ToProfileDTO(profile)
 	ResponseJSON(c, http.StatusOK, "success get profile", res)
 }
 
@@ -94,7 +93,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 		Phone:   req.Phone,
 	}
 
-	if err := h.usecase.UpdateProfile(ctx, id, input); err != nil {
+	if err := h.repo.UpdateProfile(ctx, id, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "Failed to update profile")
 		return
 	}
@@ -106,7 +105,7 @@ func (h *ProfileHandler) DeleteProfile(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	if err := h.usecase.DeleteProfile(ctx, id); err != nil {
+	if err := h.repo.DeleteProfile(ctx, id); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "Failed to delete profile")
 		return
 	}

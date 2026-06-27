@@ -8,29 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ErrorHandlerMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Next()
-
-		if len(c.Errors) > 0 {
-			// Get the last error
-			err := c.Errors.Last()
-
-			// Check if it's a validation error or other
-			status := http.StatusInternalServerError
-			message := "Internal Server Error"
-
-			fmt.Printf("API Error: %v\n", err.Err)
-
-			c.JSON(status, dto.NoDataResponse{
-				Status:  status,
-				Message: message,
-			})
-			c.Abort()
-		}
-	}
-}
-
 func RecoveryMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {

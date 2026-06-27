@@ -7,7 +7,6 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 )
 
@@ -38,7 +37,7 @@ func (r *skillRepository) CreateSkill(ctx context.Context, s domain.SkillInput) 
 		return domain.Skill{}, fmt.Errorf("failed to create skill: %w", err)
 	}
 
-	result := mapper.ToSkillDomain(&skill)
+	result := r.toDomain(&skill)
 	return result, nil
 }
 
@@ -53,7 +52,7 @@ func (r *skillRepository) GetSkills(ctx context.Context, profileID string) (doma
 		return domain.Skill{}, fmt.Errorf("failed to get skills: %w", err)
 	}
 
-	result := mapper.ToSkillDomain(&skill)
+	result := r.toDomain(&skill)
 	return result, nil
 }
 
@@ -76,6 +75,17 @@ func (r *skillRepository) UpdateSkill(ctx context.Context, id string, s domain.S
 	}
 
 	return nil
+}
+
+func (r *skillRepository) toDomain(db *db.Skill) domain.Skill {
+	return domain.Skill{
+		ID:           db.ID.String(),
+		ProfileID:    db.ProfileID.String(),
+		Tools:        db.Tools,
+		Technologies: db.Technologies,
+		HardSkills:   db.HardSkills,
+		SoftSkills:   db.SoftSkills,
+	}
 }
 
 func (r *skillRepository) DeleteSkill(ctx context.Context, id string) error {

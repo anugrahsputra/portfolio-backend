@@ -7,7 +7,6 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 )
 
@@ -36,7 +35,7 @@ func (r *languageRepository) CreateLanguage(ctx context.Context, l domain.Langua
 		return domain.Language{}, fmt.Errorf("failed to create language: %w", err)
 	}
 
-	result := mapper.ToLanguageDomain(&language)
+	result := r.toDomain(&language)
 	return result, nil
 }
 
@@ -53,7 +52,7 @@ func (r *languageRepository) GetLanguages(ctx context.Context, profileID string)
 
 	var result []domain.Language
 	for _, language := range languages {
-		item := mapper.ToLanguageDomain(&language)
+		item := r.toDomain(&language)
 		result = append(result, item)
 	}
 
@@ -77,6 +76,15 @@ func (r *languageRepository) UpdateLanguage(ctx context.Context, id string, l do
 	}
 
 	return nil
+}
+
+func (r *languageRepository) toDomain(db *db.Language) domain.Language {
+	return domain.Language{
+		ID:          db.ID.String(),
+		ProfileID:   db.ProfileID.String(),
+		Language:    db.Language,
+		Proficiency: string(db.Proficiency),
+	}
 }
 
 func (r *languageRepository) DeleteLanguage(ctx context.Context, id string) error {

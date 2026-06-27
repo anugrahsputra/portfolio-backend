@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
 type ContactFormHandler struct {
-	usecase usecase.EmailContactUsecase
+	repo domain.EmailContactRepository
 }
 
-func NewContactFormHandler(u usecase.EmailContactUsecase) *ContactFormHandler {
-	return &ContactFormHandler{usecase: u}
+func NewContactFormHandler(r domain.EmailContactRepository) *ContactFormHandler {
+	return &ContactFormHandler{repo: r}
 }
 
 func (h *ContactFormHandler) SendMail(c *gin.Context) {
@@ -24,10 +24,13 @@ func (h *ContactFormHandler) SendMail(c *gin.Context) {
 	}
 
 	input := dto.ToContactFormInput(&req)
-	if err := h.usecase.SendEmail(c.Request.Context(), input); err != nil {
+
+	if err := h.repo.SendEmail(c.Request.Context(), input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	ResponseError(c, http.StatusOK, "email submitted")
 }
+
+

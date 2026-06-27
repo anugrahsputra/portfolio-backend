@@ -3,13 +3,11 @@ package config
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/op/go-logging"
 )
-
-var dbLog = logging.MustGetLogger("database")
 
 type Database struct {
 	Pool *pgxpool.Pool
@@ -30,7 +28,7 @@ func NewDatabase(cfg *Config) (*Database, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	dbLog.Info("Database connected successfully")
+	slog.Info("Database connected successfully")
 	return &Database{Pool: pool}, nil
 }
 
@@ -45,7 +43,7 @@ func (db *Database) InitSchema(schemaPath string) error {
 		return fmt.Errorf("failed to execute schema: %w", err)
 	}
 
-	dbLog.Info("Database schema initialized successfully")
+	slog.Info("Database schema initialized successfully")
 	return nil
 }
 

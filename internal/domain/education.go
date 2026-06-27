@@ -47,6 +47,4 @@ type EducationRepository interface {
 	DeleteEducation(ctx context.Context, id string) error
 }
 
-func (e *Education) SetProfileID(profileID string) {
-	e.ProfileID = profileID
-}
+

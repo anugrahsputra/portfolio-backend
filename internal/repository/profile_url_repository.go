@@ -7,7 +7,6 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
 	"github.com/google/uuid"
 )
 
@@ -35,7 +34,7 @@ func (r *profileUrlRepository) CreateProfileUrl(ctx context.Context, pu domain.P
 		return nil, fmt.Errorf("failed to create profile url: %w", err)
 	}
 
-	result := mapper.ToProfileURLDomain(profileUrl)
+	result := r.toDomain(profileUrl)
 	return &result, nil
 
 }
@@ -53,7 +52,7 @@ func (r *profileUrlRepository) GetProfileUrl(ctx context.Context, profileID stri
 
 	result := make([]domain.ProfileUrl, 0, len(profileUrls))
 	for _, profileUrl := range profileUrls {
-		item := mapper.ToProfileURLDomain(profileUrl)
+		item := r.toDomain(profileUrl)
 		result = append(result, item)
 	}
 
@@ -71,7 +70,7 @@ func (r *profileUrlRepository) GetProfileUrlByID(ctx context.Context, id string)
 		return domain.ProfileUrl{}, fmt.Errorf("failed to get profile url by id: %w", err)
 	}
 
-	result := mapper.ToProfileURLDomain(profileUrl)
+	result := r.toDomain(profileUrl)
 	return result, nil
 }
 
@@ -92,6 +91,15 @@ func (r *profileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, 
 	}
 
 	return nil
+}
+
+func (r *profileUrlRepository) toDomain(pu db.ProfileUrl) domain.ProfileUrl {
+	return domain.ProfileUrl{
+		ID:        pu.ID.String(),
+		ProfileID: pu.ProfileID.String(),
+		Label:     pu.Label,
+		Url:       pu.Url,
+	}
 }
 
 func (r *profileUrlRepository) DeleteProfileUrl(ctx context.Context, id string) error {

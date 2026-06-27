@@ -47,6 +47,4 @@ type ExperienceRepository interface {
 	DeleteExperience(ctx context.Context, id string) error
 }
 
-func (e *Experience) SetProfileID(profileID string) {
-	e.ProfileID = profileID
-}
+

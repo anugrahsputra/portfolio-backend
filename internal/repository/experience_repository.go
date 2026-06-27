@@ -3,12 +3,11 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/db"
 	"github.com/anugrahsputra/portfolio-backend/internal/domain"
-	"github.com/anugrahsputra/portfolio-backend/internal/mapper"
-	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -48,7 +47,7 @@ func (r *experienceRepository) CreateExperience(ctx context.Context, ex domain.E
 		return domain.Experience{}, fmt.Errorf("failed to create experience: %w", err)
 	}
 
-	result := mapper.ToExperienceDomain(experience)
+	result := r.toDomain(experience)
 	return result, nil
 }
 
@@ -65,7 +64,7 @@ func (r *experienceRepository) GetExperiences(ctx context.Context, profileID str
 
 	var result []domain.Experience
 	for _, experience := range experiences {
-		exToDomain := mapper.ToExperienceDomain(experience)
+		exToDomain := r.toDomain(experience)
 		result = append(result, exToDomain)
 	}
 
@@ -83,7 +82,7 @@ func (r *experienceRepository) GetExperienceByID(ctx context.Context, id string)
 		return domain.Experience{}, fmt.Errorf("failed to get experience by id: %w", err)
 	}
 
-	result := mapper.ToExperienceDomain(experience)
+	result := r.toDomain(experience)
 	return result, nil
 }
 
@@ -97,7 +96,7 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 	if err != nil {
 		return domain.Experience{}, fmt.Errorf("failed to fetch existing experience for update: %w", err)
 	}
-	current := mapper.ToExperienceDomain(currentDB)
+	current := r.toDomain(currentDB)
 
 	var ed pgtype.Date
 	if ex.EndDate != nil {
@@ -106,15 +105,40 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 		ed = pgtype.Date{Time: *current.EndDate, Valid: !current.EndDate.IsZero()}
 	}
 
+	company := current.Company
+	if ex.Company != nil {
+		company = *ex.Company
+	}
+	position := current.Position
+	if ex.Position != nil {
+		position = *ex.Position
+	}
+	description := current.Description
+	if ex.Description != nil {
+		description = *ex.Description
+	}
+	location := current.Location
+	if ex.Location != nil {
+		location = *ex.Location
+	}
+	startDate := current.StartDate
+	if ex.StartDate != nil {
+		startDate = *ex.StartDate
+	}
+	isPresent := current.IsPresent
+	if ex.IsPresent != nil {
+		isPresent = *ex.IsPresent
+	}
+
 	param := db.UpdateExperienceParams{
 		ID:          idStr,
-		Company:     ptr.Or(ex.Company, current.Company),
-		Position:    ptr.Or(ex.Position, current.Position),
-		Description: ptr.Or(ex.Description, current.Description),
-		Location:    ptr.Or(ex.Location, current.Location),
-		StartDate:   pgtype.Date{Time: ptr.Or(ex.StartDate, current.StartDate), Valid: true},
+		Company:     company,
+		Position:    position,
+		Description: description,
+		Location:    location,
+		StartDate:   pgtype.Date{Time: startDate, Valid: true},
 		EndDate:     ed,
-		IsPresent:   ptr.Or(ex.IsPresent, current.IsPresent),
+		IsPresent:   isPresent,
 	}
 
 	experience, err := r.db.UpdateExperience(ctx, param)
@@ -122,8 +146,27 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 		return domain.Experience{}, fmt.Errorf("failed to update experience: %w", err)
 	}
 
-	result := mapper.ToExperienceDomain(experience)
+	result := r.toDomain(experience)
 	return result, nil
+}
+
+func (r *experienceRepository) toDomain(ex db.Experience) domain.Experience {
+	var ed *time.Time
+	if ex.EndDate.Valid {
+		ed = &ex.EndDate.Time
+	}
+
+	return domain.Experience{
+		ID:          ex.ID.String(),
+		ProfileID:   ex.ProfileID.String(),
+		Company:     ex.Company,
+		Position:    ex.Position,
+		Description: ex.Description,
+		Location:    ex.Location,
+		StartDate:   ex.StartDate.Time,
+		EndDate:     ed,
+		IsPresent:   ex.IsPresent,
+	}
 }
 
 func (r *experienceRepository) DeleteExperience(ctx context.Context, id string) error {

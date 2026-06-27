@@ -31,7 +31,7 @@ clean:
 
 # Run all tests
 test:
-    go test ./...
+    go test ./test/...
 
 # Run tests for a specific layer (usecase | handler | mapper)
 test-layer layer:
@@ -39,7 +39,7 @@ test-layer layer:
 
 # Run a specific test by name
 test-run name:
-    go test ./... -run {{name}}
+    go test ./test/... -run {{name}}
 
 # ── Database ──────────────────────────────────────────────────────────────────
 

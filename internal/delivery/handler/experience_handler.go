@@ -4,16 +4,16 @@ import (
 	"net/http"
 
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/dto"
-	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
+	"github.com/anugrahsputra/portfolio-backend/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
 type ExperienceHandler struct {
-	usecase usecase.ExperienceUsecase
+	repo domain.ExperienceRepository
 }
 
-func NewExperienceHandler(u usecase.ExperienceUsecase) *ExperienceHandler {
-	return &ExperienceHandler{usecase: u}
+func NewExperienceHandler(r domain.ExperienceRepository) *ExperienceHandler {
+	return &ExperienceHandler{repo: r}
 }
 
 func (h *ExperienceHandler) CreateExperience(c *gin.Context) {
@@ -24,7 +24,7 @@ func (h *ExperienceHandler) CreateExperience(c *gin.Context) {
 	}
 
 	input := dto.ToExperienceInput(&req)
-	experience, err := h.usecase.CreateExperience(c.Request.Context(), input)
+	experience, err := h.repo.CreateExperience(c.Request.Context(), input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -37,7 +37,7 @@ func (h *ExperienceHandler) CreateExperience(c *gin.Context) {
 func (h *ExperienceHandler) GetExperiences(c *gin.Context) {
 	profileID := c.Param("profile_id")
 
-	experiences, err := h.usecase.GetExperiences(c.Request.Context(), profileID)
+	experiences, err := h.repo.GetExperiences(c.Request.Context(), profileID)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
@@ -62,7 +62,7 @@ func (h *ExperienceHandler) UpdateExperience(c *gin.Context) {
 	}
 
 	input := dto.ToExperienceUpdateInput(&req)
-	experience, err := h.usecase.UpdateExperience(c.Request.Context(), expID, input)
+	experience, err := h.repo.UpdateExperience(c.Request.Context(), expID, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -75,7 +75,7 @@ func (h *ExperienceHandler) UpdateExperience(c *gin.Context) {
 func (h *ExperienceHandler) DeleteExperience(c *gin.Context) {
 	expID := c.Param("experience_id")
 
-	if err := h.usecase.DeleteExperience(c.Request.Context(), expID); err != nil {
+	if err := h.repo.DeleteExperience(c.Request.Context(), expID); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}

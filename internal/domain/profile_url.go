@@ -29,6 +29,4 @@ type ProfileUrlRepository interface {
 	DeleteProfileUrl(ctx context.Context, id string) error
 }
 
-func (p *ProfileUrl) SetProfileID(profileID string) {
-	p.ProfileID = profileID
-}
+
