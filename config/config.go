@@ -22,7 +22,7 @@ func Load() *Config {
 		Env:         env,
 		GmailUser:   getEnv("GMAIL_USER", ""),
 		GmailPass:   getEnv("GMAIL_PASS", ""),
-		RedisURL:    getEnv("REDIS_URL", "redis://localhost:6379/0"),
+		RedisURL:    getEnv("REDIS_URL", "redis://localhost:6379/1"),
 	}
 }
 
