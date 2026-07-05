@@ -41,7 +41,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := route.SetupRouter(db, mail, cfg)
+	rdb := config.NewRedis(cfg)
+
+	r := route.SetupRouter(db, mail, cfg, rdb)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,

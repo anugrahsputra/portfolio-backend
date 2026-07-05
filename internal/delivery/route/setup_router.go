@@ -2,6 +2,7 @@ package route
 
 import (
 	"os"
+	"time"
 
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
@@ -9,9 +10,10 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
-func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gin.Engine {
+func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb *redis.Client) *gin.Engine {
 	env := os.Getenv("ENV")
 	var allowOrigins []string
 	var allowMethods []string
@@ -38,6 +40,8 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gi
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	route.Use(middleware.CacheMiddleware(rdb, 60*time.Second))
 
 	apiKey := os.Getenv("API_KEY")
 
@@ -123,6 +127,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config) *gi
 
 		se := api.Group("/send-email")
 		se.Use(middleware.AuthMiddleware(apiKey))
+		se.Use(middleware.RateLimitMiddleware(rdb, 3, time.Minute))
 		se.POST("/", contactForm.SendMail)
 
 		re := api.Group("/resume")
