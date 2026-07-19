@@ -56,11 +56,19 @@ func (e Education) Merge(in EducationUpdateInput) Education {
 	return e
 }
 
-type EducationRepository interface {
+type EducationUsecase interface {
 	CreateEducation(ctx context.Context, e EducationInput) error
 	GetEducations(ctx context.Context, profileID string) ([]Education, error)
 	GetEducationByID(ctx context.Context, id string) (Education, error)
 	UpdateEducation(ctx context.Context, id string, e EducationUpdateInput) error
+	DeleteEducation(ctx context.Context, id string) error
+}
+
+type EducationRepository interface {
+	CreateEducation(ctx context.Context, e EducationInput) error
+	GetEducations(ctx context.Context, profileID string) ([]Education, error)
+	GetEducationByID(ctx context.Context, id string) (Education, error)
+	UpdateEducation(ctx context.Context, e Education) error
 	DeleteEducation(ctx context.Context, id string) error
 }
 

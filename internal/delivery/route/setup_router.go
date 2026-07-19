@@ -57,11 +57,12 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	contactFormRepo := repository.NewEmailContactRepository(mail, cfg, profileRepo)
 
 	projectUC := usecase.NewProjectUsecase(projectRepo)
+	educationUC := usecase.NewEducationUsecase(educationRepo)
 
 	profile := handler.NewProfileHandler(profileRepo)
 	profileUrl := handler.NewProfileUrlHandler(profileUrlRepo)
 	experience := handler.NewExperienceHandler(experienceRepo)
-	education := handler.NewEducationHandler(educationRepo)
+	education := handler.NewEducationHandler(educationUC)
 	skill := handler.NewSkillHandler(skillRepo)
 	language := handler.NewLanguageHandler(languageRepo)
 	project := handler.NewProjectHandler(projectUC)

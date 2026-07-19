@@ -17,16 +17,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockEducationRepository struct {
+type MockEducationUsecase struct {
 	mock.Mock
 }
 
-func (m *MockEducationRepository) CreateEducation(ctx context.Context, e domain.EducationInput) error {
+func (m *MockEducationUsecase) CreateEducation(ctx context.Context, e domain.EducationInput) error {
 	args := m.Called(ctx, e)
 	return args.Error(0)
 }
 
-func (m *MockEducationRepository) GetEducations(ctx context.Context, profileID string) ([]domain.Education, error) {
+func (m *MockEducationUsecase) GetEducations(ctx context.Context, profileID string) ([]domain.Education, error) {
 	args := m.Called(ctx, profileID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -34,17 +34,17 @@ func (m *MockEducationRepository) GetEducations(ctx context.Context, profileID s
 	return args.Get(0).([]domain.Education), args.Error(1)
 }
 
-func (m *MockEducationRepository) GetEducationByID(ctx context.Context, id string) (domain.Education, error) {
+func (m *MockEducationUsecase) GetEducationByID(ctx context.Context, id string) (domain.Education, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.Education), args.Error(1)
 }
 
-func (m *MockEducationRepository) UpdateEducation(ctx context.Context, id string, e domain.EducationUpdateInput) error {
+func (m *MockEducationUsecase) UpdateEducation(ctx context.Context, id string, e domain.EducationUpdateInput) error {
 	args := m.Called(ctx, id, e)
 	return args.Error(0)
 }
 
-func (m *MockEducationRepository) DeleteEducation(ctx context.Context, id string) error {
+func (m *MockEducationUsecase) DeleteEducation(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
@@ -52,7 +52,7 @@ func (m *MockEducationRepository) DeleteEducation(ctx context.Context, id string
 func TestEducationHandler_CreateEducation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.POST("/educations", handlerObj.CreateEducation)
@@ -77,7 +77,7 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.POST("/educations", handlerObj.CreateEducation)
@@ -92,7 +92,7 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 	})
 
 	t.Run("repository error", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.POST("/educations", handlerObj.CreateEducation)
@@ -116,7 +116,7 @@ func TestEducationHandler_CreateEducation(t *testing.T) {
 func TestEducationHandler_GetEducation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
@@ -136,7 +136,7 @@ func TestEducationHandler_GetEducation(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/educations", handlerObj.GetEducation)
@@ -155,7 +155,7 @@ func TestEducationHandler_GetEducation(t *testing.T) {
 func TestEducationHandler_UpdateEducation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.PUT("/educations/:education_id", handlerObj.UpdateEducation)
@@ -178,7 +178,7 @@ func TestEducationHandler_UpdateEducation(t *testing.T) {
 func TestEducationHandler_DeleteEducation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockEducationRepository)
+		mockRepo := new(MockEducationUsecase)
 		handlerObj := handler.NewEducationHandler(mockRepo)
 		r := gin.New()
 		r.DELETE("/educations/:education_id", handlerObj.DeleteEducation)

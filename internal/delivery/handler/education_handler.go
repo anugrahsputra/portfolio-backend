@@ -9,11 +9,11 @@ import (
 )
 
 type EducationHandler struct {
-	repo domain.EducationRepository
+	uc domain.EducationUsecase
 }
 
-func NewEducationHandler(r domain.EducationRepository) *EducationHandler {
-	return &EducationHandler{repo: r}
+func NewEducationHandler(u domain.EducationUsecase) *EducationHandler {
+	return &EducationHandler{uc: u}
 }
 
 func (h *EducationHandler) CreateEducation(c *gin.Context) {
@@ -24,7 +24,7 @@ func (h *EducationHandler) CreateEducation(c *gin.Context) {
 	}
 
 	input := dto.ToEducationInput(&req)
-	if err := h.repo.CreateEducation(c.Request.Context(), input); err != nil {
+	if err := h.uc.CreateEducation(c.Request.Context(), input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -35,7 +35,7 @@ func (h *EducationHandler) CreateEducation(c *gin.Context) {
 func (h *EducationHandler) GetEducation(c *gin.Context) {
 	profileID := c.Param("profile_id")
 
-	educations, err := h.repo.GetEducations(c.Request.Context(), profileID)
+	educations, err := h.uc.GetEducations(c.Request.Context(), profileID)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
@@ -60,7 +60,7 @@ func (h *EducationHandler) UpdateEducation(c *gin.Context) {
 	}
 
 	input := dto.ToEducationUpdateInput(&req)
-	if err := h.repo.UpdateEducation(c.Request.Context(), eduID, input); err != nil {
+	if err := h.uc.UpdateEducation(c.Request.Context(), eduID, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -71,7 +71,7 @@ func (h *EducationHandler) UpdateEducation(c *gin.Context) {
 func (h *EducationHandler) DeleteEducation(c *gin.Context) {
 	eduID := c.Param("education_id")
 
-	if err := h.repo.DeleteEducation(c.Request.Context(), eduID); err != nil {
+	if err := h.uc.DeleteEducation(c.Request.Context(), eduID); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
