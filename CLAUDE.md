@@ -96,6 +96,7 @@ go test ./...
 go test ./test/domain/...
 go test ./test/handler/...
 go test ./test/middleware/...
+go test ./test/usecase/...
 
 # Run a specific test
 go test ./test/domain/... -run TestProjectMerge
@@ -119,7 +120,8 @@ pkg/
 internal/
 ├── domain/                # CORE: entities, Merge methods, repository interfaces
 ├── db/                    # sqlc-generated queries (DO NOT EDIT)
-├── repository/            # Driven adapters: implement the domain interfaces
+├── usecase/               # Orchestration: fetch -> Merge -> write
+├── repository/            # Driven adapters: storage only, never see UpdateInput
 └── delivery/              # Driving adapter (HTTP)
     ├── handler/           # Gin handlers
     ├── route/             # SetupRouter: builds repos, handlers, routes
@@ -129,17 +131,22 @@ sql/
 └── queries/*.sql          # SQL queries for sqlc
 ```
 
-There is no usecase layer. These are CRUD endpoints with no orchestration to
-own, so handlers depend on the domain repository interfaces directly. Add one
-only when a request needs logic that spans more than one repository.
+Handlers depend on `domain.XUsecase`. Usecases own the read-modify-write cycle:
+they fetch the current entity, call its `Merge` method, and hand the merged
+entity to the repository. Repositories are storage only and never see an
+`UpdateInput`.
+
+Skill, language, and resume usecases forward without orchestration — their
+updates carry complete values, so there is nothing to merge. That is deliberate.
 
 ### Data Flow
 
 1. **HTTP Request** → `handler` binds the DTO
 2. **Handler** → `dto.ToXInput()` converts to a domain type
-3. **Handler** → calls the `domain.XRepository` port
-4. **Repository** → maps domain ↔ `db` models and calls `db.Queries` (sqlc)
-5. **Handler** → `dto.ToXDTO()` converts the result back for the response
+3. **Handler** → calls the `domain.XUsecase` port
+4. **Usecase** → for updates: fetch current entity, `current.Merge(in)`, write the result
+5. **Repository** → maps domain ↔ `db` models and calls `db.Queries` (sqlc)
+6. **Handler** → `dto.ToXDTO()` converts the result back for the response
 
 Each repository owns its own `toDomain()` mapping; there is no shared mapper package.
 
@@ -147,12 +154,12 @@ Each repository owns its own `toDomain()` mapping; there is no shared mapper pac
 
 - **sqlc**: Type-safe SQL generation. Edit `sql/queries/*.sql`, then run `sqlc generate` to regenerate `internal/db/`
 - **Domain ports**: Repository interfaces live in `internal/domain/` (e.g., `ProjectRepository`)
-- **Wiring**: `route.SetupRouter` constructs every repository and handler inline. No DI framework.
+- **Wiring**: `route.SetupRouter` constructs every repository, usecase, and handler inline. No DI framework.
 - **Partial updates**: `UpdateInput` types use pointer fields, where nil means "leave
   this alone". Merging is domain logic: each entity has a `Merge(UpdateInput)` method
-  built on `pkg/ptr.Or()`. Repositories fetch the current row, call `Merge`, and write
-  the result — they never unwrap update pointers themselves. Fields that must not
-  change (`ProfileID`) are deliberately absent from `Merge`.
+  built on `pkg/ptr.Or()`. Orchestration is usecase logic: the usecase fetches the
+  current entity, merges, and writes. Repositories take a fully-merged entity.
+  Fields that must not change (`ProfileID`) are deliberately absent from `Merge`.
 
 ## Environment
 
@@ -181,11 +188,12 @@ PostgreSQL with:
 
 Test files follow the pattern `test/{layer}/{domain}_test.go`:
 
-- `test/handler/` — uses `stretchr/testify/mock`; each file defines a mock repository implementing the domain interface.
+- `test/handler/` — uses `stretchr/testify/mock`; each file defines a mock usecase implementing the domain interface.
 - `test/middleware/` — middleware tests (cache, rate limit).
 - `test/domain/` — plain table tests over the `Merge` methods. No mocks needed: `Merge` is pure.
+- `test/usecase/` — mocks the repository interfaces; asserts that updates fetch-then-merge and that a failed fetch never writes.
 
-There are no repository tests; the repository layer is exercised only through the handler mocks.
+There are no repository tests; repository interfaces are mocked one layer up, in `test/usecase/`.
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
