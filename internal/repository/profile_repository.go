@@ -88,33 +88,20 @@ func (r *profileRepository) UpdateProfile(ctx context.Context, id string, p doma
 		return fmt.Errorf("failed to fetch existing profile for update: %w", err)
 	}
 
+	current, err := r.toDomain(existing)
+	if err != nil {
+		return fmt.Errorf("failed to map existing profile for update: %w", err)
+	}
+	merged := current.Merge(p)
+
 	param := db.UpdateProfileParams{
 		ID:      idStr,
-		Name:    existing.Name,
-		Title:   existing.Title,
-		About:   existing.About,
-		Address: existing.Address,
-		Email:   existing.Email,
-		Phone:   existing.Phone,
-	}
-
-	if p.Name != nil {
-		param.Name = *p.Name
-	}
-	if p.Title != nil {
-		param.Title = *p.Title
-	}
-	if p.About != nil {
-		param.About = *p.About
-	}
-	if p.Address != nil {
-		param.Address = *p.Address
-	}
-	if p.Email != nil {
-		param.Email = *p.Email
-	}
-	if p.Phone != nil {
-		param.Phone = *p.Phone
+		Name:    merged.Name,
+		Title:   merged.Title,
+		About:   merged.About,
+		Address: merged.Address,
+		Email:   merged.Email,
+		Phone:   merged.Phone,
 	}
 
 	if err := r.db.UpdateProfile(ctx, param); err != nil {

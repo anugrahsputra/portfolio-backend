@@ -80,10 +80,17 @@ func (r *profileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, 
 		return fmt.Errorf("invalid profile url id: %w", err)
 	}
 
+	currentDB, err := r.db.GetProfileURL(ctx, idStr)
+	if err != nil {
+		return fmt.Errorf("failed to fetch existing profile url for update: %w", err)
+	}
+
+	merged := r.toDomain(currentDB).Merge(pu)
+
 	param := db.UpdateProfileURLParams{
 		ID:    idStr,
-		Label: *pu.Label,
-		Url:   *pu.Url,
+		Label: merged.Label,
+		Url:   merged.Url,
 	}
 
 	if _, err := r.db.UpdateProfileURL(ctx, param); err != nil {

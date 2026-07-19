@@ -96,49 +96,23 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 	if err != nil {
 		return domain.Experience{}, fmt.Errorf("failed to fetch existing experience for update: %w", err)
 	}
-	current := r.toDomain(currentDB)
+
+	merged := r.toDomain(currentDB).Merge(ex)
 
 	var ed pgtype.Date
-	if ex.EndDate != nil {
-		ed = pgtype.Date{Time: *ex.EndDate, Valid: !ex.EndDate.IsZero()}
-	} else if current.EndDate != nil {
-		ed = pgtype.Date{Time: *current.EndDate, Valid: !current.EndDate.IsZero()}
-	}
-
-	company := current.Company
-	if ex.Company != nil {
-		company = *ex.Company
-	}
-	position := current.Position
-	if ex.Position != nil {
-		position = *ex.Position
-	}
-	description := current.Description
-	if ex.Description != nil {
-		description = *ex.Description
-	}
-	location := current.Location
-	if ex.Location != nil {
-		location = *ex.Location
-	}
-	startDate := current.StartDate
-	if ex.StartDate != nil {
-		startDate = *ex.StartDate
-	}
-	isPresent := current.IsPresent
-	if ex.IsPresent != nil {
-		isPresent = *ex.IsPresent
+	if merged.EndDate != nil {
+		ed = pgtype.Date{Time: *merged.EndDate, Valid: !merged.EndDate.IsZero()}
 	}
 
 	param := db.UpdateExperienceParams{
 		ID:          idStr,
-		Company:     company,
-		Position:    position,
-		Description: description,
-		Location:    location,
-		StartDate:   pgtype.Date{Time: startDate, Valid: true},
+		Company:     merged.Company,
+		Position:    merged.Position,
+		Description: merged.Description,
+		Location:    merged.Location,
+		StartDate:   pgtype.Date{Time: merged.StartDate, Valid: true},
 		EndDate:     ed,
-		IsPresent:   isPresent,
+		IsPresent:   merged.IsPresent,
 	}
 
 	experience, err := r.db.UpdateExperience(ctx, param)

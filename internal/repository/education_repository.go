@@ -95,49 +95,23 @@ func (r *educationRepository) UpdateEducation(ctx context.Context, id string, e 
 	if err != nil {
 		return fmt.Errorf("failed to fetch existing education for update: %w", err)
 	}
-	current := r.toDomain(currentDB)
+
+	merged := r.toDomain(currentDB).Merge(e)
 
 	var gd pgtype.Date
-	if e.GraduationDate != nil {
-		gd = pgtype.Date{Time: *e.GraduationDate, Valid: !e.GraduationDate.IsZero()}
-	} else if current.GraduationDate != nil {
-		gd = pgtype.Date{Time: *current.GraduationDate, Valid: !current.GraduationDate.IsZero()}
-	}
-
-	school := current.School
-	if e.School != nil {
-		school = *e.School
-	}
-	degree := current.Degree
-	if e.Degree != nil {
-		degree = *e.Degree
-	}
-	fieldOfStudy := current.FieldOfStudy
-	if e.FieldOfStudy != nil {
-		fieldOfStudy = *e.FieldOfStudy
-	}
-	gpa := current.Gpa
-	if e.Gpa != nil {
-		gpa = *e.Gpa
-	}
-	startDate := current.StartDate
-	if e.StartDate != nil {
-		startDate = *e.StartDate
-	}
-	isPresent := current.IsPresent
-	if e.IsPresent != nil {
-		isPresent = *e.IsPresent
+	if merged.GraduationDate != nil {
+		gd = pgtype.Date{Time: *merged.GraduationDate, Valid: !merged.GraduationDate.IsZero()}
 	}
 
 	param := db.UpdateEducationParams{
 		ID:             idStr,
-		School:         school,
-		Degree:         degree,
-		FieldOfStudy:   fieldOfStudy,
-		Gpa:            gpa,
-		StartDate:      pgtype.Date{Time: startDate, Valid: true},
+		School:         merged.School,
+		Degree:         merged.Degree,
+		FieldOfStudy:   merged.FieldOfStudy,
+		Gpa:            merged.Gpa,
+		StartDate:      pgtype.Date{Time: merged.StartDate, Valid: true},
 		GraduationDate: gd,
-		IsPresent:      isPresent,
+		IsPresent:      merged.IsPresent,
 	}
 
 	if _, err := r.db.UpdateEducation(ctx, param); err != nil {

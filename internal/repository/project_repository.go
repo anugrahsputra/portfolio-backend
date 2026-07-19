@@ -103,84 +103,30 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 	if err != nil {
 		return domain.Project{}, fmt.Errorf("failed to fetch existing project for update: %w", err)
 	}
-	current := r.toDomain(currentDB)
+
+	merged := r.toDomain(currentDB).Merge(pr)
 
 	var ed pgtype.Date
-	if pr.EndDate != nil {
-		ed = pgtype.Date{Time: *pr.EndDate, Valid: !pr.EndDate.IsZero()}
-	} else if current.EndDate != nil {
-		ed = pgtype.Date{Time: *current.EndDate, Valid: !current.EndDate.IsZero()}
-	}
-
-	title := current.Title
-	if pr.Title != nil {
-		title = *pr.Title
-	}
-	description := current.Description
-	if pr.Description != nil {
-		description = *pr.Description
-	}
-	techStacks := current.TechStacks
-	if pr.TechStacks != nil {
-		techStacks = *pr.TechStacks
-	}
-	liveDemoUrl := current.LiveDemoUrl
-	if pr.LiveDemoUrl != nil {
-		liveDemoUrl = *pr.LiveDemoUrl
-	}
-	githubRepoUrl := current.GithubRepoUrl
-	if pr.GithubRepoUrl != nil {
-		githubRepoUrl = *pr.GithubRepoUrl
-	}
-	isLive := current.IsLive
-	if pr.IsLive != nil {
-		isLive = *pr.IsLive
-	}
-	isNda := current.IsNda
-	if pr.IsNda != nil {
-		isNda = *pr.IsNda
-	}
-	isFeatured := current.IsFeatured
-	if pr.IsFeatured != nil {
-		isFeatured = *pr.IsFeatured
-	}
-	imageUrl := current.ImageUrl
-	if pr.ImageUrl != nil {
-		imageUrl = *pr.ImageUrl
-	}
-	company := current.Company
-	if pr.Company != nil {
-		company = *pr.Company
-	}
-	startDate := current.StartDate
-	if pr.StartDate != nil {
-		startDate = *pr.StartDate
-	}
-	isPresent := current.IsPresent
-	if pr.IsPresent != nil {
-		isPresent = *pr.IsPresent
-	}
-	location := current.Location
-	if pr.Location != nil {
-		location = *pr.Location
+	if merged.EndDate != nil {
+		ed = pgtype.Date{Time: *merged.EndDate, Valid: !merged.EndDate.IsZero()}
 	}
 
 	param := db.UpdateProjectParams{
 		ID:            idStr,
-		Title:         title,
-		Description:   description,
-		TechStacks:    techStacks,
-		LiveDemoUrl:   liveDemoUrl,
-		GithubRepoUrl: githubRepoUrl,
-		IsLive:        isLive,
-		IsNda:         isNda,
-		IsFeatured:    isFeatured,
-		ImageUrl:      imageUrl,
-		Company:       company,
-		StartDate:     pgtype.Date{Time: startDate, Valid: pr.StartDate != nil},
+		Title:         merged.Title,
+		Description:   merged.Description,
+		TechStacks:    merged.TechStacks,
+		LiveDemoUrl:   merged.LiveDemoUrl,
+		GithubRepoUrl: merged.GithubRepoUrl,
+		IsLive:        merged.IsLive,
+		IsNda:         merged.IsNda,
+		IsFeatured:    merged.IsFeatured,
+		ImageUrl:      merged.ImageUrl,
+		Company:       merged.Company,
+		StartDate:     pgtype.Date{Time: merged.StartDate, Valid: true},
 		EndDate:       ed,
-		IsPresent:     isPresent,
-		Location:      location,
+		IsPresent:     merged.IsPresent,
+		Location:      merged.Location,
 	}
 
 	project, err := r.db.UpdateProject(ctx, param)

@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	"time"
+
+	"github.com/anugrahsputra/portfolio-backend/pkg/ptr"
 )
 
 type Education struct {
@@ -37,6 +39,21 @@ type EducationUpdateInput struct {
 	StartDate      *time.Time
 	GraduationDate *time.Time
 	IsPresent      *bool
+}
+
+// Merge applies the non-nil fields of in on top of e and returns the result.
+// ProfileID is not mergeable: an education cannot change owner.
+func (e Education) Merge(in EducationUpdateInput) Education {
+	e.School = ptr.Or(in.School, e.School)
+	e.Degree = ptr.Or(in.Degree, e.Degree)
+	e.FieldOfStudy = ptr.Or(in.FieldOfStudy, e.FieldOfStudy)
+	e.Gpa = ptr.Or(in.Gpa, e.Gpa)
+	e.StartDate = ptr.Or(in.StartDate, e.StartDate)
+	e.IsPresent = ptr.Or(in.IsPresent, e.IsPresent)
+	if in.GraduationDate != nil {
+		e.GraduationDate = in.GraduationDate
+	}
+	return e
 }
 
 type EducationRepository interface {

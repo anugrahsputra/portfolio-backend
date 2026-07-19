@@ -93,12 +93,12 @@ go run ./cmd/api
 go test ./...
 
 # Run tests for a specific package
-go test ./test/usecase/...
+go test ./test/domain/...
 go test ./test/handler/...
-go test ./test/mapper/...
+go test ./test/middleware/...
 
 # Run a specific test
-go test ./test/usecase/... -run TestProjectUsecase
+go test ./test/domain/... -run TestProjectMerge
 
 # Generate sqlc code (required after modifying SQL queries in sql/queries/)
 sqlc generate
@@ -106,48 +106,67 @@ sqlc generate
 
 ## Architecture
 
-This is a Go portfolio backend API using **Clean Architecture** with the following layers:
+This is a Go portfolio backend API using **ports and adapters**. `internal/domain` is
+the core: it owns the entities and declares the repository interfaces (the ports).
+Everything outside it is an adapter, and all dependencies point inward.
 
 ```
-cmd/api/main.go           # Entry point, server setup, graceful shutdown
-config/                    # Configuration (env vars, database connection)
-pkg/                       # Utilities (logger, ptr helpers)
+cmd/api/main.go            # Entry point, server setup, graceful shutdown
+config/                    # Config: env vars, Postgres pool, Redis client, mailer
+pkg/
+├── middleware/            # Gin middleware (auth, error, security, cache, ratelimit)
+└── ptr/                   # ptr.Or() — pointer-with-fallback helper
 internal/
-├── domain/                # Domain models & repository interfaces
-├── db/                    # sqlc-generated database queries (DO NOT EDIT)
-├── mapper/                # Convert between db models and domain models
-├── repository/            # Data access layer (implements domain interfaces)
-├── usecase/               # Business logic layer
-└── delivery/
-    ├── handler/           # HTTP handlers (Gin)
-    ├── route/             # Route setup & wire functions
-    └── dto/               # Request/Response DTOs
+├── domain/                # CORE: entities, Merge methods, repository interfaces
+├── db/                    # sqlc-generated queries (DO NOT EDIT)
+├── repository/            # Driven adapters: implement the domain interfaces
+└── delivery/              # Driving adapter (HTTP)
+    ├── handler/           # Gin handlers
+    ├── route/             # SetupRouter: builds repos, handlers, routes
+    └── dto/               # Request/Response DTOs + conversion to domain types
 sql/
 ├── schema/schema.sql      # Database schema
 └── queries/*.sql          # SQL queries for sqlc
 ```
 
+There is no usecase layer. These are CRUD endpoints with no orchestration to
+own, so handlers depend on the domain repository interfaces directly. Add one
+only when a request needs logic that spans more than one repository.
+
 ### Data Flow
 
-1. **HTTP Request** → `handler` parses DTO
-2. **Handler** → calls `usecase` with domain types
-3. **Usecase** → business logic, calls `repository` interface
-4. **Repository** → uses `db.Queries` (sqlc) for database operations
-5. **Mapper** → converts `db` models to/from `domain` types
+1. **HTTP Request** → `handler` binds the DTO
+2. **Handler** → `dto.ToXInput()` converts to a domain type
+3. **Handler** → calls the `domain.XRepository` port
+4. **Repository** → maps domain ↔ `db` models and calls `db.Queries` (sqlc)
+5. **Handler** → `dto.ToXDTO()` converts the result back for the response
+
+Each repository owns its own `toDomain()` mapping; there is no shared mapper package.
 
 ### Key Patterns
 
 - **sqlc**: Type-safe SQL generation. Edit `sql/queries/*.sql`, then run `sqlc generate` to regenerate `internal/db/`
-- **Wire functions**: Each domain has a wire function in `route/setup_router.go` that creates handler→usecase→repository chain
-- **Partial updates**: `UpdateInput` types use pointer fields with `pkg/ptr.Or()` for safe fallbacks
-- **Domain interfaces**: Repository interfaces are defined in `internal/domain/` (e.g., `ProjectRepository`)
+- **Domain ports**: Repository interfaces live in `internal/domain/` (e.g., `ProjectRepository`)
+- **Wiring**: `route.SetupRouter` constructs every repository and handler inline. No DI framework.
+- **Partial updates**: `UpdateInput` types use pointer fields, where nil means "leave
+  this alone". Merging is domain logic: each entity has a `Merge(UpdateInput)` method
+  built on `pkg/ptr.Or()`. Repositories fetch the current row, call `Merge`, and write
+  the result — they never unwrap update pointers themselves. Fields that must not
+  change (`ProfileID`) are deliberately absent from `Merge`.
 
 ## Environment
 
-- `GO_ENV`: Environment (default: `development`)
+Loaded in `config.Load()` (`config/config.go`):
+
+- `ENV`: Environment (default: `development`)
 - `PORT`: Server port (default: `8082`)
 - `DATABASE_URL`: PostgreSQL connection string
-- `INIT_SCHEMA`: Set to `true` to run schema migration on startup
+- `REDIS_URL`: Redis connection string (default: `redis://localhost:6379/1`)
+- `GMAIL_USER` / `GMAIL_PASS`: SMTP credentials for the contact form
+- `INIT_SCHEMA`: Set to `true` to run schema migration on startup (read in `cmd/api`)
+
+Redis is fail-open: if it is unreachable the cache and rate-limit middleware log and
+pass the request through. Timeouts are capped at 200ms so that stays cheap.
 
 ## Database
 
@@ -160,7 +179,13 @@ PostgreSQL with:
 
 ## Testing
 
-Tests use `stretchr/testify/mock` for repository mocking. Test files follow the pattern `test/{layer}/{domain}_test.go`. Each test file defines a mock repository implementing the domain interface.
+Test files follow the pattern `test/{layer}/{domain}_test.go`:
+
+- `test/handler/` — uses `stretchr/testify/mock`; each file defines a mock repository implementing the domain interface.
+- `test/middleware/` — middleware tests (cache, rate limit).
+- `test/domain/` — plain table tests over the `Merge` methods. No mocks needed: `Merge` is pure.
+
+There are no repository tests; the repository layer is exercised only through the handler mocks.
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
