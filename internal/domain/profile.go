@@ -46,10 +46,18 @@ func (p Profile) Merge(in ProfileUpdateInput) Profile {
 	return p
 }
 
-type ProfileRepository interface {
+type ProfileUsecase interface {
 	CreateProfile(ctx context.Context, p ProfileInput) (*Profile, error)
 	GetProfiles(ctx context.Context) ([]Profile, error)
 	GetProfile(ctx context.Context, id string) (*Profile, error)
 	UpdateProfile(ctx context.Context, id string, p ProfileUpdateInput) error
+	DeleteProfile(ctx context.Context, id string) error
+}
+
+type ProfileRepository interface {
+	CreateProfile(ctx context.Context, p ProfileInput) (*Profile, error)
+	GetProfiles(ctx context.Context) ([]Profile, error)
+	GetProfile(ctx context.Context, id string) (*Profile, error)
+	UpdateProfile(ctx context.Context, p Profile) error
 	DeleteProfile(ctx context.Context, id string) error
 }

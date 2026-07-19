@@ -9,11 +9,11 @@ import (
 )
 
 type ProfileHandler struct {
-	repo domain.ProfileRepository
+	uc domain.ProfileUsecase
 }
 
-func NewProfileHandler(r domain.ProfileRepository) *ProfileHandler {
-	return &ProfileHandler{repo: r}
+func NewProfileHandler(u domain.ProfileUsecase) *ProfileHandler {
+	return &ProfileHandler{uc: u}
 }
 
 func (h *ProfileHandler) CreateProfile(c *gin.Context) {
@@ -34,7 +34,7 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 		Phone:   req.Phone,
 	}
 
-	profile, err := h.repo.CreateProfile(ctx, input)
+	profile, err := h.uc.CreateProfile(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "Failed to create profile")
 		return
@@ -46,7 +46,7 @@ func (h *ProfileHandler) CreateProfile(c *gin.Context) {
 
 func (h *ProfileHandler) GetProfiles(c *gin.Context) {
 	ctx := c.Request.Context()
-	profiles, err := h.repo.GetProfiles(ctx)
+	profiles, err := h.uc.GetProfiles(ctx)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 	}
@@ -64,7 +64,7 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	profile, err := h.repo.GetProfile(ctx, id)
+	profile, err := h.uc.GetProfile(ctx, id)
 	if err != nil {
 		ResponseError(c, http.StatusNotFound, "Profile not found")
 		return
@@ -93,7 +93,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 		Phone:   req.Phone,
 	}
 
-	if err := h.repo.UpdateProfile(ctx, id, input); err != nil {
+	if err := h.uc.UpdateProfile(ctx, id, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "Failed to update profile")
 		return
 	}
@@ -105,7 +105,7 @@ func (h *ProfileHandler) DeleteProfile(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("id")
 
-	if err := h.repo.DeleteProfile(ctx, id); err != nil {
+	if err := h.uc.DeleteProfile(ctx, id); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "Failed to delete profile")
 		return
 	}

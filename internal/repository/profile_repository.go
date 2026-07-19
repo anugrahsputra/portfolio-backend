@@ -76,32 +76,20 @@ func (r *profileRepository) GetProfile(ctx context.Context, id string) (*domain.
 	return &d, nil
 }
 
-func (r *profileRepository) UpdateProfile(ctx context.Context, id string, p domain.ProfileUpdateInput) error {
-	idStr, err := uuid.Parse(id)
+func (r *profileRepository) UpdateProfile(ctx context.Context, p domain.Profile) error {
+	idStr, err := uuid.Parse(p.ID)
 	if err != nil {
 		return fmt.Errorf("invalid profile id: %w", err)
 	}
 
-	// Fetch-and-merge strategy for partial updates
-	existing, err := r.db.GetProfile(ctx, idStr)
-	if err != nil {
-		return fmt.Errorf("failed to fetch existing profile for update: %w", err)
-	}
-
-	current, err := r.toDomain(existing)
-	if err != nil {
-		return fmt.Errorf("failed to map existing profile for update: %w", err)
-	}
-	merged := current.Merge(p)
-
 	param := db.UpdateProfileParams{
 		ID:      idStr,
-		Name:    merged.Name,
-		Title:   merged.Title,
-		About:   merged.About,
-		Address: merged.Address,
-		Email:   merged.Email,
-		Phone:   merged.Phone,
+		Name:    p.Name,
+		Title:   p.Title,
+		About:   p.About,
+		Address: p.Address,
+		Email:   p.Email,
+		Phone:   p.Phone,
 	}
 
 	if err := r.db.UpdateProfile(ctx, param); err != nil {

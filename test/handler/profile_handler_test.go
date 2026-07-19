@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockProfileRepository struct {
+type MockProfileUsecase struct {
 	mock.Mock
 }
 
-func (m *MockProfileRepository) CreateProfile(ctx context.Context, p domain.ProfileInput) (*domain.Profile, error) {
+func (m *MockProfileUsecase) CreateProfile(ctx context.Context, p domain.ProfileInput) (*domain.Profile, error) {
 	args := m.Called(ctx, p)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -29,7 +29,7 @@ func (m *MockProfileRepository) CreateProfile(ctx context.Context, p domain.Prof
 	return args.Get(0).(*domain.Profile), args.Error(1)
 }
 
-func (m *MockProfileRepository) GetProfile(ctx context.Context, id string) (*domain.Profile, error) {
+func (m *MockProfileUsecase) GetProfile(ctx context.Context, id string) (*domain.Profile, error) {
 	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -37,7 +37,7 @@ func (m *MockProfileRepository) GetProfile(ctx context.Context, id string) (*dom
 	return args.Get(0).(*domain.Profile), args.Error(1)
 }
 
-func (m *MockProfileRepository) GetProfiles(ctx context.Context) ([]domain.Profile, error) {
+func (m *MockProfileUsecase) GetProfiles(ctx context.Context) ([]domain.Profile, error) {
 	args := m.Called(ctx)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -45,12 +45,12 @@ func (m *MockProfileRepository) GetProfiles(ctx context.Context) ([]domain.Profi
 	return args.Get(0).([]domain.Profile), args.Error(1)
 }
 
-func (m *MockProfileRepository) UpdateProfile(ctx context.Context, id string, p domain.ProfileUpdateInput) error {
+func (m *MockProfileUsecase) UpdateProfile(ctx context.Context, id string, p domain.ProfileUpdateInput) error {
 	args := m.Called(ctx, id, p)
 	return args.Error(0)
 }
 
-func (m *MockProfileRepository) DeleteProfile(ctx context.Context, id string) error {
+func (m *MockProfileUsecase) DeleteProfile(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
@@ -58,7 +58,7 @@ func (m *MockProfileRepository) DeleteProfile(ctx context.Context, id string) er
 func TestProfileHandler_CreateProfile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.POST("/profiles", handlerObj.CreateProfile)
@@ -80,7 +80,7 @@ func TestProfileHandler_CreateProfile(t *testing.T) {
 	})
 
 	t.Run("bad request", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.POST("/profiles", handlerObj.CreateProfile)
@@ -97,7 +97,7 @@ func TestProfileHandler_CreateProfile(t *testing.T) {
 func TestProfileHandler_GetProfile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:id", handlerObj.GetProfile)
@@ -115,7 +115,7 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:id", handlerObj.GetProfile)
@@ -134,7 +134,7 @@ func TestProfileHandler_GetProfile(t *testing.T) {
 func TestProfileHandler_GetProfiles(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles", handlerObj.GetProfiles)
@@ -155,7 +155,7 @@ func TestProfileHandler_GetProfiles(t *testing.T) {
 func TestProfileHandler_UpdateProfile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.PUT("/profiles/:id", handlerObj.UpdateProfile)
@@ -178,7 +178,7 @@ func TestProfileHandler_UpdateProfile(t *testing.T) {
 func TestProfileHandler_DeleteProfile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileRepository)
+		mockRepo := new(MockProfileUsecase)
 		handlerObj := handler.NewProfileHandler(mockRepo)
 		r := gin.New()
 		r.DELETE("/profiles/:id", handlerObj.DeleteProfile)
