@@ -60,9 +60,10 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	educationUC := usecase.NewEducationUsecase(educationRepo)
 	experienceUC := usecase.NewExperienceUsecase(experienceRepo)
 	profileUC := usecase.NewProfileUsecase(profileRepo)
+	profileUrlUC := usecase.NewProfileUrlUsecase(profileUrlRepo)
 
 	profile := handler.NewProfileHandler(profileUC)
-	profileUrl := handler.NewProfileUrlHandler(profileUrlRepo)
+	profileUrl := handler.NewProfileUrlHandler(profileUrlUC)
 	experience := handler.NewExperienceHandler(experienceUC)
 	education := handler.NewEducationHandler(educationUC)
 	skill := handler.NewSkillHandler(skillRepo)

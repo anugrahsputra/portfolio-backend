@@ -33,11 +33,19 @@ func (pu ProfileUrl) Merge(in ProfileUrlUpdateInput) ProfileUrl {
 	return pu
 }
 
-type ProfileUrlRepository interface {
+type ProfileUrlUsecase interface {
 	CreateProfileUrl(ctx context.Context, pu ProfileUrlInput) (*ProfileUrl, error)
 	GetProfileUrlByID(ctx context.Context, id string) (ProfileUrl, error)
 	GetProfileUrl(ctx context.Context, profileID string) ([]ProfileUrl, error)
 	UpdateProfileUrl(ctx context.Context, id string, pu ProfileUrlUpdateInput) error
+	DeleteProfileUrl(ctx context.Context, id string) error
+}
+
+type ProfileUrlRepository interface {
+	CreateProfileUrl(ctx context.Context, pu ProfileUrlInput) (*ProfileUrl, error)
+	GetProfileUrlByID(ctx context.Context, id string) (ProfileUrl, error)
+	GetProfileUrl(ctx context.Context, profileID string) ([]ProfileUrl, error)
+	UpdateProfileUrl(ctx context.Context, pu ProfileUrl) error
 	DeleteProfileUrl(ctx context.Context, id string) error
 }
 

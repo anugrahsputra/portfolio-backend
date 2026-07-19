@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockProfileUrlRepository struct {
+type MockProfileUrlUsecase struct {
 	mock.Mock
 }
 
-func (m *MockProfileUrlRepository) CreateProfileUrl(ctx context.Context, pu domain.ProfileUrlInput) (*domain.ProfileUrl, error) {
+func (m *MockProfileUrlUsecase) CreateProfileUrl(ctx context.Context, pu domain.ProfileUrlInput) (*domain.ProfileUrl, error) {
 	args := m.Called(ctx, pu)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -29,22 +29,22 @@ func (m *MockProfileUrlRepository) CreateProfileUrl(ctx context.Context, pu doma
 	return args.Get(0).(*domain.ProfileUrl), args.Error(1)
 }
 
-func (m *MockProfileUrlRepository) GetProfileUrl(ctx context.Context, profileID string) ([]domain.ProfileUrl, error) {
+func (m *MockProfileUrlUsecase) GetProfileUrl(ctx context.Context, profileID string) ([]domain.ProfileUrl, error) {
 	args := m.Called(ctx, profileID)
 	return args.Get(0).([]domain.ProfileUrl), args.Error(1)
 }
 
-func (m *MockProfileUrlRepository) GetProfileUrlByID(ctx context.Context, id string) (domain.ProfileUrl, error) {
+func (m *MockProfileUrlUsecase) GetProfileUrlByID(ctx context.Context, id string) (domain.ProfileUrl, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.ProfileUrl), args.Error(1)
 }
 
-func (m *MockProfileUrlRepository) UpdateProfileUrl(ctx context.Context, id string, pu domain.ProfileUrlUpdateInput) error {
+func (m *MockProfileUrlUsecase) UpdateProfileUrl(ctx context.Context, id string, pu domain.ProfileUrlUpdateInput) error {
 	args := m.Called(ctx, id, pu)
 	return args.Error(0)
 }
 
-func (m *MockProfileUrlRepository) DeleteProfileUrl(ctx context.Context, id string) error {
+func (m *MockProfileUrlUsecase) DeleteProfileUrl(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
@@ -52,7 +52,7 @@ func (m *MockProfileUrlRepository) DeleteProfileUrl(ctx context.Context, id stri
 func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.POST("/profile-urls", handlerObj.CreateProfileUrl)
@@ -77,7 +77,7 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.POST("/profile-urls", handlerObj.CreateProfileUrl)
@@ -92,7 +92,7 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 	})
 
 	t.Run("repository error", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.POST("/profile-urls", handlerObj.CreateProfileUrl)
@@ -116,7 +116,7 @@ func TestProfileUrlHandler_CreateProfileUrl(t *testing.T) {
 func TestProfileUrlHandler_GetProfileUrlByID(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrlByID)
@@ -134,7 +134,7 @@ func TestProfileUrlHandler_GetProfileUrlByID(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profile-urls/:profile_url_id", handlerObj.GetProfileUrlByID)
@@ -153,7 +153,7 @@ func TestProfileUrlHandler_GetProfileUrlByID(t *testing.T) {
 func TestProfileUrlHandler_GetProfileURL(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/urls", handlerObj.GetProfileURL)
@@ -174,7 +174,7 @@ func TestProfileUrlHandler_GetProfileURL(t *testing.T) {
 func TestProfileUrlHandler_UpdateProfileUrl(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.PUT("/urls/:profile_url_id", handlerObj.UpdateProfileUrl)
@@ -197,7 +197,7 @@ func TestProfileUrlHandler_UpdateProfileUrl(t *testing.T) {
 func TestProfileUrlHandler_DeleteProfileUrl(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockProfileUrlRepository)
+		mockRepo := new(MockProfileUrlUsecase)
 		handlerObj := handler.NewProfileUrlHandler(mockRepo)
 		r := gin.New()
 		r.DELETE("/urls/:profile_url_id", handlerObj.DeleteProfileUrl)
