@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockEmailContactRepository struct {
+type MockContactFormUsecase struct {
 	mock.Mock
 }
 
-func (m *MockEmailContactRepository) SendEmail(ctx context.Context, form domain.EmailContactFormInput) error {
+func (m *MockContactFormUsecase) SendEmail(ctx context.Context, form domain.EmailContactFormInput) error {
 	args := m.Called(ctx, form)
 	return args.Error(0)
 }
@@ -29,7 +29,7 @@ func (m *MockEmailContactRepository) SendEmail(ctx context.Context, form domain.
 func TestContactFormHandler_SendMail(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockEmailContactRepository)
+		mockRepo := new(MockContactFormUsecase)
 		handlerObj := handler.NewContactFormHandler(mockRepo)
 		r := gin.New()
 		r.POST("/send-email", handlerObj.SendMail)
@@ -55,7 +55,7 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 	})
 
 	t.Run("bad json", func(t *testing.T) {
-		mockRepo := new(MockEmailContactRepository)
+		mockRepo := new(MockContactFormUsecase)
 		handlerObj := handler.NewContactFormHandler(mockRepo)
 		r := gin.New()
 		r.POST("/send-email", handlerObj.SendMail)
@@ -70,7 +70,7 @@ func TestContactFormHandler_SendMail(t *testing.T) {
 	})
 
 	t.Run("repository error", func(t *testing.T) {
-		mockRepo := new(MockEmailContactRepository)
+		mockRepo := new(MockContactFormUsecase)
 		handlerObj := handler.NewContactFormHandler(mockRepo)
 		r := gin.New()
 		r.POST("/send-email", handlerObj.SendMail)

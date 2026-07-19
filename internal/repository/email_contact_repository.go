@@ -11,25 +11,19 @@ import (
 )
 
 type emailContactRepository struct {
-	dialer      *gomail.Dialer
-	profileRepo domain.ProfileRepository
-	from        string
+	dialer *gomail.Dialer
+	from   string
 }
 
-func NewEmailContactRepository(mail *config.Mail, cfg *config.Config, profileRepo domain.ProfileRepository) domain.EmailContactRepository {
-	return &emailContactRepository{dialer: mail.Dialer, from: cfg.GmailUser, profileRepo: profileRepo}
+func NewEmailContactRepository(mail *config.Mail, cfg *config.Config) domain.EmailContactRepository {
+	return &emailContactRepository{dialer: mail.Dialer, from: cfg.GmailUser}
 }
 
-func (r *emailContactRepository) SendEmail(ctx context.Context, form domain.EmailContactFormInput) error {
-	profile, err := r.profileRepo.GetProfile(ctx, form.ProfileID)
-	if err != nil {
-		return fmt.Errorf("failed to get profile: %w", err)
-	}
-
+func (r *emailContactRepository) SendEmail(ctx context.Context, form domain.EmailContactFormInput, to string) error {
 	m := gomail.NewMessage()
 
 	m.SetHeader("From", fmt.Sprintf("Portfolio <%s>", r.from))
-	m.SetHeader("To", profile.Email)
+	m.SetHeader("To", to)
 	m.SetHeader("Reply-To", form.Email)
 	m.SetHeader("Subject", fmt.Sprintf("[Portfolio] %s - %s", form.Name, form.Subject))
 

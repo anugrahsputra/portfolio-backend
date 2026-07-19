@@ -54,7 +54,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	languageRepo := repository.NewLanguageRepository(db)
 	projectRepo := repository.NewProjectRepository(db)
 	resumeRepo := repository.NewResumeRepository(db)
-	contactFormRepo := repository.NewEmailContactRepository(mail, cfg, profileRepo)
+	contactFormRepo := repository.NewEmailContactRepository(mail, cfg)
 
 	projectUC := usecase.NewProjectUsecase(projectRepo)
 	educationUC := usecase.NewEducationUsecase(educationRepo)
@@ -64,6 +64,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	skillUC := usecase.NewSkillUsecase(skillRepo)
 	languageUC := usecase.NewLanguageUsecase(languageRepo)
 	resumeUC := usecase.NewResumeUsecase(resumeRepo)
+	contactFormUC := usecase.NewContactFormUsecase(contactFormRepo, profileRepo)
 
 	profile := handler.NewProfileHandler(profileUC)
 	profileUrl := handler.NewProfileUrlHandler(profileUrlUC)
@@ -73,7 +74,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	language := handler.NewLanguageHandler(languageUC)
 	project := handler.NewProjectHandler(projectUC)
 	resume := handler.NewResumeHandler(resumeUC)
-	contactForm := handler.NewContactFormHandler(contactFormRepo)
+	contactForm := handler.NewContactFormHandler(contactFormUC)
 
 	api := route.Group("/api/v1")
 	{

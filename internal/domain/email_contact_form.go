@@ -10,6 +10,10 @@ type EmailContactFormInput struct {
 	Message   string
 }
 
-type EmailContactRepository interface {
+type ContactFormUsecase interface {
 	SendEmail(ctx context.Context, form EmailContactFormInput) error
+}
+
+type EmailContactRepository interface {
+	SendEmail(ctx context.Context, form EmailContactFormInput, to string) error
 }

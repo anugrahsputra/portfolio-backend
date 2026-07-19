@@ -9,11 +9,11 @@ import (
 )
 
 type ContactFormHandler struct {
-	repo domain.EmailContactRepository
+	uc domain.ContactFormUsecase
 }
 
-func NewContactFormHandler(r domain.EmailContactRepository) *ContactFormHandler {
-	return &ContactFormHandler{repo: r}
+func NewContactFormHandler(u domain.ContactFormUsecase) *ContactFormHandler {
+	return &ContactFormHandler{uc: u}
 }
 
 func (h *ContactFormHandler) SendMail(c *gin.Context) {
@@ -25,7 +25,7 @@ func (h *ContactFormHandler) SendMail(c *gin.Context) {
 
 	input := dto.ToContactFormInput(&req)
 
-	if err := h.repo.SendEmail(c.Request.Context(), input); err != nil {
+	if err := h.uc.SendEmail(c.Request.Context(), input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
