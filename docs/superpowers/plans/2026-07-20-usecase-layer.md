@@ -18,6 +18,11 @@
 - `ProfileID` is never mergeable and never reassignable.
 - After every task: `go build ./... && go vet ./... && go test ./... -count=1` must pass.
 - Commit after each task. Conventional Commits, subject ≤50 chars.
+- **Write no comments.** No `//` comments, no doc comments on types, functions, or
+  interfaces, no explanatory inline comments. The code blocks in this plan are already
+  comment-free — reproduce them as written and do not add any. This overrides Go's
+  usual convention of doc-commenting exported identifiers. It does not apply to
+  Markdown prose in Task 9.
 - **The build breaks mid-task and that is expected.** Changing a repository interface
   (step 3) orphans its handler until the handler is repointed (step 6). Do not try to
   keep `go build` green between steps within a task — steps 3 through 8 are one atomic
@@ -124,7 +129,6 @@ func TestProjectUsecaseUpdate(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, "new", got.Title)
-		// The repository must receive a fully merged entity, never an UpdateInput.
 		repo.AssertExpectations(t)
 	})
 
@@ -165,8 +169,6 @@ Expected: FAIL — `internal/usecase` package does not exist, `undefined: usecas
 In `internal/domain/project.go`, replace the `ProjectRepository` interface block with both interfaces:
 
 ```go
-// ProjectUsecase is the port the HTTP layer depends on. It accepts partial
-// update input and owns the read-modify-write cycle.
 type ProjectUsecase interface {
 	CreateProject(ctx context.Context, pr ProjectInput) (Project, error)
 	GetProjects(ctx context.Context, profileID string) ([]Project, error)
@@ -174,8 +176,6 @@ type ProjectUsecase interface {
 	DeleteProject(ctx context.Context, id string) error
 }
 
-// ProjectRepository is storage only. UpdateProject writes an already-merged
-// entity; it never sees a ProjectUpdateInput.
 type ProjectRepository interface {
 	CreateProject(ctx context.Context, pr ProjectInput) (Project, error)
 	GetProjects(ctx context.Context, profileID string) ([]Project, error)
@@ -448,7 +448,6 @@ Expected: FAIL — `undefined: usecase.NewEducationUsecase`.
 In `internal/domain/education.go`, replace the `EducationRepository` block:
 
 ```go
-// EducationUsecase is the port the HTTP layer depends on.
 type EducationUsecase interface {
 	CreateEducation(ctx context.Context, e EducationInput) error
 	GetEducations(ctx context.Context, profileID string) ([]Education, error)
@@ -457,7 +456,6 @@ type EducationUsecase interface {
 	DeleteEducation(ctx context.Context, id string) error
 }
 
-// EducationRepository is storage only. UpdateEducation writes an already-merged entity.
 type EducationRepository interface {
 	CreateEducation(ctx context.Context, e EducationInput) error
 	GetEducations(ctx context.Context, profileID string) ([]Education, error)
@@ -724,7 +722,6 @@ Expected: FAIL — `undefined: usecase.NewExperienceUsecase`.
 In `internal/domain/experience.go`, replace the `ExperienceRepository` block:
 
 ```go
-// ExperienceUsecase is the port the HTTP layer depends on.
 type ExperienceUsecase interface {
 	CreateExperience(ctx context.Context, ex ExperienceInput) (Experience, error)
 	GetExperiences(ctx context.Context, profileID string) ([]Experience, error)
@@ -733,7 +730,6 @@ type ExperienceUsecase interface {
 	DeleteExperience(ctx context.Context, id string) error
 }
 
-// ExperienceRepository is storage only. UpdateExperience writes an already-merged entity.
 type ExperienceRepository interface {
 	CreateExperience(ctx context.Context, ex ExperienceInput) (Experience, error)
 	GetExperiences(ctx context.Context, profileID string) ([]Experience, error)
@@ -1008,7 +1004,6 @@ Expected: FAIL — `undefined: usecase.NewProfileUsecase`.
 In `internal/domain/profile.go`, replace the `ProfileRepository` block:
 
 ```go
-// ProfileUsecase is the port the HTTP layer depends on.
 type ProfileUsecase interface {
 	CreateProfile(ctx context.Context, p ProfileInput) (*Profile, error)
 	GetProfiles(ctx context.Context) ([]Profile, error)
@@ -1017,7 +1012,6 @@ type ProfileUsecase interface {
 	DeleteProfile(ctx context.Context, id string) error
 }
 
-// ProfileRepository is storage only. UpdateProfile writes an already-merged entity.
 type ProfileRepository interface {
 	CreateProfile(ctx context.Context, p ProfileInput) (*Profile, error)
 	GetProfiles(ctx context.Context) ([]Profile, error)
@@ -1274,7 +1268,6 @@ Expected: FAIL — `undefined: usecase.NewProfileUrlUsecase`.
 In `internal/domain/profile_url.go`, replace the `ProfileUrlRepository` block:
 
 ```go
-// ProfileUrlUsecase is the port the HTTP layer depends on.
 type ProfileUrlUsecase interface {
 	CreateProfileUrl(ctx context.Context, pu ProfileUrlInput) (*ProfileUrl, error)
 	GetProfileUrlByID(ctx context.Context, id string) (ProfileUrl, error)
@@ -1283,7 +1276,6 @@ type ProfileUrlUsecase interface {
 	DeleteProfileUrl(ctx context.Context, id string) error
 }
 
-// ProfileUrlRepository is storage only. UpdateProfileUrl writes an already-merged entity.
 type ProfileUrlRepository interface {
 	CreateProfileUrl(ctx context.Context, pu ProfileUrlInput) (*ProfileUrl, error)
 	GetProfileUrlByID(ctx context.Context, id string) (ProfileUrl, error)
@@ -1434,8 +1426,6 @@ Repository interfaces for these two are **unchanged**.
 In `internal/domain/skill.go`, add directly above `SkillRepository` (leave `SkillRepository` exactly as it is):
 
 ```go
-// SkillUsecase is the port the HTTP layer depends on. Skill updates carry
-// complete values, so there is no merge step and this forwards to storage.
 type SkillUsecase interface {
 	CreateSkill(ctx context.Context, s SkillInput) (Skill, error)
 	GetSkills(ctx context.Context, profileID string) (Skill, error)
@@ -1447,8 +1437,6 @@ type SkillUsecase interface {
 In `internal/domain/language.go`, add directly above `LanguageRepository` (leave `LanguageRepository` as it is):
 
 ```go
-// LanguageUsecase is the port the HTTP layer depends on. Language updates carry
-// complete values, so there is no merge step and this forwards to storage.
 type LanguageUsecase interface {
 	CreateLanguage(ctx context.Context, l LanguageInput) (Language, error)
 	GetLanguages(ctx context.Context, profileID string) ([]Language, error)
@@ -1615,7 +1603,6 @@ Read-only, single method. Forwards.
 In `internal/domain/resume.go`, add directly above `ResumeRepository` (leave `ResumeRepository` as it is):
 
 ```go
-// ResumeUsecase is the port the HTTP layer depends on.
 type ResumeUsecase interface {
 	GetResume(ctx context.Context, id string) (*Resume, error)
 }
@@ -1796,14 +1783,10 @@ Expected: FAIL — `undefined: usecase.NewContactFormUsecase`.
 In `internal/domain/email_contact_form.go`, replace the `EmailContactRepository` block:
 
 ```go
-// ContactFormUsecase is the port the HTTP layer depends on. It resolves the
-// recipient from the profile, then hands off to the mail transport.
 type ContactFormUsecase interface {
 	SendEmail(ctx context.Context, form EmailContactFormInput) error
 }
 
-// EmailContactRepository is the mail transport port. It is told where to send;
-// it does not look recipients up.
 type EmailContactRepository interface {
 	SendEmail(ctx context.Context, form EmailContactFormInput, to string) error
 }
