@@ -18,6 +18,10 @@ type Resume struct {
 	Projects    []Project    `json:"projects"`
 }
 
+type ResumeUsecase interface {
+	GetResume(ctx context.Context, id string) (*Resume, error)
+}
+
 type ResumeRepository interface {
 	GetResume(ctx context.Context, id string) (*Resume, error)
 }

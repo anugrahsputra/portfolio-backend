@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockResumeRepository struct {
+type MockResumeUsecase struct {
 	mock.Mock
 }
 
-func (m *MockResumeRepository) GetResume(ctx context.Context, id string) (*domain.Resume, error) {
+func (m *MockResumeUsecase) GetResume(ctx context.Context, id string) (*domain.Resume, error) {
 	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -28,7 +28,7 @@ func (m *MockResumeRepository) GetResume(ctx context.Context, id string) (*domai
 
 func TestResumeHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	mockRepo := new(MockResumeRepository)
+	mockRepo := new(MockResumeUsecase)
 	h := handler.NewResumeHandler(mockRepo)
 
 	t.Run("GetResume - Success", func(t *testing.T) {

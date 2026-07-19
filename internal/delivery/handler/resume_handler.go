@@ -9,18 +9,18 @@ import (
 )
 
 type ResumeHandler struct {
-	repo domain.ResumeRepository
+	uc domain.ResumeUsecase
 }
 
-func NewResumeHandler(r domain.ResumeRepository) *ResumeHandler {
-	return &ResumeHandler{repo: r}
+func NewResumeHandler(u domain.ResumeUsecase) *ResumeHandler {
+	return &ResumeHandler{uc: u}
 }
 
 func (h *ResumeHandler) GetResume(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("profile_id")
 
-	resume, err := h.repo.GetResume(ctx, id)
+	resume, err := h.uc.GetResume(ctx, id)
 	if err != nil {
 		ResponseError(c, http.StatusNotFound, "Resume not found")
 		return

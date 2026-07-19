@@ -63,6 +63,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	profileUrlUC := usecase.NewProfileUrlUsecase(profileUrlRepo)
 	skillUC := usecase.NewSkillUsecase(skillRepo)
 	languageUC := usecase.NewLanguageUsecase(languageRepo)
+	resumeUC := usecase.NewResumeUsecase(resumeRepo)
 
 	profile := handler.NewProfileHandler(profileUC)
 	profileUrl := handler.NewProfileUrlHandler(profileUrlUC)
@@ -71,7 +72,7 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	skill := handler.NewSkillHandler(skillUC)
 	language := handler.NewLanguageHandler(languageUC)
 	project := handler.NewProjectHandler(projectUC)
-	resume := handler.NewResumeHandler(resumeRepo)
+	resume := handler.NewResumeHandler(resumeUC)
 	contactForm := handler.NewContactFormHandler(contactFormRepo)
 
 	api := route.Group("/api/v1")
