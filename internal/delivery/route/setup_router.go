@@ -7,6 +7,7 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/config"
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/handler"
 	"github.com/anugrahsputra/portfolio-backend/internal/repository"
+	"github.com/anugrahsputra/portfolio-backend/internal/usecase"
 	"github.com/anugrahsputra/portfolio-backend/pkg/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -55,13 +56,15 @@ func SetupRouter(db *config.Database, mail *config.Mail, cfg *config.Config, rdb
 	resumeRepo := repository.NewResumeRepository(db)
 	contactFormRepo := repository.NewEmailContactRepository(mail, cfg, profileRepo)
 
+	projectUC := usecase.NewProjectUsecase(projectRepo)
+
 	profile := handler.NewProfileHandler(profileRepo)
 	profileUrl := handler.NewProfileUrlHandler(profileUrlRepo)
 	experience := handler.NewExperienceHandler(experienceRepo)
 	education := handler.NewEducationHandler(educationRepo)
 	skill := handler.NewSkillHandler(skillRepo)
 	language := handler.NewLanguageHandler(languageRepo)
-	project := handler.NewProjectHandler(projectRepo)
+	project := handler.NewProjectHandler(projectUC)
 	resume := handler.NewResumeHandler(resumeRepo)
 	contactForm := handler.NewContactFormHandler(contactFormRepo)
 

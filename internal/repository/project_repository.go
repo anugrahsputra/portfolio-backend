@@ -93,40 +93,33 @@ func (r *projectRepository) GetProjectByID(ctx context.Context, id string) (doma
 	return result, nil
 }
 
-func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr domain.ProjectUpdateInput) (domain.Project, error) {
-	idStr, err := uuid.Parse(id)
+func (r *projectRepository) UpdateProject(ctx context.Context, pr domain.Project) (domain.Project, error) {
+	idStr, err := uuid.Parse(pr.ID)
 	if err != nil {
 		return domain.Project{}, fmt.Errorf("invalid project id: %w", err)
 	}
 
-	currentDB, err := r.db.GetProjectByID(ctx, idStr)
-	if err != nil {
-		return domain.Project{}, fmt.Errorf("failed to fetch existing project for update: %w", err)
-	}
-
-	merged := r.toDomain(currentDB).Merge(pr)
-
 	var ed pgtype.Date
-	if merged.EndDate != nil {
-		ed = pgtype.Date{Time: *merged.EndDate, Valid: !merged.EndDate.IsZero()}
+	if pr.EndDate != nil {
+		ed = pgtype.Date{Time: *pr.EndDate, Valid: !pr.EndDate.IsZero()}
 	}
 
 	param := db.UpdateProjectParams{
 		ID:            idStr,
-		Title:         merged.Title,
-		Description:   merged.Description,
-		TechStacks:    merged.TechStacks,
-		LiveDemoUrl:   merged.LiveDemoUrl,
-		GithubRepoUrl: merged.GithubRepoUrl,
-		IsLive:        merged.IsLive,
-		IsNda:         merged.IsNda,
-		IsFeatured:    merged.IsFeatured,
-		ImageUrl:      merged.ImageUrl,
-		Company:       merged.Company,
-		StartDate:     pgtype.Date{Time: merged.StartDate, Valid: true},
+		Title:         pr.Title,
+		Description:   pr.Description,
+		TechStacks:    pr.TechStacks,
+		LiveDemoUrl:   pr.LiveDemoUrl,
+		GithubRepoUrl: pr.GithubRepoUrl,
+		IsLive:        pr.IsLive,
+		IsNda:         pr.IsNda,
+		IsFeatured:    pr.IsFeatured,
+		ImageUrl:      pr.ImageUrl,
+		Company:       pr.Company,
+		StartDate:     pgtype.Date{Time: pr.StartDate, Valid: true},
 		EndDate:       ed,
-		IsPresent:     merged.IsPresent,
-		Location:      merged.Location,
+		IsPresent:     pr.IsPresent,
+		Location:      pr.Location,
 	}
 
 	project, err := r.db.UpdateProject(ctx, param)
@@ -134,8 +127,7 @@ func (r *projectRepository) UpdateProject(ctx context.Context, id string, pr dom
 		return domain.Project{}, fmt.Errorf("failed to update project: %w", err)
 	}
 
-	result := r.toDomain(project)
-	return result, nil
+	return r.toDomain(project), nil
 }
 
 func (r *projectRepository) toDomain(pr db.Project) domain.Project {

@@ -9,11 +9,11 @@ import (
 )
 
 type ProjectHandler struct {
-	repo domain.ProjectRepository
+	uc domain.ProjectUsecase
 }
 
-func NewProjectHandler(r domain.ProjectRepository) *ProjectHandler {
-	return &ProjectHandler{repo: r}
+func NewProjectHandler(u domain.ProjectUsecase) *ProjectHandler {
+	return &ProjectHandler{uc: u}
 }
 
 func (h *ProjectHandler) CreateProject(c *gin.Context) {
@@ -26,7 +26,7 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 	}
 
 	input := dto.ToProjectInput(&req)
-	project, err := h.repo.CreateProject(ctx, input)
+	project, err := h.uc.CreateProject(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -40,7 +40,7 @@ func (h *ProjectHandler) GetProjects(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	projects, err := h.repo.GetProjects(ctx, profileID)
+	projects, err := h.uc.GetProjects(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -66,7 +66,7 @@ func (h *ProjectHandler) UpdateProject(c *gin.Context) {
 	}
 
 	input := dto.ToProjectUpdateInput(&req)
-	project, err := h.repo.UpdateProject(ctx, id, input)
+	project, err := h.uc.UpdateProject(ctx, id, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -80,7 +80,7 @@ func (h *ProjectHandler) DeleteProject(c *gin.Context) {
 	ctx := c.Request.Context()
 	id := c.Param("project_id")
 
-	if err := h.repo.DeleteProject(ctx, id); err != nil {
+	if err := h.uc.DeleteProject(ctx, id); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}

@@ -16,16 +16,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockProjectRepository struct {
+type MockProjectUsecase struct {
 	mock.Mock
 }
 
-func (m *MockProjectRepository) CreateProject(ctx context.Context, pr domain.ProjectInput) (domain.Project, error) {
+func (m *MockProjectUsecase) CreateProject(ctx context.Context, pr domain.ProjectInput) (domain.Project, error) {
 	args := m.Called(ctx, pr)
 	return args.Get(0).(domain.Project), args.Error(1)
 }
 
-func (m *MockProjectRepository) GetProjects(ctx context.Context, profileID string) ([]domain.Project, error) {
+func (m *MockProjectUsecase) GetProjects(ctx context.Context, profileID string) ([]domain.Project, error) {
 	args := m.Called(ctx, profileID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -33,19 +33,19 @@ func (m *MockProjectRepository) GetProjects(ctx context.Context, profileID strin
 	return args.Get(0).([]domain.Project), args.Error(1)
 }
 
-func (m *MockProjectRepository) UpdateProject(ctx context.Context, id string, pr domain.ProjectUpdateInput) (domain.Project, error) {
+func (m *MockProjectUsecase) UpdateProject(ctx context.Context, id string, pr domain.ProjectUpdateInput) (domain.Project, error) {
 	args := m.Called(ctx, id, pr)
 	return args.Get(0).(domain.Project), args.Error(1)
 }
 
-func (m *MockProjectRepository) DeleteProject(ctx context.Context, id string) error {
+func (m *MockProjectUsecase) DeleteProject(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
 func TestProjectHandler(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	mockRepo := new(MockProjectRepository)
+	mockRepo := new(MockProjectUsecase)
 	h := handler.NewProjectHandler(mockRepo)
 
 	t.Run("CreateProject - Success", func(t *testing.T) {

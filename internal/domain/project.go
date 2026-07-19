@@ -83,10 +83,18 @@ func (p Project) Merge(in ProjectUpdateInput) Project {
 	return p
 }
 
-type ProjectRepository interface {
+type ProjectUsecase interface {
 	CreateProject(ctx context.Context, pr ProjectInput) (Project, error)
 	GetProjects(ctx context.Context, profileID string) ([]Project, error)
 	UpdateProject(ctx context.Context, id string, pr ProjectUpdateInput) (Project, error)
+	DeleteProject(ctx context.Context, id string) error
+}
+
+type ProjectRepository interface {
+	CreateProject(ctx context.Context, pr ProjectInput) (Project, error)
+	GetProjects(ctx context.Context, profileID string) ([]Project, error)
+	GetProjectByID(ctx context.Context, id string) (Project, error)
+	UpdateProject(ctx context.Context, pr Project) (Project, error)
 	DeleteProject(ctx context.Context, id string) error
 }
 
