@@ -56,11 +56,19 @@ func (ex Experience) Merge(in ExperienceUpdateInput) Experience {
 	return ex
 }
 
-type ExperienceRepository interface {
+type ExperienceUsecase interface {
 	CreateExperience(ctx context.Context, ex ExperienceInput) (Experience, error)
 	GetExperiences(ctx context.Context, profileID string) ([]Experience, error)
 	GetExperienceByID(ctx context.Context, id string) (Experience, error)
 	UpdateExperience(ctx context.Context, id string, ex ExperienceUpdateInput) (Experience, error)
+	DeleteExperience(ctx context.Context, id string) error
+}
+
+type ExperienceRepository interface {
+	CreateExperience(ctx context.Context, ex ExperienceInput) (Experience, error)
+	GetExperiences(ctx context.Context, profileID string) ([]Experience, error)
+	GetExperienceByID(ctx context.Context, id string) (Experience, error)
+	UpdateExperience(ctx context.Context, ex Experience) (Experience, error)
 	DeleteExperience(ctx context.Context, id string) error
 }
 

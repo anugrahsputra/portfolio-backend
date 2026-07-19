@@ -86,33 +86,26 @@ func (r *experienceRepository) GetExperienceByID(ctx context.Context, id string)
 	return result, nil
 }
 
-func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
-	idStr, err := uuid.Parse(id)
+func (r *experienceRepository) UpdateExperience(ctx context.Context, ex domain.Experience) (domain.Experience, error) {
+	idStr, err := uuid.Parse(ex.ID)
 	if err != nil {
 		return domain.Experience{}, fmt.Errorf("invalid experience id: %w", err)
 	}
 
-	currentDB, err := r.db.GetExperienceByID(ctx, idStr)
-	if err != nil {
-		return domain.Experience{}, fmt.Errorf("failed to fetch existing experience for update: %w", err)
-	}
-
-	merged := r.toDomain(currentDB).Merge(ex)
-
 	var ed pgtype.Date
-	if merged.EndDate != nil {
-		ed = pgtype.Date{Time: *merged.EndDate, Valid: !merged.EndDate.IsZero()}
+	if ex.EndDate != nil {
+		ed = pgtype.Date{Time: *ex.EndDate, Valid: !ex.EndDate.IsZero()}
 	}
 
 	param := db.UpdateExperienceParams{
 		ID:          idStr,
-		Company:     merged.Company,
-		Position:    merged.Position,
-		Description: merged.Description,
-		Location:    merged.Location,
-		StartDate:   pgtype.Date{Time: merged.StartDate, Valid: true},
+		Company:     ex.Company,
+		Position:    ex.Position,
+		Description: ex.Description,
+		Location:    ex.Location,
+		StartDate:   pgtype.Date{Time: ex.StartDate, Valid: true},
 		EndDate:     ed,
-		IsPresent:   merged.IsPresent,
+		IsPresent:   ex.IsPresent,
 	}
 
 	experience, err := r.db.UpdateExperience(ctx, param)
@@ -120,8 +113,7 @@ func (r *experienceRepository) UpdateExperience(ctx context.Context, id string, 
 		return domain.Experience{}, fmt.Errorf("failed to update experience: %w", err)
 	}
 
-	result := r.toDomain(experience)
-	return result, nil
+	return r.toDomain(experience), nil
 }
 
 func (r *experienceRepository) toDomain(ex db.Experience) domain.Experience {

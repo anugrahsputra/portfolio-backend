@@ -17,16 +17,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockExperienceRepository struct {
+type MockExperienceUsecase struct {
 	mock.Mock
 }
 
-func (m *MockExperienceRepository) CreateExperience(ctx context.Context, ex domain.ExperienceInput) (domain.Experience, error) {
+func (m *MockExperienceUsecase) CreateExperience(ctx context.Context, ex domain.ExperienceInput) (domain.Experience, error) {
 	args := m.Called(ctx, ex)
 	return args.Get(0).(domain.Experience), args.Error(1)
 }
 
-func (m *MockExperienceRepository) GetExperiences(ctx context.Context, profileID string) ([]domain.Experience, error) {
+func (m *MockExperienceUsecase) GetExperiences(ctx context.Context, profileID string) ([]domain.Experience, error) {
 	args := m.Called(ctx, profileID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -34,17 +34,17 @@ func (m *MockExperienceRepository) GetExperiences(ctx context.Context, profileID
 	return args.Get(0).([]domain.Experience), args.Error(1)
 }
 
-func (m *MockExperienceRepository) GetExperienceByID(ctx context.Context, id string) (domain.Experience, error) {
+func (m *MockExperienceUsecase) GetExperienceByID(ctx context.Context, id string) (domain.Experience, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(domain.Experience), args.Error(1)
 }
 
-func (m *MockExperienceRepository) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
+func (m *MockExperienceUsecase) UpdateExperience(ctx context.Context, id string, ex domain.ExperienceUpdateInput) (domain.Experience, error) {
 	args := m.Called(ctx, id, ex)
 	return args.Get(0).(domain.Experience), args.Error(1)
 }
 
-func (m *MockExperienceRepository) DeleteExperience(ctx context.Context, id string) error {
+func (m *MockExperienceUsecase) DeleteExperience(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
@@ -52,7 +52,7 @@ func (m *MockExperienceRepository) DeleteExperience(ctx context.Context, id stri
 func TestExperienceHandler_CreateExperience(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.POST("/experiences", handlerObj.CreateExperience)
@@ -77,7 +77,7 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.POST("/experiences", handlerObj.CreateExperience)
@@ -92,7 +92,7 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 	})
 
 	t.Run("repository error", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.POST("/experiences", handlerObj.CreateExperience)
@@ -116,7 +116,7 @@ func TestExperienceHandler_CreateExperience(t *testing.T) {
 func TestExperienceHandler_GetExperiences(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/experiences", handlerObj.GetExperiences)
@@ -136,7 +136,7 @@ func TestExperienceHandler_GetExperiences(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/experiences", handlerObj.GetExperiences)
@@ -155,7 +155,7 @@ func TestExperienceHandler_GetExperiences(t *testing.T) {
 func TestExperienceHandler_UpdateExperience(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.PUT("/experiences/:experience_id", handlerObj.UpdateExperience)
@@ -179,7 +179,7 @@ func TestExperienceHandler_UpdateExperience(t *testing.T) {
 func TestExperienceHandler_DeleteExperience(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockExperienceRepository)
+		mockRepo := new(MockExperienceUsecase)
 		handlerObj := handler.NewExperienceHandler(mockRepo)
 		r := gin.New()
 		r.DELETE("/experiences/:experience_id", handlerObj.DeleteExperience)
