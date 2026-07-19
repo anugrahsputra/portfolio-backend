@@ -17,16 +17,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockLanguageRepository struct {
+type MockLanguageUsecase struct {
 	mock.Mock
 }
 
-func (m *MockLanguageRepository) CreateLanguage(ctx context.Context, l domain.LanguageInput) (domain.Language, error) {
+func (m *MockLanguageUsecase) CreateLanguage(ctx context.Context, l domain.LanguageInput) (domain.Language, error) {
 	args := m.Called(ctx, l)
 	return args.Get(0).(domain.Language), args.Error(1)
 }
 
-func (m *MockLanguageRepository) GetLanguages(ctx context.Context, profileID string) ([]domain.Language, error) {
+func (m *MockLanguageUsecase) GetLanguages(ctx context.Context, profileID string) ([]domain.Language, error) {
 	args := m.Called(ctx, profileID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -34,12 +34,12 @@ func (m *MockLanguageRepository) GetLanguages(ctx context.Context, profileID str
 	return args.Get(0).([]domain.Language), args.Error(1)
 }
 
-func (m *MockLanguageRepository) UpdateLanguage(ctx context.Context, id string, l domain.LanguageUpdateInput) error {
+func (m *MockLanguageUsecase) UpdateLanguage(ctx context.Context, id string, l domain.LanguageUpdateInput) error {
 	args := m.Called(ctx, id, l)
 	return args.Error(0)
 }
 
-func (m *MockLanguageRepository) DeleteLanguage(ctx context.Context, id string) error {
+func (m *MockLanguageUsecase) DeleteLanguage(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
@@ -47,7 +47,7 @@ func (m *MockLanguageRepository) DeleteLanguage(ctx context.Context, id string) 
 func TestLanguageHandler_CreateLanguage(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.POST("/languages", handlerObj.CreateLanguage)
@@ -72,7 +72,7 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.POST("/languages", handlerObj.CreateLanguage)
@@ -87,7 +87,7 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 	})
 
 	t.Run("repository error", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.POST("/languages", handlerObj.CreateLanguage)
@@ -111,7 +111,7 @@ func TestLanguageHandler_CreateLanguage(t *testing.T) {
 func TestLanguageHandler_GetLanguages(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/languages", handlerObj.GetLanguages)
@@ -131,7 +131,7 @@ func TestLanguageHandler_GetLanguages(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/languages", handlerObj.GetLanguages)
@@ -150,7 +150,7 @@ func TestLanguageHandler_GetLanguages(t *testing.T) {
 func TestLanguageHandler_UpdateLanguage(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.PUT("/languages/:language_id", handlerObj.UpdateLanguage)
@@ -173,7 +173,7 @@ func TestLanguageHandler_UpdateLanguage(t *testing.T) {
 func TestLanguageHandler_DeleteLanguage(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockLanguageRepository)
+		mockRepo := new(MockLanguageUsecase)
 		handlerObj := handler.NewLanguageHandler(mockRepo)
 		r := gin.New()
 		r.DELETE("/languages/:language_id", handlerObj.DeleteLanguage)

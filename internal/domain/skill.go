@@ -26,6 +26,13 @@ type SkillUpdateInput struct {
 	SoftSkills   []string
 }
 
+type SkillUsecase interface {
+	CreateSkill(ctx context.Context, s SkillInput) (Skill, error)
+	GetSkills(ctx context.Context, profileID string) (Skill, error)
+	UpdateSkill(ctx context.Context, id string, s SkillUpdateInput) error
+	DeleteSkill(ctx context.Context, id string) error
+}
+
 type SkillRepository interface {
 	CreateSkill(ctx context.Context, s SkillInput) (Skill, error)
 	GetSkills(ctx context.Context, profileID string) (Skill, error)

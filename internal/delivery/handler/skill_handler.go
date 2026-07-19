@@ -9,11 +9,11 @@ import (
 )
 
 type SkillHandler struct {
-	repo domain.SkillRepository
+	uc domain.SkillUsecase
 }
 
-func NewSkillHandler(r domain.SkillRepository) *SkillHandler {
-	return &SkillHandler{repo: r}
+func NewSkillHandler(u domain.SkillUsecase) *SkillHandler {
+	return &SkillHandler{uc: u}
 }
 
 func (h *SkillHandler) CreateSkill(c *gin.Context) {
@@ -33,7 +33,7 @@ func (h *SkillHandler) CreateSkill(c *gin.Context) {
 		SoftSkills:   req.SoftSkills,
 	}
 
-	skill, err := h.repo.CreateSkill(ctx, input)
+	skill, err := h.uc.CreateSkill(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -47,7 +47,7 @@ func (h *SkillHandler) GetSkills(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	skill, err := h.repo.GetSkills(ctx, profileID)
+	skill, err := h.uc.GetSkills(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -74,7 +74,7 @@ func (h *SkillHandler) UpdateSkill(c *gin.Context) {
 		SoftSkills:   req.SoftSkills,
 	}
 
-	if err := h.repo.UpdateSkill(ctx, skillId, input); err != nil {
+	if err := h.uc.UpdateSkill(ctx, skillId, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -86,7 +86,7 @@ func (h *SkillHandler) DeleteSkill(c *gin.Context) {
 	ctx := c.Request.Context()
 	skillId := c.Param("skill_id")
 
-	if err := h.repo.DeleteSkill(ctx, skillId); err != nil {
+	if err := h.uc.DeleteSkill(ctx, skillId); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}

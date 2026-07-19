@@ -20,6 +20,13 @@ type LanguageUpdateInput struct {
 	Proficiency string
 }
 
+type LanguageUsecase interface {
+	CreateLanguage(ctx context.Context, l LanguageInput) (Language, error)
+	GetLanguages(ctx context.Context, profileID string) ([]Language, error)
+	UpdateLanguage(ctx context.Context, id string, l LanguageUpdateInput) error
+	DeleteLanguage(ctx context.Context, id string) error
+}
+
 type LanguageRepository interface {
 	CreateLanguage(ctx context.Context, l LanguageInput) (Language, error)
 	GetLanguages(ctx context.Context, profileID string) ([]Language, error)

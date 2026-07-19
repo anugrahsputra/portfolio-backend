@@ -17,26 +17,26 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockSkillRepository struct {
+type MockSkillUsecase struct {
 	mock.Mock
 }
 
-func (m *MockSkillRepository) CreateSkill(ctx context.Context, s domain.SkillInput) (domain.Skill, error) {
+func (m *MockSkillUsecase) CreateSkill(ctx context.Context, s domain.SkillInput) (domain.Skill, error) {
 	args := m.Called(ctx, s)
 	return args.Get(0).(domain.Skill), args.Error(1)
 }
 
-func (m *MockSkillRepository) GetSkills(ctx context.Context, profileID string) (domain.Skill, error) {
+func (m *MockSkillUsecase) GetSkills(ctx context.Context, profileID string) (domain.Skill, error) {
 	args := m.Called(ctx, profileID)
 	return args.Get(0).(domain.Skill), args.Error(1)
 }
 
-func (m *MockSkillRepository) UpdateSkill(ctx context.Context, id string, s domain.SkillUpdateInput) error {
+func (m *MockSkillUsecase) UpdateSkill(ctx context.Context, id string, s domain.SkillUpdateInput) error {
 	args := m.Called(ctx, id, s)
 	return args.Error(0)
 }
 
-func (m *MockSkillRepository) DeleteSkill(ctx context.Context, id string) error {
+func (m *MockSkillUsecase) DeleteSkill(ctx context.Context, id string) error {
 	args := m.Called(ctx, id)
 	return args.Error(0)
 }
@@ -44,7 +44,7 @@ func (m *MockSkillRepository) DeleteSkill(ctx context.Context, id string) error 
 func TestSkillHandler_CreateSkill(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.POST("/skills", handlerObj.CreateSkill)
@@ -67,7 +67,7 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 	})
 
 	t.Run("bad request - invalid json", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.POST("/skills", handlerObj.CreateSkill)
@@ -81,7 +81,7 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 	})
 
 	t.Run("repository error", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.POST("/skills", handlerObj.CreateSkill)
@@ -104,7 +104,7 @@ func TestSkillHandler_CreateSkill(t *testing.T) {
 func TestSkillHandler_GetSkills(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/skills", handlerObj.GetSkills)
@@ -122,7 +122,7 @@ func TestSkillHandler_GetSkills(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.GET("/profiles/:profile_id/skills", handlerObj.GetSkills)
@@ -141,7 +141,7 @@ func TestSkillHandler_GetSkills(t *testing.T) {
 func TestSkillHandler_UpdateSkill(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.PUT("/skills/:skill_id", handlerObj.UpdateSkill)
@@ -164,7 +164,7 @@ func TestSkillHandler_UpdateSkill(t *testing.T) {
 func TestSkillHandler_DeleteSkill(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	t.Run("success", func(t *testing.T) {
-		mockRepo := new(MockSkillRepository)
+		mockRepo := new(MockSkillUsecase)
 		handlerObj := handler.NewSkillHandler(mockRepo)
 		r := gin.New()
 		r.DELETE("/skills/:skill_id", handlerObj.DeleteSkill)

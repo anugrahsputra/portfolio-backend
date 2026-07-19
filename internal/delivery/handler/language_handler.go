@@ -9,11 +9,11 @@ import (
 )
 
 type LanguageHandler struct {
-	repo domain.LanguageRepository
+	uc domain.LanguageUsecase
 }
 
-func NewLanguageHandler(r domain.LanguageRepository) *LanguageHandler {
-	return &LanguageHandler{repo: r}
+func NewLanguageHandler(u domain.LanguageUsecase) *LanguageHandler {
+	return &LanguageHandler{uc: u}
 }
 
 func (h *LanguageHandler) CreateLanguage(c *gin.Context) {
@@ -26,7 +26,7 @@ func (h *LanguageHandler) CreateLanguage(c *gin.Context) {
 	}
 
 	input := dto.ToLanguageInput(&req)
-	language, err := h.repo.CreateLanguage(ctx, input)
+	language, err := h.uc.CreateLanguage(ctx, input)
 	if err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
@@ -40,7 +40,7 @@ func (h *LanguageHandler) GetLanguages(c *gin.Context) {
 	ctx := c.Request.Context()
 	profileID := c.Param("profile_id")
 
-	languages, err := h.repo.GetLanguages(ctx, profileID)
+	languages, err := h.uc.GetLanguages(ctx, profileID)
 	if err != nil {
 		ResponseError(c, http.StatusBadRequest, "bad request")
 		return
@@ -67,7 +67,7 @@ func (h *LanguageHandler) UpdateLanguage(c *gin.Context) {
 
 	input := dto.ToLanguageUpdateInput(&req)
 
-	if err := h.repo.UpdateLanguage(ctx, languageID, input); err != nil {
+	if err := h.uc.UpdateLanguage(ctx, languageID, input); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -79,7 +79,7 @@ func (h *LanguageHandler) DeleteLanguage(c *gin.Context) {
 	ctx := c.Request.Context()
 	languageID := c.Param("language_id")
 
-	if err := h.repo.DeleteLanguage(ctx, languageID); err != nil {
+	if err := h.uc.DeleteLanguage(ctx, languageID); err != nil {
 		ResponseError(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
