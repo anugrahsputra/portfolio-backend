@@ -151,6 +151,7 @@ func (r *profileRepository) toDomainFromDB(p db.Profile) domain.Profile {
 	return domain.Profile{
 		ID:      p.ID.String(),
 		Name:    p.Name,
+		Title:   p.Title,
 		About:   p.About,
 		Address: p.Address,
 		Email:   p.Email,
