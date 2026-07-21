@@ -121,7 +121,7 @@ internal/
 ├── domain/                # CORE: entities, Merge methods, repository interfaces
 ├── db/                    # sqlc-generated queries (DO NOT EDIT)
 ├── usecase/               # Orchestration: fetch -> Merge -> write
-├── repository/            # Driven adapters: storage only, never see UpdateInput
+├── repository/            # Driven adapters: storage only
 └── delivery/              # Driving adapter (HTTP)
     ├── handler/           # Gin handlers
     ├── route/             # SetupRouter: builds repos, handlers, routes
@@ -131,13 +131,17 @@ sql/
 └── queries/*.sql          # SQL queries for sqlc
 ```
 
-Handlers depend on `domain.XUsecase`. Usecases own the read-modify-write cycle:
-they fetch the current entity, call its `Merge` method, and hand the merged
-entity to the repository. Repositories are storage only and never see an
-`UpdateInput`.
+Handlers depend on `domain.XUsecase`. For the five domains with partial updates
+(project, education, experience, profile, profile_url) the usecase owns the
+read-modify-write cycle: it fetches the current entity, calls its `Merge` method,
+and hands the merged entity to the repository. Those repositories are storage
+only and never see an `UpdateInput`.
 
 Skill, language, and resume usecases forward without orchestration — their
-updates carry complete values, so there is nothing to merge. That is deliberate.
+updates carry complete values (non-pointer `UpdateInput` fields), so there is
+nothing to merge. Consequently the skill and language *repositories* still accept
+an `UpdateInput` and were deliberately left unchanged; resume is read-only. That
+asymmetry is intentional.
 
 ### Data Flow
 
@@ -155,11 +159,14 @@ Each repository owns its own `toDomain()` mapping; there is no shared mapper pac
 - **sqlc**: Type-safe SQL generation. Edit `sql/queries/*.sql`, then run `sqlc generate` to regenerate `internal/db/`
 - **Domain ports**: Repository interfaces live in `internal/domain/` (e.g., `ProjectRepository`)
 - **Wiring**: `route.SetupRouter` constructs every repository, usecase, and handler inline. No DI framework.
-- **Partial updates**: `UpdateInput` types use pointer fields, where nil means "leave
-  this alone". Merging is domain logic: each entity has a `Merge(UpdateInput)` method
-  built on `pkg/ptr.Or()`. Orchestration is usecase logic: the usecase fetches the
-  current entity, merges, and writes. Repositories take a fully-merged entity.
+- **Partial updates** (project, education, experience, profile, profile_url):
+  their `UpdateInput` types use pointer fields, where nil means "leave this alone".
+  Merging is domain logic: each entity has a `Merge(UpdateInput)` method built on
+  `pkg/ptr.Or()`. Orchestration is usecase logic: the usecase fetches the current
+  entity, merges, and writes, so these repositories take a fully-merged entity.
   Fields that must not change (`ProfileID`) are deliberately absent from `Merge`.
+  Skill and language have non-pointer `UpdateInput` fields — no merge, no `Merge`
+  method, and their repositories still take the `UpdateInput` directly.
 
 ## Environment
 
