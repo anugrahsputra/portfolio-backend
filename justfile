@@ -51,6 +51,24 @@ generate:
 seed:
     psql $DATABASE_URL -f sql/schema/seed.sql
 
+# ── Migrations ────────────────────────────────────────────────────────────────
+
+# Create a new migration
+migrate-new name:
+    goose -dir sql/migrations -s create {{name}} sql
+
+# Apply all pending migrations
+migrate-up:
+    goose -dir sql/migrations postgres "$DATABASE_URL" up
+
+# Roll back the last migration
+migrate-down:
+    goose -dir sql/migrations postgres "$DATABASE_URL" down
+
+# Show migration status
+migrate-status:
+    goose -dir sql/migrations postgres "$DATABASE_URL" status
+
 # ── Docker ────────────────────────────────────────────────────────────────────
 
 # Build and start the container

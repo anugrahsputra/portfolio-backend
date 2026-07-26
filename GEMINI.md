@@ -121,8 +121,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ### Commands
 
-- **Initialize Database Schema:**
-  The application has an `InitSchema` method in `config/database.go` that can run the schema from `sql/schema/schema.sql`.
+- **Database Migrations:**
+  Applied automatically on startup by `db.Migrate()` in `config/database.go`, from the embedded `sql/migrations/`.
 - **Generate DB Code:**
   ```bash
   sqlc generate
@@ -152,7 +152,7 @@ Currently, the project contains unit tests for several handlers, mappers, and us
 - **Error Handling:** Prefer wrapping errors with context using `fmt.Errorf("...: %w", err)`.
 - **Partial Updates:** When implementing `Update` methods in repositories, use a **fetch-and-merge** strategy to safely handle partial updates (where some fields may be nil) until the project transitions to a more robust nullable type system (like `pgtype`).
 - **Environment Variables:** Use `DATABASE_URL` and `PORT` for configuration. Default fallbacks are provided in `config/config.go`.
-- **Database Migrations:** The schema is currently handled via `sql/schema/schema.sql` and initialized programmatically. Consider a migration tool (like `golang-migrate`) as the project grows.
+- **Database Migrations:** Versioned goose migrations in `sql/migrations/`, embedded in the binary and applied on startup. Never edit an applied migration; add a new one. See `docs/MIGRATIONS.md`.
 
 <!-- BACKLOG.MD MCP GUIDELINES START -->
 

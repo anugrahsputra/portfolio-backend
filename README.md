@@ -65,22 +65,20 @@ portfolio-backend/
    # Edit .env with your database credentials
    ```
 
-3. Initialize the database schema:
-
-   ```bash
-   export INIT_SCHEMA=true
-   ```
-
-4. Generate database code:
+3. Generate database code:
 
    ```bash
    sqlc generate
    ```
 
-5. Run the application:
+4. Run the application:
+
    ```bash
    go run cmd/api/main.go
    ```
+
+   Migrations in `sql/migrations/` are applied automatically on startup. See
+   [docs/MIGRATIONS.md](docs/MIGRATIONS.md).
 
 ## Configuration
 
@@ -91,7 +89,6 @@ The application can be configured via environment variables:
 | PORT         | Server port                           | 8082                                                                 |
 | DATABASE_URL | PostgreSQL connection string          | postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable |
 | ENV          | Environment                           | development                                                          |
-| INIT_SCHEMA  | Initialize database schema on startup | false                                                                |
 
 ## API Endpoints
 

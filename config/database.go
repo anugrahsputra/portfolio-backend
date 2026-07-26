@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 
+	"github.com/anugrahsputra/portfolio-backend/sql/migrations"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 )
 
 type Database struct {
@@ -32,18 +34,18 @@ func NewDatabase(cfg *Config) (*Database, error) {
 	return &Database{Pool: pool}, nil
 }
 
-func (db *Database) InitSchema(schemaPath string) error {
-	schema, err := os.ReadFile(schemaPath)
-	if err != nil {
-		return fmt.Errorf("failed to read schema file: %w", err)
+func (db *Database) Migrate() error {
+	goose.SetBaseFS(migrations.FS)
+	if err := goose.SetDialect("postgres"); err != nil {
+		return fmt.Errorf("failed to set goose dialect: %w", err)
+	}
+	sqlDB := stdlib.OpenDBFromPool(db.Pool)
+	defer sqlDB.Close()
+	if err := goose.Up(sqlDB, "."); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	_, err = db.Pool.Exec(context.Background(), string(schema))
-	if err != nil {
-		return fmt.Errorf("failed to execute schema: %w", err)
-	}
-
-	slog.Info("Database schema initialized successfully")
+	slog.Info("Database migrations applied")
 	return nil
 }
 

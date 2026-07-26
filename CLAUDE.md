@@ -127,7 +127,8 @@ internal/
     ├── route/             # SetupRouter: builds repos, handlers, routes
     └── dto/               # Request/Response DTOs + conversion to domain types
 sql/
-├── schema/schema.sql      # Database schema
+├── migrations/*.sql       # goose migrations; applied on startup, embedded in the binary
+├── schema/seed.sql        # Seed data (not applied automatically)
 └── queries/*.sql          # SQL queries for sqlc
 ```
 
@@ -177,7 +178,8 @@ Loaded in `config.Load()` (`config/config.go`):
 - `DATABASE_URL`: PostgreSQL connection string
 - `REDIS_URL`: Redis connection string (default: `redis://localhost:6379/1`)
 - `GMAIL_USER` / `GMAIL_PASS`: SMTP credentials for the contact form
-- `INIT_SCHEMA`: Set to `true` to run schema migration on startup (read in `cmd/api`)
+Migrations run unconditionally on startup (`db.Migrate()` in `cmd/api`); a failure
+exits the process. There is no env var to skip them.
 
 Redis is fail-open: if it is unreachable the cache and rate-limit middleware log and
 pass the request through. Timeouts are capped at 200ms so that stays cheap.

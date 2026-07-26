@@ -121,7 +121,8 @@ internal/
     ├── route/             # Route setup & wire functions
     └── dto/               # Request/Response DTOs
 sql/
-├── schema/schema.sql      # Database schema
+├── migrations/*.sql       # goose migrations; applied on startup, embedded in the binary
+├── schema/seed.sql        # Seed data (not applied automatically)
 └── queries/*.sql          # SQL queries for sqlc
 ```
 
@@ -145,7 +146,8 @@ sql/
 - `GO_ENV`: Environment (default: `development`)
 - `PORT`: Server port (default: `8082`)
 - `DATABASE_URL`: PostgreSQL connection string
-- `INIT_SCHEMA`: Set to `true` to run schema migration on startup
+Migrations run unconditionally on startup (`db.Migrate()` in `cmd/api`); a failure
+exits the process.
 
 ## Database
 

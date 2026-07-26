@@ -13,8 +13,6 @@ import (
 	"github.com/anugrahsputra/portfolio-backend/internal/delivery/route"
 )
 
-
-
 func main() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
@@ -29,10 +27,9 @@ func main() {
 	}
 	defer db.Close()
 
-	if os.Getenv("INIT_SCHEMA") == "true" {
-		if err := db.InitSchema("sql/schema/schema.sql"); err != nil {
-			slog.Error("Failed to initialize schema", "error", err)
-		}
+	if err := db.Migrate(); err != nil {
+		slog.Error("Failed to run migrations", "error", err)
+		os.Exit(1)
 	}
 
 	mail, err := config.NewMail(cfg)

@@ -1,3 +1,4 @@
+-- +goose Up
 create type proficiency_level as enum (
     'basic',
     'intermediate',
@@ -101,3 +102,13 @@ create table if not exists projects(
 );
 
 create index if not exists idx_projects_profile_id on projects(profile_id);
+
+-- +goose Down
+drop table if exists projects;
+drop table if exists skills;
+drop table if exists languages;
+drop table if exists experiences;
+drop table if exists educations;
+drop table if exists profile_urls;
+drop table if exists profiles;
+drop type if exists proficiency_level;

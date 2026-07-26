@@ -36,9 +36,6 @@ WORKDIR /app
 # Copy the Pre-built binary from the previous stage
 COPY --from=builder /app/main .
 
-# Copy the SQL schema file (required for INIT_SCHEMA=true)
-COPY --from=builder /app/sql/schema/schema.sql sql/schema/schema.sql
-
 # Expose port 8082 to the outside world
 EXPOSE 8082
 
