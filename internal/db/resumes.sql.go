@@ -44,7 +44,7 @@ LEFT JOIN LATERAL (
 ) urls ON true
 
 LEFT JOIN LATERAL (
-    SELECT COALESCE(jsonb_agg(e), '[]'::jsonb) AS experiences
+    SELECT COALESCE(jsonb_agg(e ORDER BY e."StartDate" DESC), '[]'::jsonb) AS experiences
     FROM (
         SELECT
             id AS "ID",
@@ -62,7 +62,7 @@ LEFT JOIN LATERAL (
 ) experiences ON true
 
 LEFT JOIN LATERAL (
-    SELECT COALESCE(jsonb_agg(pr), '[]'::jsonb) AS projects
+    SELECT COALESCE(jsonb_agg(pr ORDER BY pr."StartDate" DESC), '[]'::jsonb) AS projects
     FROM (
         SELECT
             id AS "ID",
@@ -87,7 +87,7 @@ LEFT JOIN LATERAL (
 ) projects ON true
 
 LEFT JOIN LATERAL (
-    SELECT COALESCE(jsonb_agg(ed), '[]'::jsonb) AS educations
+    SELECT COALESCE(jsonb_agg(ed ORDER BY ed."StartDate" DESC), '[]'::jsonb) AS educations
     FROM (
         SELECT
             id AS "ID",
