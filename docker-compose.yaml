@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: ghcr.io/anugrahsputra/portfolio-backend:${IMAGE_TAG:?set IMAGE_TAG to the image commit sha}
     container_name: portfolio-api
     restart: always
     env_file:
