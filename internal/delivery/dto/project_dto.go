@@ -16,6 +16,7 @@ type ProjectResp struct {
 	GithubRepoUrl string    `json:"github_repo_url"`
 	IsLive        bool      `json:"is_live"`
 	IsNda         bool      `json:"is_nda"`
+	IsComingSoon  bool      `json:"is_coming_soon"`
 	IsFeatured    bool      `json:"is_featured"`
 	ImageUrl      string    `json:"image_url"`
 	Company       string    `json:"company"`
@@ -34,6 +35,7 @@ type ProjectReq struct {
 	GithubRepoUrl string   `json:"github_repo_url"`
 	IsLive        bool     `json:"is_live"`
 	IsNda         bool     `json:"is_nda"`
+	IsComingSoon  bool     `json:"is_coming_soon"`
 	IsFeatured    bool     `json:"is_featured"`
 	ImageUrl      string   `json:"image_url"`
 	Company       string   `json:"company"`
@@ -51,6 +53,7 @@ type ProjectUpdateReq struct {
 	GithubRepoUrl *string   `json:"github_repo_url"`
 	IsLive        *bool     `json:"is_live"`
 	IsNda         *bool     `json:"is_nda"`
+	IsComingSoon  *bool     `json:"is_coming_soon"`
 	IsFeatured    *bool     `json:"is_featured"`
 	ImageUrl      *string   `json:"image_url"`
 	Company       *string   `json:"company"`
@@ -71,6 +74,7 @@ func ToProjectDTO(pr *domain.Project) ProjectResp {
 		GithubRepoUrl: pr.GithubRepoUrl,
 		IsLive:        pr.IsLive,
 		IsNda:         pr.IsNda,
+		IsComingSoon:  pr.IsComingSoon,
 		IsFeatured:    pr.IsFeatured,
 		ImageUrl:      pr.ImageUrl,
 		Company:       pr.Company,
@@ -100,6 +104,7 @@ func ToProjectInput(pr *ProjectReq) domain.ProjectInput {
 		GithubRepoUrl: pr.GithubRepoUrl,
 		IsLive:        pr.IsLive,
 		IsNda:         pr.IsNda,
+		IsComingSoon:  pr.IsComingSoon,
 		IsFeatured:    pr.IsFeatured,
 		ImageUrl:      pr.ImageUrl,
 		Company:       pr.Company,
@@ -135,6 +140,7 @@ func ToProjectUpdateInput(pr *ProjectUpdateReq) domain.ProjectUpdateInput {
 		GithubRepoUrl: pr.GithubRepoUrl,
 		IsLive:        pr.IsLive,
 		IsNda:         pr.IsNda,
+		IsComingSoon:  pr.IsComingSoon,
 		IsFeatured:    pr.IsFeatured,
 		ImageUrl:      pr.ImageUrl,
 		Company:       pr.Company,

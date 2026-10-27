@@ -17,6 +17,7 @@ type Project struct {
 	GithubRepoUrl string
 	IsLive        bool
 	IsNda         bool
+	IsComingSoon  bool
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
@@ -35,6 +36,7 @@ type ProjectInput struct {
 	GithubRepoUrl string
 	IsLive        bool
 	IsNda         bool
+	IsComingSoon  bool
 	IsFeatured    bool
 	ImageUrl      string
 	Company       string
@@ -52,6 +54,7 @@ type ProjectUpdateInput struct {
 	GithubRepoUrl *string
 	IsLive        *bool
 	IsNda         *bool
+	IsComingSoon  *bool
 	IsFeatured    *bool
 	ImageUrl      *string
 	Company       *string
@@ -71,6 +74,7 @@ func (p Project) Merge(in ProjectUpdateInput) Project {
 	p.GithubRepoUrl = ptr.Or(in.GithubRepoUrl, p.GithubRepoUrl)
 	p.IsLive = ptr.Or(in.IsLive, p.IsLive)
 	p.IsNda = ptr.Or(in.IsNda, p.IsNda)
+	p.IsComingSoon = ptr.Or(in.IsComingSoon, p.IsComingSoon)
 	p.IsFeatured = ptr.Or(in.IsFeatured, p.IsFeatured)
 	p.ImageUrl = ptr.Or(in.ImageUrl, p.ImageUrl)
 	p.Company = ptr.Or(in.Company, p.Company)

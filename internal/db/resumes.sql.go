@@ -74,6 +74,7 @@ LEFT JOIN LATERAL (
             github_repo_url AS "GithubRepoUrl",
             is_live AS "IsLive",
             is_nda AS "IsNda",
+            is_coming_soon AS "IsComingSoon",
             is_featured AS "IsFeatured",
             image_url AS "ImageUrl",
             company AS "Company",

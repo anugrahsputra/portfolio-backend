@@ -56,6 +56,19 @@ func TestProjectMerge(t *testing.T) {
 		got := current.Merge(domain.ProjectUpdateInput{Title: strPtr("x")})
 		assert.Equal(t, "owner", got.ProfileID)
 	})
+
+	t.Run("coming soon survives a partial update", func(t *testing.T) {
+		soon := domain.Project{ID: "p1", IsComingSoon: true}
+		got := soon.Merge(domain.ProjectUpdateInput{Title: strPtr("x")})
+		assert.True(t, got.IsComingSoon)
+	})
+
+	t.Run("false clears coming soon", func(t *testing.T) {
+		notSoon := false
+		soon := domain.Project{ID: "p1", IsComingSoon: true}
+		got := soon.Merge(domain.ProjectUpdateInput{IsComingSoon: &notSoon})
+		assert.False(t, got.IsComingSoon)
+	})
 }
 
 func TestProfileUrlMerge(t *testing.T) {

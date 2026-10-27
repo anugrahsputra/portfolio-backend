@@ -28,7 +28,8 @@ insert into projects (
     start_date,
     end_date,
     is_present,
-    location
+    location,
+    is_coming_soon
 ) values (
     $1,
     $2,
@@ -44,7 +45,8 @@ insert into projects (
     $12,
     $13,
     $14,
-    $15
+    $15,
+    $16
 )
 on conflict (profile_id, title)
 do update set
@@ -60,8 +62,9 @@ do update set
     start_date = excluded.start_date,
     end_date = excluded.end_date,
     is_present = excluded.is_present,
-    location = excluded.location
-returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location
+    location = excluded.location,
+    is_coming_soon = excluded.is_coming_soon
+returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location, is_coming_soon
 `
 
 type CreateProjectParams struct {
@@ -80,6 +83,7 @@ type CreateProjectParams struct {
 	EndDate       pgtype.Date
 	IsPresent     bool
 	Location      string
+	IsComingSoon  bool
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
@@ -99,6 +103,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		arg.EndDate,
 		arg.IsPresent,
 		arg.Location,
+		arg.IsComingSoon,
 	)
 	var i Project
 	err := row.Scan(
@@ -118,6 +123,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.EndDate,
 		&i.IsPresent,
 		&i.Location,
+		&i.IsComingSoon,
 	)
 	return i, err
 }
@@ -133,7 +139,7 @@ func (q *Queries) DeleteProject(ctx context.Context, id uuid.UUID) error {
 }
 
 const getProjectByID = `-- name: GetProjectByID :one
-select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location  from projects
+select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location, is_coming_soon  from projects
 where id = $1
 `
 
@@ -157,12 +163,13 @@ func (q *Queries) GetProjectByID(ctx context.Context, id uuid.UUID) (Project, er
 		&i.EndDate,
 		&i.IsPresent,
 		&i.Location,
+		&i.IsComingSoon,
 	)
 	return i, err
 }
 
 const getProjects = `-- name: GetProjects :many
-select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location from projects
+select id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location, is_coming_soon from projects
 where profile_id = $1
 order by start_date desc
 `
@@ -193,6 +200,7 @@ func (q *Queries) GetProjects(ctx context.Context, profileID uuid.UUID) ([]Proje
 			&i.EndDate,
 			&i.IsPresent,
 			&i.Location,
+			&i.IsComingSoon,
 		); err != nil {
 			return nil, err
 		}
@@ -214,6 +222,7 @@ set
     github_repo_url = COALESCE($6, github_repo_url),
     is_live = COALESCE($7, is_live),
     is_nda = COALESCE($8, is_nda),
+    is_coming_soon = COALESCE($16, is_coming_soon),
     is_featured = COALESCE($9, is_featured),
     image_url = COALESCE($10, image_url),
     company = COALESCE($11, company),
@@ -222,7 +231,7 @@ set
     is_present = COALESCE($14, is_present),
     location = COALESCE($15, location)
 where id = $1
-returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location
+returning id, profile_id, title, description, tech_stacks, live_demo_url, github_repo_url, is_live, is_nda, is_featured, image_url, company, start_date, end_date, is_present, location, is_coming_soon
 `
 
 type UpdateProjectParams struct {
@@ -241,6 +250,7 @@ type UpdateProjectParams struct {
 	EndDate       pgtype.Date
 	IsPresent     bool
 	Location      string
+	IsComingSoon  bool
 }
 
 func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {
@@ -260,6 +270,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		arg.EndDate,
 		arg.IsPresent,
 		arg.Location,
+		arg.IsComingSoon,
 	)
 	var i Project
 	err := row.Scan(
@@ -279,6 +290,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.EndDate,
 		&i.IsPresent,
 		&i.Location,
+		&i.IsComingSoon,
 	)
 	return i, err
 }

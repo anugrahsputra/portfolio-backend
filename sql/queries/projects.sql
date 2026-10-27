@@ -14,7 +14,8 @@ insert into projects (
     start_date,
     end_date,
     is_present,
-    location
+    location,
+    is_coming_soon
 ) values (
     $1,
     $2,
@@ -30,7 +31,8 @@ insert into projects (
     $12,
     $13,
     $14,
-    $15
+    $15,
+    $16
 )
 on conflict (profile_id, title)
 do update set
@@ -46,7 +48,8 @@ do update set
     start_date = excluded.start_date,
     end_date = excluded.end_date,
     is_present = excluded.is_present,
-    location = excluded.location
+    location = excluded.location,
+    is_coming_soon = excluded.is_coming_soon
 returning *;
 
 -- name: GetProjects :many
@@ -68,6 +71,7 @@ set
     github_repo_url = COALESCE($6, github_repo_url),
     is_live = COALESCE($7, is_live),
     is_nda = COALESCE($8, is_nda),
+    is_coming_soon = COALESCE($16, is_coming_soon),
     is_featured = COALESCE($9, is_featured),
     image_url = COALESCE($10, image_url),
     company = COALESCE($11, company),
