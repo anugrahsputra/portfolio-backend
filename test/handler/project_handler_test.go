@@ -101,6 +101,70 @@ func TestProjectHandler(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
+	t.Run("CreateProject - is_coming_soon is passed in and returned", func(t *testing.T) {
+		r := gin.New()
+		r.POST("/api/v1/projects", h.CreateProject)
+
+		input := dto.ProjectReq{Title: "downloadit", ProfileID: "1", IsComingSoon: true}
+		body, _ := json.Marshal(input)
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/projects", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		expected := domain.Project{ID: "1", Title: "downloadit", ProfileID: "1", IsComingSoon: true}
+		mockRepo.On("CreateProject", mock.Anything, mock.MatchedBy(func(in domain.ProjectInput) bool {
+			return in.IsComingSoon
+		})).Return(expected, nil).Once()
+
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+		assert.Contains(t, w.Body.String(), `"is_coming_soon":true`)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("UpdateProject - is_coming_soon is passed in and returned", func(t *testing.T) {
+		r := gin.New()
+		r.PUT("/api/v1/projects/:project_id", h.UpdateProject)
+
+		soon := true
+		input := dto.ProjectUpdateReq{IsComingSoon: &soon}
+		body, _ := json.Marshal(input)
+		req, _ := http.NewRequest(http.MethodPut, "/api/v1/projects/1", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		expected := domain.Project{ID: "1", ProfileID: "1", IsComingSoon: true}
+		mockRepo.On("UpdateProject", mock.Anything, "1", mock.MatchedBy(func(in domain.ProjectUpdateInput) bool {
+			return in.IsComingSoon != nil && *in.IsComingSoon
+		})).Return(expected, nil).Once()
+
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Contains(t, w.Body.String(), `"is_coming_soon":true`)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("UpdateProject - omitted is_coming_soon stays nil", func(t *testing.T) {
+		r := gin.New()
+		r.PUT("/api/v1/projects/:project_id", h.UpdateProject)
+
+		title := "Updated"
+		input := dto.ProjectUpdateReq{Title: &title}
+		body, _ := json.Marshal(input)
+		req, _ := http.NewRequest(http.MethodPut, "/api/v1/projects/1", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		expected := domain.Project{ID: "1", Title: "Updated", ProfileID: "1"}
+		mockRepo.On("UpdateProject", mock.Anything, "1", mock.MatchedBy(func(in domain.ProjectUpdateInput) bool {
+			return in.IsComingSoon == nil
+		})).Return(expected, nil).Once()
+
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		mockRepo.AssertExpectations(t)
+	})
+
 	t.Run("DeleteProject - Success", func(t *testing.T) {
 		r := gin.New()
 		r.DELETE("/api/v1/projects/:project_id", h.DeleteProject)

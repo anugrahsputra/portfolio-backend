@@ -122,6 +122,7 @@ type Project struct {
 	EndDate       pgtype.Date
 	IsPresent     bool
 	Location      string
+	IsComingSoon  bool
 }
 
 type Skill struct {

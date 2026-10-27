@@ -75,6 +75,26 @@ func TestProjectUsecaseUpdate(t *testing.T) {
 		repo.AssertExpectations(t)
 	})
 
+	t.Run("keeps the stored is_coming_soon when the input omits it", func(t *testing.T) {
+		repo := new(MockProjectRepository)
+		uc := usecase.NewProjectUsecase(repo)
+
+		stored := domain.Project{ID: "p1", ProfileID: "owner", Title: "downloadit", StartDate: start, IsComingSoon: true}
+		expected := stored
+		expected.Title = "new"
+
+		repo.On("GetProjectByID", mock.Anything, "p1").Return(stored, nil)
+		repo.On("UpdateProject", mock.Anything, expected).Return(expected, nil)
+
+		got, err := uc.UpdateProject(context.Background(), "p1", domain.ProjectUpdateInput{
+			Title: strPtr("new"),
+		})
+
+		assert.NoError(t, err)
+		assert.True(t, got.IsComingSoon)
+		repo.AssertExpectations(t)
+	})
+
 	t.Run("does not write when the fetch fails", func(t *testing.T) {
 		repo := new(MockProjectRepository)
 		uc := usecase.NewProjectUsecase(repo)
