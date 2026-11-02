@@ -69,6 +69,19 @@ func TestProjectMerge(t *testing.T) {
 		got := soon.Merge(domain.ProjectUpdateInput{IsComingSoon: &notSoon})
 		assert.False(t, got.IsComingSoon)
 	})
+
+	t.Run("marking current clears the end date", func(t *testing.T) {
+		present := true
+		got := current.Merge(domain.ProjectUpdateInput{IsPresent: &present})
+		assert.True(t, got.IsPresent)
+		assert.Nil(t, got.EndDate)
+	})
+
+	t.Run("not current with no new date keeps the end date", func(t *testing.T) {
+		notPresent := false
+		got := current.Merge(domain.ProjectUpdateInput{IsPresent: &notPresent})
+		assert.Equal(t, &end, got.EndDate)
+	})
 }
 
 func TestProfileUrlMerge(t *testing.T) {
@@ -124,4 +137,21 @@ func TestExperienceMerge(t *testing.T) {
 	assert.Equal(t, "Acme", got.Company)
 	assert.Equal(t, start, got.StartDate)
 	assert.True(t, got.IsPresent)
+
+	t.Run("marking current clears the end date", func(t *testing.T) {
+		end := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
+		past := domain.Experience{Company: "Acme", StartDate: start, EndDate: &end}
+		present := true
+		got := past.Merge(domain.ExperienceUpdateInput{IsPresent: &present})
+		assert.True(t, got.IsPresent)
+		assert.Nil(t, got.EndDate)
+	})
+
+	t.Run("not current with no new date keeps the end date", func(t *testing.T) {
+		end := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
+		past := domain.Experience{Company: "Acme", StartDate: start, EndDate: &end}
+		notPresent := false
+		got := past.Merge(domain.ExperienceUpdateInput{IsPresent: &notPresent})
+		assert.Equal(t, &end, got.EndDate)
+	})
 }
