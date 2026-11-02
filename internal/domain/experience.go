@@ -53,6 +53,9 @@ func (ex Experience) Merge(in ExperienceUpdateInput) Experience {
 	if in.EndDate != nil {
 		ex.EndDate = in.EndDate
 	}
+	if ex.IsPresent {
+		ex.EndDate = nil
+	}
 	return ex
 }
 

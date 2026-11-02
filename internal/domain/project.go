@@ -84,6 +84,9 @@ func (p Project) Merge(in ProjectUpdateInput) Project {
 	if in.EndDate != nil {
 		p.EndDate = in.EndDate
 	}
+	if p.IsPresent {
+		p.EndDate = nil
+	}
 	return p
 }
 

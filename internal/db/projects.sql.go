@@ -227,7 +227,7 @@ set
     image_url = COALESCE($10, image_url),
     company = COALESCE($11, company),
     start_date = COALESCE($12, start_date),
-    end_date = COALESCE($13, end_date),
+    end_date = $13,
     is_present = COALESCE($14, is_present),
     location = COALESCE($15, location)
 where id = $1
